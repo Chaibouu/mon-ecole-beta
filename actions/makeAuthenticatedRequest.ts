@@ -36,15 +36,24 @@ export async function makeAuthenticatedRequest(
       delete finalHeaders["Content-Type"];
     }
 
+    // Fonction utilitaire: injecter school et academic year
+    const injectTenantHeaders = () => {
+      const schoolId = cookieStore.get("schoolId")?.value;
+      if (schoolId && !finalHeaders["x-school-id"]) {
+        finalHeaders["x-school-id"] = schoolId;
+      }
+      const academicYearId = cookieStore.get("academicYearId")?.value;
+      if (academicYearId && !finalHeaders["x-academic-year-id"]) {
+        finalHeaders["x-academic-year-id"] = academicYearId;
+      }
+    };
+
     // Si l'accessToken est présent, essayer de récupérer les informations
     if (accessToken) {
       try {
         finalHeaders["Authorization"] = `Bearer ${accessToken}`;
-        // Injecter x-school-id si présent en cookie
-        const schoolId = cookieStore.get("schoolId")?.value;
-        if (schoolId && !finalHeaders["x-school-id"]) {
-          finalHeaders["x-school-id"] = schoolId;
-        }
+        // Injecter x-school-id et x-academic-year-id si présents en cookies
+        injectTenantHeaders();
 
         const options: RequestInit = {
           method,
@@ -93,10 +102,7 @@ export async function makeAuthenticatedRequest(
 
       // Utiliser le nouveau token d'accès
       finalHeaders["Authorization"] = `Bearer ${newAccessToken}`;
-      const schoolId2 = cookieStore.get("schoolId")?.value;
-      if (schoolId2 && !finalHeaders["x-school-id"]) {
-        finalHeaders["x-school-id"] = schoolId2;
-      }
+      injectTenantHeaders();
 
       // Faire la requête authentifiée avec le nouveau token d'accès
       const options: RequestInit = {
@@ -152,6 +158,15 @@ async function attemptRefreshAndRetry(
       sameSite: "lax",
     });
     headers["Authorization"] = `Bearer ${newAccessToken}`;
+    // Réinjecter schoolId/academicYearId au cas où
+    const schoolId3 = cookieStore.get("schoolId")?.value;
+    if (schoolId3 && !headers["x-school-id"]) {
+      headers["x-school-id"] = schoolId3;
+    }
+    const academicYearId3 = cookieStore.get("academicYearId")?.value;
+    if (academicYearId3 && !headers["x-academic-year-id"]) {
+      headers["x-academic-year-id"] = academicYearId3;
+    }
     const options: RequestInit = {
       method,
       headers,

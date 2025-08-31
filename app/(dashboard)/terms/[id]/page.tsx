@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft, Edit, Calendar } from "lucide-react";
 import { getTermById } from "@/actions/terms";
@@ -15,6 +15,7 @@ interface TermDetailPageProps {
 export default async function TermDetailPage({ params }: TermDetailPageProps) {
   const { id } = await params;
   const data: any = await getTermById(id);
+ 
   
   if (data?.error || !data?.term) {
     notFound();
@@ -84,14 +85,14 @@ export default async function TermDetailPage({ params }: TermDetailPageProps) {
               <span className="font-medium">ID:</span>
               <span className="font-mono text-sm">{term.id}</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="font-medium">École ID:</span>
               <span className="font-mono text-sm">{term.schoolId}</span>
-            </div>
-            <div className="flex justify-between">
+            </div> */}
+            {/* <div className="flex justify-between">
               <span className="font-medium">Année académique ID:</span>
               <span className="font-mono text-sm">{term.academicYearId}</span>
-            </div>
+            </div> */}
             <div className="flex justify-between">
               <span className="font-medium">Créé le:</span>
               <span>{term.createdAt ? new Date(term.createdAt).toLocaleDateString('fr-FR') : "N/A"}</span>

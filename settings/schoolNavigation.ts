@@ -93,6 +93,13 @@ export const schoolNavigation: NavigationGroup[] = [
     allowedRoles: ["SUPER_ADMIN", "ADMIN"],
     items: [
       {
+        title: "Mon école",
+        icon: Building,
+        path: "/my-school",
+        allowedRoles: ["ADMIN", "SUPER_ADMIN"],
+        description: "Paramètres de mon établissement",
+      },
+      {
         title: "Écoles",
         icon: Building,
         path: "/schools",
@@ -379,6 +386,44 @@ export const schoolNavigation: NavigationGroup[] = [
           {
             title: "Ajouter un professeur",
             path: "/teachers/create",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+          },
+        ],
+      },
+      {
+        title: "Élèves",
+        icon: GraduationCap,
+        path: "/students",
+        allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+        description: "Gestion des élèves",
+        children: [
+          {
+            title: "Liste des élèves",
+            path: "/students",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+          },
+          {
+            title: "Ajouter un élève",
+            path: "/students/create",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+          },
+        ],
+      },
+      {
+        title: "Parents",
+        icon: Users,
+        path: "/parents",
+        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+        description: "Gestion des parents d'élèves",
+        children: [
+          {
+            title: "Liste des parents",
+            path: "/parents",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+          },
+          {
+            title: "Ajouter un parent",
+            path: "/parents/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],

@@ -14,9 +14,9 @@ export function AcademicYearFormWrapper({ mode, initialData, academicYearId }: A
 
   const handleSuccess = () => {
     if (mode === "create") {
-      router.push("/dashboard/academic-years");
+      router.push("/academic-years");
     } else {
-      router.push(`/dashboard/academic-years/${academicYearId}`);
+      router.push(`/academic-years/${academicYearId}`);
     }
   };
 

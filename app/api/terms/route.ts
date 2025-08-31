@@ -6,10 +6,11 @@ import { TermCreateSchema } from "@/schemas/term";
 
 // GET /api/terms?academicYearId=... - liste des périodes pour une année
 export async function GET(req: NextRequest) {
-  const academicYearId = req.nextUrl.searchParams.get("academicYearId") || "";
+  let academicYearId = req.nextUrl.searchParams.get("academicYearId") || "";
   const auth = req.headers.get("authorization");
   const token = auth?.split(" ")[1] || "";
   const schoolId = req.headers.get("x-school-id") || "";
+  const headerYear = req.headers.get("x-academic-year-id") || "";
   const userId = await getUserIdFromToken(token);
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,11 +21,16 @@ export async function GET(req: NextRequest) {
     "STUDENT",
   ]);
   if (!ok) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // priorité au paramètre, sinon header, sinon tout l'école
+  if (!academicYearId && headerYear) academicYearId = headerYear;
   const where: any = { academicYear: { schoolId } };
   if (academicYearId) where.academicYearId = academicYearId;
   const list = await db.term.findMany({
     where,
     orderBy: { name: "asc" },
+    include: {
+      academicYear: true,
+    },
   });
   return NextResponse.json({ terms: list });
 }
@@ -46,6 +52,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error }, { status: 400 });
     }
     const { academicYearId, name, startDate, endDate } = parsed.data;
+    // Un trimestre avec le même nom ne doit pas exister dans la même année
+    const dup = await db.term.findFirst({
+      where: { academicYearId, name },
+      select: { id: true },
+    });
+    if (dup) {
+      return NextResponse.json(
+        { error: "Un trimestre avec ce nom existe déjà pour cette année" },
+        { status: 409 }
+      );
+    }
     const year = await db.academicYear.findFirst({
       where: { id: academicYearId, schoolId },
       select: { id: true },
@@ -75,4 +92,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
-

@@ -60,14 +60,14 @@ export default async function GradeLevelDetailPage({ params }: GradeLevelDetailP
               <span className="font-medium">Nom:</span>
               <span>{gradeLevel.name}</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="font-medium">Code:</span>
               <span>{gradeLevel.code}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Ordre:</span>
               <span>{gradeLevel.order}</span>
-            </div>
+            </div> */}
             
             <div className="flex justify-between">
               <span className="font-medium">Description:</span>

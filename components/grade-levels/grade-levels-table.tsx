@@ -49,18 +49,18 @@ export function GradeLevelsTable({ gradeLevels, onRefresh }: GradeLevelsTablePro
   };
 
   const columns: ColumnDef<GradeLevel>[] = [
-    {
-      accessorKey: "order",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Ordre
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-    },
+    // {
+    //   accessorKey: "order",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Ordre
+    //       <ArrowUpDown className="ml-2 h-4 w-4" />
+    //     </Button>
+    //   ),
+    // },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -73,10 +73,10 @@ export function GradeLevelsTable({ gradeLevels, onRefresh }: GradeLevelsTablePro
         </Button>
       ),
     },
-    {
-      accessorKey: "code",
-      header: "Code",
-    },
+    // {
+    //   accessorKey: "code",
+    //   header: "Code",
+    // },
     {
       accessorKey: "description",
       header: "Description",

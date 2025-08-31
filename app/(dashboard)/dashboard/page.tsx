@@ -53,28 +53,28 @@ const quickActions = [
   {
     title: "Nouvel étudiant",
     description: "Ajouter un nouvel étudiant",
-    href: "/dashboard/students/create",
+    href: "/students/create",
     icon: <Users className="w-5 h-5" />,
     color: "bg-blue-500"
   },
   {
     title: "Nouvelle classe",
     description: "Créer une nouvelle classe",
-    href: "/dashboard/classrooms/create", 
+    href: "/classrooms/create", 
     icon: <GraduationCap className="w-5 h-5" />,
     color: "bg-green-500"
   },
   {
     title: "Nouvelle évaluation",
     description: "Programmer une évaluation",
-    href: "/dashboard/assessments/create",
+    href: "/assessments/create",
     icon: <ClipboardList className="w-5 h-5" />,
     color: "bg-purple-500"
   },
   {
     title: "Emploi du temps",
     description: "Gérer les horaires",
-    href: "/dashboard/timetable",
+    href: "/timetable",
     icon: <Calendar className="w-5 h-5" />,
     color: "bg-orange-500"
   }
@@ -339,7 +339,7 @@ export default function DashboardPage() {
         </div>
               
               <Button variant="ghost" className="w-full mt-4" asChild>
-                <Link href="/dashboard/activity">
+                <Link href="/activity">
                   Voir toutes les activités
                   <ArrowRight className="w-4 h-4 ml-2" />
           </Link>

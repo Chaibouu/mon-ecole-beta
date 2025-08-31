@@ -27,7 +27,7 @@ export default async function AcademicYearDetailPage({ params }: AcademicYearDet
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/academic-years">
+            <Link href="/academic-years">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour
             </Link>
@@ -40,7 +40,7 @@ export default async function AcademicYearDetailPage({ params }: AcademicYearDet
           </div>
         </div>
                  <Button asChild>
-           <Link href={`/dashboard/academic-years/${id}/edit`}>
+           <Link href={`/academic-years/${id}/edit`}>
              <Edit className="mr-2 h-4 w-4" />
              Modifier
            </Link>

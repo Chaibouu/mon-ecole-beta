@@ -56,7 +56,7 @@ export async function PATCH(
       data: parsed.data,
     });
     return NextResponse.json({ term: item });
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

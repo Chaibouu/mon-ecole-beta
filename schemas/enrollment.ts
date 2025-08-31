@@ -3,7 +3,7 @@ import { z } from "zod";
 export const EnrollmentCreateSchema = z.object({
   studentId: z.string().min(1, "L'élève est requis"),
   classroomId: z.string().min(1, "La classe est requise"),
-  academicYearId: z.string().min(1, "L'année académique est requise"),
+  academicYearId: z.string().optional(),
   status: z
     .enum(["ACTIVE", "TRANSFERRED", "COMPLETED", "DROPPED"])
     .default("ACTIVE"),

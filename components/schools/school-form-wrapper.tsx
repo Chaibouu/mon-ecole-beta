@@ -14,9 +14,9 @@ export function SchoolFormWrapper({ mode, initialData, schoolId }: SchoolFormWra
 
   const handleSuccess = () => {
     if (mode === "create") {
-      router.push("/dashboard/schools");
+      router.push("/schools");
     } else {
-      router.push(`/dashboard/schools/${schoolId}`);
+      router.push(`/schools/${schoolId}`);
     }
   };
 

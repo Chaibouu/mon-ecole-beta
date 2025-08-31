@@ -64,10 +64,10 @@ export function ClassroomsTable({ classrooms, onRefresh }: ClassroomsTableProps)
         </Button>
       ),
     },
-    {
-      accessorKey: "code",
-      header: "Code",
-    },
+    // {
+    //   accessorKey: "code",
+    //   header: "Code",
+    // },
     {
       accessorKey: "gradeLevel.name",
       header: "Niveau scolaire",

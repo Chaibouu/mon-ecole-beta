@@ -23,7 +23,7 @@ export default async function AcademicYearsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/academic-years/create">
+          <Link href="/academic-years/create">
             <Plus className="mr-2 h-4 w-4" />
             Créer une année académique
           </Link>

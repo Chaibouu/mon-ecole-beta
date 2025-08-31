@@ -9,6 +9,7 @@ export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
   const token = auth?.split(" ")[1] || "";
   const schoolId = req.headers.get("x-school-id") || "";
+  const academicYearId = req.headers.get("x-academic-year-id") || "";
   const userId = await getUserIdFromToken(token);
   if (!userId)
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -25,7 +26,12 @@ export async function GET(req: Request) {
   const classroomId = searchParams.get("classroomId") || undefined;
   const termId = searchParams.get("termId") || undefined;
   const list = await db.assessment.findMany({
-    where: { schoolId, classroomId, termId },
+    where: {
+      schoolId,
+      classroomId,
+      termId,
+      ...(academicYearId && !termId ? { term: { academicYearId } } : {}),
+    },
   });
   return NextResponse.json({ assessments: list });
 }
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
     const auth = req.headers.get("authorization");
     const token = auth?.split(" ")[1] || "";
     const schoolId = req.headers.get("x-school-id") || "";
+    const academicYearId = req.headers.get("x-academic-year-id") || "";
     const userId = await getUserIdFromToken(token);
     if (!userId)
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -49,11 +56,14 @@ export async function POST(req: Request) {
     }
     const data = parsed.data;
     const item = await db.assessment.create({
-      data: { ...data, schoolId, createdById: userId },
+      data: {
+        ...data,
+        schoolId,
+        createdById: userId,
+      },
     });
     return NextResponse.json({ assessment: item }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
-

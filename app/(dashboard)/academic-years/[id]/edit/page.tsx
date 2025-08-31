@@ -27,7 +27,7 @@ export default async function EditAcademicYearPage({ params }: EditAcademicYearP
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
                  <Button variant="ghost" size="sm" asChild>
-           <Link href={`/dashboard/academic-years/${id}`}>
+           <Link href={`/academic-years/${id}`}>
              <ArrowLeft className="mr-2 h-4 w-4" />
              Retour
            </Link>

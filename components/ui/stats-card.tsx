@@ -13,7 +13,7 @@ interface StatsCardProps {
     isPositive: boolean
     label?: string
   }
-  color?: "blue" | "green" | "red" | "yellow" | "purple" | "indigo"
+  color?: "blue" | "green" | "red" | "yellow" | "purple" | "indigo" | "emerald" | "teal" | "cyan"
   className?: string
 }
 
@@ -33,6 +33,9 @@ export function StatsCard({
     yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
     purple: "bg-purple-50 text-purple-700 border-purple-200",
     indigo: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    teal: "bg-teal-50 text-teal-700 border-teal-200",
+    cyan: "bg-cyan-50 text-cyan-700 border-cyan-200",
   }
 
   const iconColorClasses = {
@@ -42,6 +45,9 @@ export function StatsCard({
     yellow: "text-yellow-600",
     purple: "text-purple-600",
     indigo: "text-indigo-600",
+    emerald: "text-emerald-600",
+    teal: "text-teal-600",
+    cyan: "text-cyan-600",
   }
 
   return (

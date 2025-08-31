@@ -201,11 +201,17 @@ export async function POST(req: Request) {
       });
       if (links.length === 1) {
         const schoolId = links[0].schoolId;
+        // Récupérer l'année académique active de cette école, si disponible
+        const activeYear = await prisma.academicYear.findFirst({
+          where: { schoolId, isActive: true },
+          select: { id: true },
+        });
         response = NextResponse.json({
           message: "Connexion réussie",
           accessToken,
           refreshToken,
           selectedSchoolId: schoolId,
+          selectedAcademicYearId: activeYear?.id,
           needsSelection: false,
         });
       } else if (links.length > 1) {
@@ -234,4 +240,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
-

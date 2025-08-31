@@ -17,7 +17,15 @@ export const TermCreateSchema = z
       message: "La date de fin doit être postérieure à la date de début",
       path: ["endDate"],
     }
-  );
+  )
+  .transform(data => {
+    // Transformer les chaînes de date en objets Date pour Prisma
+    return {
+      ...data,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+    };
+  });
 
 export const TermUpdateSchema = z
   .object({
@@ -50,4 +58,15 @@ export const TermUpdateSchema = z
     {
       message: "Au moins un champ doit être fourni",
     }
-  );
+  )
+  .transform(data => {
+    // Transformer les chaînes de date en objets Date pour Prisma
+    const transformed: any = { ...data };
+    if (data.startDate) {
+      transformed.startDate = new Date(data.startDate);
+    }
+    if (data.endDate) {
+      transformed.endDate = new Date(data.endDate);
+    }
+    return transformed;
+  });

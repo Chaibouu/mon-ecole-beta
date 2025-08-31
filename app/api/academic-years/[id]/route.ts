@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { getUserIdFromToken } from "@/lib/tokens";
 import { requireSchoolRole } from "@/lib/acl";
@@ -11,8 +12,13 @@ export async function GET(
 ) {
   const { id } = await params;
   const auth = req.headers.get("authorization");
-  const token = auth?.split(" ")[1] || "";
-  const schoolId = req.headers.get("x-school-id") || "";
+  let token = auth?.split(" ")[1] || "";
+  let schoolId = req.headers.get("x-school-id") || "";
+  if (!token || !schoolId) {
+    const cookieStore = await cookies();
+    token = token || cookieStore.get("accessToken")?.value || "";
+    schoolId = schoolId || cookieStore.get("schoolId")?.value || "";
+  }
   const userId = await getUserIdFromToken(token);
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -39,8 +45,13 @@ export async function PATCH(
   try {
     const { id } = await params;
     const auth = req.headers.get("authorization");
-    const token = auth?.split(" ")[1] || "";
-    const schoolId = req.headers.get("x-school-id") || "";
+    let token = auth?.split(" ")[1] || "";
+    let schoolId = req.headers.get("x-school-id") || "";
+    if (!token || !schoolId) {
+      const cookieStore = await cookies();
+      token = token || cookieStore.get("accessToken")?.value || "";
+      schoolId = schoolId || cookieStore.get("schoolId")?.value || "";
+    }
     const userId = await getUserIdFromToken(token);
     if (!userId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -69,8 +80,13 @@ export async function DELETE(
   try {
     const { id } = await params;
     const auth = req.headers.get("authorization");
-    const token = auth?.split(" ")[1] || "";
-    const schoolId = req.headers.get("x-school-id") || "";
+    let token = auth?.split(" ")[1] || "";
+    let schoolId = req.headers.get("x-school-id") || "";
+    if (!token || !schoolId) {
+      const cookieStore = await cookies();
+      token = token || cookieStore.get("accessToken")?.value || "";
+      schoolId = schoolId || cookieStore.get("schoolId")?.value || "";
+    }
     const userId = await getUserIdFromToken(token);
     if (!userId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

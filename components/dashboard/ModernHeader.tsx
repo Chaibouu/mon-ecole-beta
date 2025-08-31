@@ -24,6 +24,7 @@ import {
   Building2,
   ChevronDown
 } from "lucide-react";
+import { setActiveAcademicYear, listAcademicYears, getActiveAcademicYear } from "@/actions/academic-years";
 import { getUserProfile } from "@/actions/getUserProfile";
 import { logout } from "@/actions/logout";
 import { cleanupClientAuth } from "@/actions/cleanupAuth";
@@ -51,6 +52,8 @@ export function ModernHeader({ onSidebarToggle }: ModernHeaderProps) {
   const [schools, setSchools] = useState<School[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [notifications] = useState(3); // Mock notification count
+  const [academicYears, setAcademicYears] = useState<any[]>([]);
+  const [activeAcademicYear, setActiveAcademicYearState] = useState<any>(null);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
@@ -64,16 +67,44 @@ export function ModernHeader({ onSidebarToggle }: ModernHeaderProps) {
           
           // Find selected school
           const currentSchoolId = localStorage.getItem("schoolId") || result.selectedSchoolId;
-          const currentSchool = result.schools?.find((s: School) => s.schoolId === currentSchoolId);
-          setSelectedSchool(currentSchool || result.schools?.[0] || null);
-
+          console.log('====CURRENT SCHOOL ID=========================');
+          console.log(currentSchoolId);
+          console.log('====================================');
+          console.log('===result.schools==============');
+          console.log(result.schools);
+          console.log('====================================');
+          const currentSchool = result.schools?.find((s: School) => s.schoolId === currentSchoolId) as any;
+          console.log('=======currentSchool=================');
+          console.log(currentSchool);
+          console.log('====================================');
+          const schoolToUse = currentSchool || result.schools?.[0] || null;
+          setSelectedSchool(schoolToUse);
+          console.log('======schoolToUse===================');
+          console.log(schoolToUse);
+          console.log('====================================');
           // Apply branding
-          if (currentSchool) {
-            if (currentSchool.brandPrimaryColor) {
-              document.documentElement.style.setProperty('--brand-primary', currentSchool.brandPrimaryColor);
+          if (schoolToUse) {
+            if (schoolToUse.brandPrimaryColor) {
+              document.documentElement.style.setProperty('--brand-primary', schoolToUse.brandPrimaryColor as string);
             }
-            if (currentSchool.brandSecondaryColor) {
-              document.documentElement.style.setProperty('--brand-secondary', currentSchool.brandSecondaryColor);
+            if (schoolToUse.brandSecondaryColor) {
+              document.documentElement.style.setProperty('--brand-secondary', schoolToUse.brandSecondaryColor as string);
+            }
+          }
+          // Charger années académiques et année active via actions (makeAuthenticatedRequest)
+          if (schoolToUse) {
+            try {
+              const [yearsRes, activeRes] = await Promise.all([
+                listAcademicYears(),
+                getActiveAcademicYear(),
+              ]);
+              console.log('====RESSS=========================');
+              console.log(yearsRes);
+              console.log('====================================');
+              setAcademicYears(Array.isArray((yearsRes as any)?.academicYears) ? (yearsRes as any).academicYears : []);
+              setActiveAcademicYearState((activeRes as any)?.academicYear || null);
+            } catch (e) {
+              // ignore
             }
           }
         }
@@ -100,6 +131,26 @@ export function ModernHeader({ onSidebarToggle }: ModernHeaderProps) {
       router.push("/auth/login");
     }
   };
+
+  const handleAcademicYearChange = async (academicYearId: string) => {
+    try {
+      const res = await setActiveAcademicYear(academicYearId);
+      if ((res as any)?.error) {
+        toast.error((res as any).error);
+        return;
+      }
+      // local update
+      const year = academicYears.find(y => y.id === academicYearId);
+      setActiveAcademicYearState(year || null);
+      toast.success("Année académique changée");
+      window.location.reload();
+    } catch (e) {
+      toast.error("Erreur lors du changement d'année");
+    }
+  };
+  console.log('=yeaaar=============================');
+  console.log(academicYears);
+  console.log('====================================');
 
   const handleSchoolChange = async (schoolId: string) => {
     try {
@@ -263,6 +314,36 @@ export function ModernHeader({ onSidebarToggle }: ModernHeaderProps) {
                     
                     {selectedSchool?.schoolId === school.schoolId && (
                       <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {/* Academic year switcher (ADMIN only) */}
+          {selectedSchool?.role === "ADMIN" && academicYears.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <span className="text-xs font-medium">
+                    {activeAcademicYear?.name || "Année ?"}
+                  </span>
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Année académique</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {academicYears.map((year) => (
+                  <DropdownMenuItem
+                    key={year.id}
+                    onClick={() => handleAcademicYearChange(year.id)}
+                    className="flex items-center justify-between"
+                  >
+                    <span>{year.name}</span>
+                    {activeAcademicYear?.id === year.id && (
+                      <span className="w-2 h-2 bg-blue-600 rounded-full" />
                     )}
                   </DropdownMenuItem>
                 ))}

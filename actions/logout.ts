@@ -41,10 +41,11 @@ export const logout = async () => {
       return { error: result.error || "Erreur lors de la déconnexion" };
     }
 
-    // Supprimer tous les cookies liés à la session, y compris schoolId
+    // Supprimer tous les cookies liés à la session, y compris schoolId et academicYearId
     cookieStore.set("accessToken", "", { maxAge: -1, path: "/" });
     cookieStore.set("refreshToken", "", { maxAge: -1, path: "/" });
     cookieStore.set("schoolId", "", { maxAge: -1, path: "/" });
+    cookieStore.set("academicYearId", "", { maxAge: -1, path: "/" });
 
     return { success: "Déconnexion réussie" };
   } catch (error) {

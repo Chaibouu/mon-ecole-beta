@@ -9,7 +9,7 @@ export default function CreateSchoolPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/schools">
+          <Link href="/schools">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour
           </Link>

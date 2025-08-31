@@ -14,7 +14,7 @@ export default function UnauthorizedPage() {
   useEffect(() => {
     // Rediriger vers la page de sélection d'école après 5 secondes
     const timer = setTimeout(() => {
-      router.push("/dashboard/select-school");
+      router.push("/select-school");
     }, 5000);
 
     return () => clearTimeout(timer);

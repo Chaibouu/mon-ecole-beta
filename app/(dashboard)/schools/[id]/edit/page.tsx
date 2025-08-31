@@ -24,7 +24,7 @@ export default async function EditSchoolPage({ params }: EditSchoolPageProps) {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/schools/${school.id}`}>
+          <Link href={`/schools/${school.id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour
           </Link>

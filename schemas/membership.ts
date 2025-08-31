@@ -46,3 +46,34 @@ export const AdminCreateSchema = z.union([
   LinkExistingUserSchema,
   CreateNewUserSchema,
 ]);
+
+export const StudentUpdateSchema = z
+  .object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(),
+    profile: z
+      .object({
+        matricule: z.string().optional(),
+        gender: z.string().optional(),
+        dateOfBirth: z.string().optional(),
+      })
+      .optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
+export const ParentUpdateSchema = z
+  .object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(),
+    profile: z
+      .object({
+        phone: z.string().optional(),
+        address: z.string().optional(),
+      })
+      .optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });

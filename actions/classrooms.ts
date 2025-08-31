@@ -12,6 +12,8 @@ export async function createClassroom(input: {
   name: string;
   gradeLevelId: string;
   description?: string;
+  headTeacherId?: string;
+  room?: string;
 }) {
   return await makeAuthenticatedRequest(
     `${API_BASE}/classrooms`,

@@ -112,13 +112,13 @@ export function SchoolsTable({ schools, onRefresh }: SchoolsTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/schools/${school.id}`}>
+                <Link href={`/schools/${school.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
                   Voir détails
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/schools/${school.id}/edit`}>
+                <Link href={`/schools/${school.id}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Modifier
                 </Link>

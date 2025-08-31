@@ -34,7 +34,7 @@ export function SchoolDetailActions({ school }: SchoolDetailActionsProps) {
       } else {
         toast.success("École supprimée avec succès");
         setOpen(false);
-        router.push("/dashboard/schools");
+        router.push("/schools");
       }
     } catch (error) {
       toast.error("Erreur lors de la suppression");

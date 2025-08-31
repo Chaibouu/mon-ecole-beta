@@ -27,3 +27,4 @@ export function TimetableEntriesTableWrapper({ initialEntries }: TimetableEntrie
 
 
 
+

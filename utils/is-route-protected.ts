@@ -18,7 +18,7 @@ export const isRouteProtected = (
   // Routes toujours accessibles (pour éviter les blocages)
   const alwaysAccessibleRoutes = [
     "/dashboard",
-    "/dashboard/select-school",
+    "/select-school",
     "/auth/login",
     "/auth/logout",
     "/unauthorized", // Important: éviter boucle de redirection

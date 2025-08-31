@@ -34,3 +34,15 @@ export async function updateSchool(id: string, data: Record<string, any>) {
 export async function softDeleteSchool(id: string) {
   return await makeAuthenticatedRequest(`${API_BASE}/schools/${id}`, "DELETE");
 }
+
+export async function getActiveSchool() {
+  return await makeAuthenticatedRequest(`${API_BASE}/schools/active`, "GET");
+}
+
+export async function updateActiveSchool(data: Record<string, any>) {
+  return await makeAuthenticatedRequest(
+    `${API_BASE}/schools/active`,
+    "PATCH",
+    data
+  );
+}

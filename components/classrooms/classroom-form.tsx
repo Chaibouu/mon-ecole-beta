@@ -18,7 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClassroomCreateSchema, ClassroomUpdateSchema } from "@/schemas/classroom";
 import { createClassroom, updateClassroom } from "@/actions/classrooms";
-import { useState } from "react";
+import { listTeachers } from "@/actions/school-members";
+import { useState, useEffect } from "react";
 
 type ClassroomFormProps = {
   mode: "create" | "edit";
@@ -30,6 +31,7 @@ type ClassroomFormProps = {
 
 export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onSuccess }: ClassroomFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [teachers, setTeachers] = useState<any[]>([]);
   
   const schema = mode === "create" ? ClassroomCreateSchema : ClassroomUpdateSchema;
   
@@ -39,12 +41,31 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
       name: initialData?.name || "",
       gradeLevelId: initialData?.gradeLevelId || "",
       description: initialData?.description || "",
+      headTeacherId: initialData?.headTeacherId || "",
+      room: initialData?.room || "",
     } : {
       name: "",
       gradeLevelId: "",
       description: "",
+      headTeacherId: "",
+      room: "",
     },
   });
+
+  // Charger les professeurs
+  useEffect(() => {
+    const loadTeachers = async () => {
+      try {
+        const result = await listTeachers();
+        if (result?.teachers) {
+          setTeachers(result.teachers);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des professeurs:", error);
+      }
+    };
+    loadTeachers();
+  }, []);
 
   async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true);
@@ -103,6 +124,47 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
                     {gradeLevels.map((gradeLevel) => (
                       <SelectItem key={gradeLevel.id} value={gradeLevel.id}>
                         {gradeLevel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="room"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salle</FormLabel>
+                <FormControl>
+                  <Input placeholder="Ex: Salle 101, Bâtiment A" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="headTeacherId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Professeur principal</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez un professeur principal (optionnel)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="">Aucun professeur principal</SelectItem>
+                    {teachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.user?.name || "Nom non renseigné"}
                       </SelectItem>
                     ))}
                   </SelectContent>

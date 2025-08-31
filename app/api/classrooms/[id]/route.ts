@@ -13,6 +13,7 @@ export async function GET(
   const auth = req.headers.get("authorization");
   const token = auth?.split(" ")[1] || "";
   const schoolId = req.headers.get("x-school-id") || "";
+  const academicYearHeader = req.headers.get("x-academic-year-id") || "";
   const userId = await getUserIdFromToken(token);
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,12 +25,69 @@ export async function GET(
     "USER",
   ]);
   if (!ok) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  // Déterminer l'année académique active
+  const activeYear = academicYearHeader
+    ? { id: academicYearHeader }
+    : await db.academicYear.findFirst({
+        where: { schoolId, isActive: true },
+        select: { id: true },
+      });
+  const academicYearId = activeYear?.id;
+
   const item = await db.classroom.findFirst({
     where: { id, schoolId },
-    include: { gradeLevel: true },
+    include: {
+      gradeLevel: true,
+      headTeacher: {
+        include: { user: true },
+      },
+      enrollments: academicYearId
+        ? {
+            where: { academicYearId },
+            include: {
+              student: {
+                include: { user: true },
+              },
+            },
+          }
+        : false,
+      teacherAssignments: academicYearId
+        ? {
+            where: { academicYearId },
+            include: {
+              teacher: {
+                include: { user: true },
+              },
+              subject: true,
+            },
+          }
+        : false,
+      classroomSubjects: {
+        include: { subject: true },
+      },
+    },
   });
+
   if (!item) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
-  return NextResponse.json({ classroom: item });
+
+  // Calculer des statistiques
+  const totalStudents = item.enrollments?.length || 0;
+  const totalTeachers = new Set(
+    item.teacherAssignments?.map(ta => ta.teacherId) || []
+  ).size;
+  const totalSubjects = item.classroomSubjects?.length || 0;
+
+  const classroomWithStats = {
+    ...item,
+    stats: {
+      totalStudents,
+      totalTeachers,
+      totalSubjects,
+    },
+  };
+
+  return NextResponse.json({ classroom: classroomWithStats });
 }
 
 // PATCH /api/classrooms/[id] - modifier (ADMIN)

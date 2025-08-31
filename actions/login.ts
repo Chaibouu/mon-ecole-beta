@@ -41,6 +41,7 @@ export const login = async (data: {
       accessToken,
       refreshToken,
       selectedSchoolId,
+      selectedAcademicYearId,
       needsSelection,
       schools,
       isSuperAdmin,
@@ -77,6 +78,19 @@ export const login = async (data: {
       cookiesToSet.push({
         name: "schoolId",
         value: selectedSchoolId,
+        options: {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 365 * 24 * 60 * 60,
+          sameSite: "lax",
+        },
+      });
+    }
+
+    if (selectedAcademicYearId) {
+      cookiesToSet.push({
+        name: "academicYearId",
+        value: selectedAcademicYearId,
         options: {
           httpOnly: false,
           secure: process.env.NODE_ENV === "production",

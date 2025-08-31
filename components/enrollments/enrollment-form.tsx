@@ -13,18 +13,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EnrollmentCreateSchema, EnrollmentUpdateSchema } from "@/schemas/enrollment";
 import { createEnrollment, updateEnrollment } from "@/actions/enrollments";
 import { useState } from "react";
+import { StudentSelect } from "./student-select";
+import { ClassSelect } from "./class-select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type EnrollmentFormProps = {
   mode: "create" | "edit";
@@ -71,6 +67,19 @@ export function EnrollmentForm({
     },
   });
 
+  // Convertir les données pour les composants de sélection
+  const getSelectedStudent = () => {
+    if (!form.getValues("studentId")) return null;
+    const student = students.find(s => s.id === form.getValues("studentId"));
+    return student ? { value: student.id, label: student.user?.name || "" } : null;
+  };
+
+  const getSelectedClass = () => {
+    if (!form.getValues("classroomId")) return null;
+    const classroom = classrooms.find(c => c.id === form.getValues("classroomId"));
+    return classroom ? { value: classroom.id, label: `${classroom.name} (${classroom.gradeLevel?.name})` } : null;
+  };
+
   async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true);
     try {
@@ -105,20 +114,14 @@ export function EnrollmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Élève *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un élève" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.user?.firstName} {student.user?.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <StudentSelect
+                    students={students}
+                    value={getSelectedStudent()}
+                    onChange={(option) => field.onChange(option?.value || "")}
+                    placeholder="Rechercher un élève..."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -129,20 +132,14 @@ export function EnrollmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Classe *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {classrooms.map((classroom) => (
-                      <SelectItem key={classroom.id} value={classroom.id}>
-                        {classroom.name} ({classroom.gradeLevel?.name})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <ClassSelect
+                    classes={classrooms}
+                    value={getSelectedClass()}
+                    onChange={(option) => field.onChange(option?.value || "")}
+                    placeholder="Rechercher une classe..."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -152,48 +149,18 @@ export function EnrollmentForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="academicYearId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Année académique *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une année académique" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {academicYears.map((academicYear) => (
-                      <SelectItem key={academicYear.id} value={academicYear.id}>
-                        {academicYear.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Statut</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un statut" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <SearchableSelect
+                    options={statusOptions}
+                    value={statusOptions.find(s => s.value === field.value) || null}
+                    onChange={(option) => field.onChange(option?.value || "")}
+                    placeholder="Sélectionner un statut"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

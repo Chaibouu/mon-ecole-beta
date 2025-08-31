@@ -158,6 +158,116 @@ export async function listParents() {
   }
 }
 
+// Students (active school)
+export async function getStudentById(id: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/students/${id}`,
+      "GET"
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function createStudent(input: any) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/students`,
+      "POST",
+      input
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function updateStudent(id: string, data: Record<string, any>) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/students/${id}`,
+      "PATCH",
+      data
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function deleteStudent(id: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/students/${id}`,
+      "DELETE"
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+// Parents (active school)
+export async function getParentById(id: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/parents/${id}`,
+      "GET"
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function createParent(input: any) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/parents`,
+      "POST",
+      input
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function updateParent(id: string, data: Record<string, any>) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/parents/${id}`,
+      "PATCH",
+      data
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+export async function deleteParent(id: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/parents/${id}`,
+      "DELETE"
+    );
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
 /**
  * Obtenir un enseignant par son ID
  */

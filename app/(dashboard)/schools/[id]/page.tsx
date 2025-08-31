@@ -32,7 +32,7 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/schools">
+            <Link href="/schools">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour
             </Link>
@@ -44,7 +44,7 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
         </div>
         <div className="flex items-center space-x-2">
           <Button asChild>
-            <Link href={`/dashboard/schools/${school.id}/edit`}>
+            <Link href={`/schools/${school.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               Modifier
             </Link>

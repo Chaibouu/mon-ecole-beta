@@ -32,7 +32,7 @@ export default async function SchoolsPage() {
         icon={School}
         actions={
           <Button asChild>
-            <Link href="/dashboard/schools/create">
+            <Link href="/schools/create">
               <Plus className="mr-2 h-4 w-4" />
               Créer une école
             </Link>
