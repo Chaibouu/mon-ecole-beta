@@ -3,8 +3,11 @@ import { TeacherFormWrapper } from "@/components/teachers/teacher-form-wrapper";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { listSubjects } from "@/actions/subjects";
 
-export default function CreateTeacherPage() {
+export default async function CreateTeacherPage() {
+  const subjectsRes: any = await listSubjects();
+  const subjects = Array.isArray(subjectsRes?.subjects) ? subjectsRes.subjects : [];
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
@@ -27,7 +30,7 @@ export default function CreateTeacherPage() {
           <CardTitle>Informations du professeur</CardTitle>
         </CardHeader>
         <CardContent>
-          <TeacherFormWrapper mode="create" />
+          <TeacherFormWrapper mode="create" initialData={{ __subjects: subjects }} />
         </CardContent>
       </Card>
     </div>

@@ -156,6 +156,7 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
                 <div className="flex-1">
                   <h4 className="font-semibold">{classroom.headTeacher.user?.name || "Nom non renseigné"}</h4>
                   <p className="text-sm text-muted-foreground">{classroom.headTeacher.user?.email}</p>
+                  {/* Matière principale retirée du modèle */}
                   {classroom.headTeacher.bio && (
                     <p className="text-sm mt-1">{classroom.headTeacher.bio}</p>
                   )}
@@ -273,14 +274,16 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {classroom.classroomSubjects.map((cs: any) => (
-                <div key={cs.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div key={cs.id} className="flex items-center justify-between gap-3 p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">{cs.subject?.name || "Matière inconnue"}</span>
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    Coeff. {cs.coefficient || 1}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      Coeff. {cs.coefficientResolved ?? 1}
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>

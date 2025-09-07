@@ -160,6 +160,224 @@ Authorization: Bearer <token>
 x-school-id: <schoolId>`}</pre>
       </section>
       <section>
+        <h2 className="text-xl font-medium">/api/subject-categories</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Gestion des catégories de matières par école</li>
+          <li><b>GET</b>: Liste des catégories de matières</li>
+          <li><b>POST</b> (ADMIN): Créer une catégorie {`{ name, description? }`}</li>
+          <li><b>GET /[id]</b>: Détail d'une catégorie</li>
+          <li><b>PATCH /[id]</b> (ADMIN): Modifier une catégorie</li>
+          <li><b>DELETE /[id]</b> (ADMIN): Supprimer une catégorie</li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+POST /api/subject-categories
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+Content-Type: application/json
+
+{
+  "name": "Sciences",
+  "description": "Matières scientifiques"
+}`}</pre>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/payments/[id]</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Détail d'un paiement spécifique</li>
+          <li><b>GET</b>: Récupérer les détails complets d'un paiement</li>
+          <li><b>PUT</b> (ADMIN): Modifier un paiement existant</li>
+          <li><b>DELETE</b> (ADMIN): Supprimer un paiement</li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/payments/cm123...
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+
+Réponse:
+{
+  "payment": {
+    "id": "...",
+    "amountCents": 10000000,
+    "method": "CASH",
+    "paidAt": "2024-12-15T10:30:00Z",
+    "student": { "name": "Jean Dupont", ... },
+    "feeSchedule": { "itemName": "Frais T1", ... }
+  }
+}`}</pre>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/schools/active</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Gestion de l'école actuellement active</li>
+          <li><b>GET</b> (ADMIN/TEACHER): Détail de l'école active</li>
+          <li><b>PATCH</b> (ADMIN): Modifier l'école active</li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/schools/active
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+
+PATCH /api/schools/active
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+Content-Type: application/json
+
+{
+  "name": "Nouveau nom",
+  "address": "Nouvelle adresse"
+}`}</pre>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/attendance-records/analytics</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Statistiques de présence par classe/matière</li>
+          <li><b>GET</b>: Analytics avec filtres (classroomId, subjectId, from, to)</li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/attendance-records/analytics?classroomId=...&from=2024-01-01&to=2024-12-31
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+
+Réponse:
+{
+  "analytics": {
+    "totalSessions": 150,
+    "averageAttendanceRate": 85.5,
+    "studentStats": [...],
+    "dailyTrends": [...],
+    "subjectBreakdown": [...]
+  }
+}`}</pre>
+      </section>
+        <section>
+          <h2 className="text-xl font-medium">Endpoints Parents</h2>
+          <div className="text-sm space-y-2">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parents/children</p>
+              <p><b>Description :</b> Récupère la liste des enfants d'un parent connecté</p>
+              <p><b>Authentification :</b> Requise (rôle PARENT)</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "parentProfile": {
+    "id": "string",
+    "phone": "string",
+    "address": "string"
+  },
+  "children": [{
+    "id": "string",
+    "name": "string",
+    "matricule": "string", 
+    "gender": "string",
+    "relationship": "string",
+    "currentEnrollment": {
+      "classroom": {
+        "name": "string",
+        "gradeLevel": { "name": "string" }
+      },
+      "academicYear": { "name": "string" }
+    }
+  }]
+}`}</pre>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parents/payments-summary</p>
+              <p><b>Description :</b> Récupère le résumé des paiements de tous les enfants d'un parent</p>
+              <p><b>Authentification :</b> Requise (rôle PARENT)</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "globalSummary": {
+    "totalDue": number,
+    "totalPaid": number,
+    "balance": number,
+    "overdueCount": number
+  },
+  "children": [{
+    "id": "string",
+    "name": "string",
+    "matricule": "string",
+    "relationship": "string",
+    "currentEnrollment": {...},
+    "summary": {
+      "totalDue": number,
+      "totalPaid": number,
+      "balance": number,
+      "overdueCount": number
+    },
+    "recentPayments": [...],
+    "upcomingPayments": [...]
+  }]
+}`}</pre>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-medium">Endpoints École Active</h2>
+        <ul className="list-disc pl-6">
+          <li>
+            <b>/api/schools/active/students</b>: Gestion des élèves de l'école active
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN/TEACHER): Liste des élèves</li>
+              <li><b>POST</b> (ADMIN): Créer un élève avec compte utilisateur</li>
+            </ul>
+          </li>
+          <li>
+            <b>/api/schools/active/teachers</b>: Gestion des enseignants de l'école active
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN): Liste des enseignants</li>
+              <li><b>POST</b> (ADMIN): Créer un enseignant avec compte utilisateur</li>
+            </ul>
+          </li>
+          <li>
+            <b>/api/schools/active/parents</b>: Gestion des parents de l'école active
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN/TEACHER): Liste des parents</li>
+              <li><b>POST</b> (ADMIN): Créer un parent avec compte utilisateur</li>
+            </ul>
+          </li>
+          <li>
+            <b>/api/schools/active/students/[id]</b>: Gestion individuelle des élèves
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN/TEACHER): Détail d'un élève</li>
+              <li><b>PATCH</b> (ADMIN): Modifier un élève</li>
+              <li><b>DELETE</b> (ADMIN): Supprimer un élève</li>
+            </ul>
+          </li>
+          <li>
+            <b>/api/schools/active/teachers/[id]</b>: Gestion individuelle des enseignants
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN): Détail d'un enseignant</li>
+              <li><b>PATCH</b> (ADMIN): Modifier un enseignant</li>
+              <li><b>DELETE</b> (ADMIN): Supprimer un enseignant</li>
+            </ul>
+          </li>
+          <li>
+            <b>/api/schools/active/parents/[id]</b>: Gestion individuelle des parents
+            <ul className="list-disc pl-6">
+              <li><b>GET</b> (ADMIN/TEACHER): Détail d'un parent</li>
+              <li><b>PATCH</b> (ADMIN): Modifier un parent</li>
+              <li><b>DELETE</b> (ADMIN): Supprimer un parent</li>
+            </ul>
+          </li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+POST /api/schools/active/students
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "name": "Jean Dupont",
+  "password": "motdepasse123",
+  "matricule": "2024001",
+  "gender": "MALE",
+  "dateOfBirth": "2010-05-15",
+  "placeOfBirth": "Dakar"
+}`}</pre>
+      </section>
+      <section>
         <h2 className="text-xl font-medium">Endpoints avec CRUD complet</h2>
         <ul className="list-disc pl-6">
           <li>
@@ -300,6 +518,205 @@ Content-Type: application/json
         </ul>
       </section>
       <section>
+        <h2 className="text-xl font-medium">/api/fee-schedules</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Gestion des frais scolaires par niveau/classe</li>
+          <li><b>GET</b>: Liste des frais scolaires (param gradeLevelId/classroomId optionnels)</li>
+          <li><b>POST</b> (ADMIN): Créer des frais scolaires avec tranches optionnelles</li>
+          <li><b>PUT /[id]</b> (ADMIN): Modifier des frais scolaires et leurs tranches</li>
+          <li><b>DELETE /[id]</b> (ADMIN): Supprimer des frais scolaires</li>
+        </ul>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <div className="font-mono text-sm">Créer des frais avec tranches</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+POST /api/fee-schedules
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+Content-Type: application/json
+
+{
+  "gradeLevelId": "...",
+  "itemName": "Frais de scolarité T1",
+  "amountCents": 20000000,
+  "dueDate": "2024-12-31",
+  "installments": [
+    {
+      "name": "1ère tranche",
+      "amountCents": 10000000,
+      "dueDate": "2024-10-15"
+    },
+    {
+      "name": "2ème tranche", 
+      "amountCents": 10000000,
+      "dueDate": "2024-12-15"
+    }
+  ]
+}`}</pre>
+          </div>
+          <div>
+            <div className="font-mono text-sm">Réponse 201</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+{
+  "feeSchedule": {
+    "id": "...",
+    "itemName": "Frais de scolarité T1",
+    "amountCents": 20000000,
+    "gradeLevel": { "id": "...", "name": "6ème" },
+    "installments": [...]
+  }
+}`}</pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/payments</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Gestion des paiements des élèves</li>
+          <li><b>GET</b>: Liste des paiements avec filtres (studentId, method, dateFrom, dateTo, etc.)</li>
+          <li><b>POST</b> (ADMIN/TEACHER/PARENT): Enregistrer un paiement</li>
+        </ul>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <div className="font-mono text-sm">Enregistrer un paiement</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+POST /api/payments
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+Content-Type: application/json
+
+{
+  "studentId": "...",
+  "feeScheduleId": "...",
+  "amountCents": 10000000,
+  "method": "CASH",
+  "notes": "Paiement 1ère tranche"
+}`}</pre>
+          </div>
+          <div>
+            <div className="font-mono text-sm">Filtrer les paiements</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/payments?studentId=...&method=CASH&dateFrom=2024-01-01&dateTo=2024-12-31
+Authorization: Bearer <token>
+x-school-id: <schoolId>`}</pre>
+          </div>
+        </div>
+        <p className="text-sm mt-2"><b>Méthodes de paiement</b>: CASH, BANK_TRANSFER, MOBILE_MONEY, CHECK, CARD</p>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/payments/analytics</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Statistiques des paiements par école</li>
+          <li><b>GET</b>: Analytics complètes avec filtres optionnels</li>
+        </ul>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <div className="font-mono text-sm">Obtenir les analytics</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/payments/analytics?gradeLevelId=...&dateFrom=2024-01-01
+Authorization: Bearer <token>
+x-school-id: <schoolId>`}</pre>
+          </div>
+          <div>
+            <div className="font-mono text-sm">Réponse 200</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+{
+  "analytics": {
+    "totalExpected": 50000000,
+    "totalCollected": 30000000,
+    "collectionRate": 60.0,
+    "pendingAmount": 20000000,
+    "overdueAmount": 5000000,
+    "statusCounts": {
+      "PAID": 15,
+      "PARTIALLY_PAID": 8,
+      "PENDING": 12,
+      "OVERDUE": 3
+    },
+    "paymentMethods": {
+      "CASH": { "count": 25, "amount": 20000000 },
+      "BANK_TRANSFER": { "count": 10, "amount": 10000000 }
+    },
+    "monthlyTrends": [...]
+  }
+}`}</pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/students/[id]/payments</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Détail des paiements d'un élève spécifique</li>
+          <li><b>GET</b>: Résumé complet avec frais applicables, paiements, et statuts</li>
+        </ul>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <div className="font-mono text-sm">Obtenir les paiements d'un élève</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/students/cmf9lqfc90002rgfd7lxbv22f/payments
+Authorization: Bearer <token>
+x-school-id: <schoolId>`}</pre>
+          </div>
+          <div>
+            <div className="font-mono text-sm">Réponse 200</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+{
+  "student": {
+    "id": "...",
+    "name": "Jean Dupont",
+    "matricule": "2024001",
+    "currentEnrollment": {
+      "classroom": {
+        "name": "6ème A",
+        "gradeLevel": { "name": "6ème" }
+      }
+    }
+  },
+  "summary": {
+    "totalDue": 20000000,
+    "totalPaid": 10000000,
+    "balance": 10000000,
+    "feeScheduleCount": 2,
+    "paidFeeScheduleCount": 1,
+    "overdueCount": 0
+  },
+  "feeSchedulesByStatus": {
+    "paid": [...],
+    "partiallyPaid": [...],
+    "pending": [...],
+    "overdue": [...]
+  },
+  "recentPayments": [...],
+  "upcomingPayments": [...]
+}`}</pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">Logique des frais et tranches</h2>
+        <div className="text-sm space-y-2">
+          <p><b>Frais principaux vs Tranches :</b></p>
+          <ul className="list-disc pl-6">
+            <li><b>Frais principal</b>: isInstallment = false, parentFeeId = null</li>
+            <li><b>Tranche</b>: isInstallment = true, parentFeeId = ID du frais principal</li>
+            <li>Les tranches ont un installmentOrder (1, 2, 3...)</li>
+          </ul>
+          <p><b>Options de paiement :</b></p>
+          <ul className="list-disc pl-6">
+            <li>Paiement <b>complet</b>: directement sur le frais principal</li>
+            <li>Paiement <b>par tranches</b>: sur chaque tranche individuellement</li>
+            <li>Les deux options sont disponibles simultanément</li>
+          </ul>
+          <p><b>Calcul des statuts :</b></p>
+          <ul className="list-disc pl-6">
+            <li><b>PAID</b>: Montant payé supérieur ou égal au montant dû</li>
+            <li><b>PARTIALLY_PAID</b>: Montant payé entre 0 et le montant dû</li>
+            <li><b>PENDING</b>: Aucun paiement, échéance future</li>
+            <li><b>OVERDUE</b>: Aucun paiement, échéance dépassée</li>
+          </ul>
+        </div>
+      </section>
+      <section>
         <h2 className="text-xl font-medium">Schémas de validation</h2>
         <p className="text-sm">Tous les endpoints utilisent Zod pour la validation des données avec des schémas de mise à jour partielle (PATCH) :</p>
         <ul className="list-disc pl-6 text-sm">
@@ -314,7 +731,39 @@ Content-Type: application/json
           <li><b>AttendanceRecordUpdateSchema</b>: Mise à jour partielle des présences</li>
           <li><b>AssessmentUpdateSchema</b>: Mise à jour partielle des évaluations</li>
           <li><b>StudentGradeUpdateSchema</b>: Mise à jour partielle des notes</li>
+          <li><b>FeeScheduleCreateSchema</b>: Création des frais scolaires avec tranches</li>
+          <li><b>FeeScheduleUpdateSchema</b>: Mise à jour partielle des frais scolaires</li>
+          <li><b>PaymentCreateSchema</b>: Création des paiements</li>
+          <li><b>PaymentFiltersSchema</b>: Filtres pour la liste des paiements</li>
+          <li><b>PaymentAnalyticsFiltersSchema</b>: Filtres pour les analytics</li>
+          <li><b>SubjectCategoryCreateSchema</b>: Création des catégories de matières</li>
+          <li><b>SubjectCategoryUpdateSchema</b>: Mise à jour des catégories de matières</li>
         </ul>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium text-orange-600">⚠️ Changements récents</h2>
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm">
+          <p className="font-medium mb-2">Refactoring du système de paiements (Décembre 2024) :</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li><b>❌ SUPPRIMÉ</b>: Model Invoice et endpoints associés</li>
+            <li><b>✅ NOUVEAU</b>: Les paiements sont directement liés aux FeeSchedule</li>
+            <li><b>✅ NOUVEAU</b>: Support des tranches de paiement (installments)</li>
+            <li><b>✅ NOUVEAU</b>: Analytics en temps réel basées sur les paiements</li>
+            <li><b>✅ NOUVEAU</b>: Statuts de paiement calculés dynamiquement</li>
+            <li><b>✅ NOUVEAU</b>: Endpoints /api/payments/[id] pour gestion individuelle</li>
+            <li><b>✅ NOUVEAU</b>: Endpoints /api/subject-categories pour catégories de matières</li>
+              <li><b>✅ NOUVEAU</b>: Endpoints /api/schools/active/* pour gestion école active</li>
+              <li><b>✅ NOUVEAU</b>: Analytics de présence /api/attendance-records/analytics</li>
+              <li><b>✅ NOUVEAU</b>: Endpoints /api/parents/* pour espace parent</li>
+              <li><b>✅ NOUVEAU</b>: Dashboard parent avec vue d'ensemble des enfants</li>
+              <li><b>✅ NOUVEAU</b>: Contrôle d'accès parent aux données de ses enfants uniquement</li>
+              <li><b>🔄 MODIFIÉ</b>: Terminologie "structure de frais" → "frais scolaires"</li>
+          </ul>
+          <p className="mt-2 text-orange-700">
+            <b>Migration :</b> Les anciennes factures ont été converties en paiements. 
+            Aucun changement requis côté client pour les endpoints existants.
+          </p>
+        </div>
       </section>
       <p className="text-sm text-muted-foreground">Astuce: Réponses d'erreur renvoient {`{ error: "message" }`} avec code HTTP adapté (400/401/403).</p>
     </div>

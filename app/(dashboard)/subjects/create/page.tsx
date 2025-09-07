@@ -1,10 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubjectFormWrapper } from "@/components/subjects/subject-form-wrapper";
+import { listSubjectCategories } from "@/actions/subject-categories";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export default function CreateSubjectPage() {
+export default async function CreateSubjectPage() {
+  const catsRes: any = await listSubjectCategories();
+  const categories = Array.isArray(catsRes?.subjectCategories) ? catsRes.subjectCategories : [];
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
@@ -27,7 +30,7 @@ export default function CreateSubjectPage() {
           <CardTitle>Informations de la matière</CardTitle>
         </CardHeader>
         <CardContent>
-          <SubjectFormWrapper mode="create" />
+          <SubjectFormWrapper mode="create" categories={categories} />
         </CardContent>
       </Card>
     </div>

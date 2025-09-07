@@ -58,6 +58,18 @@ export async function POST(req: NextRequest) {
       });
     } else {
       const { name, email, password } = (parsed.data as any).user;
+
+      // Vérifier si l'email existe déjà
+      const existingUser = await db.user.findUnique({ where: { email } });
+      if (existingUser) {
+        return NextResponse.json(
+          {
+            error: `Un utilisateur avec l'email "${email}" existe déjà`,
+          },
+          { status: 400 }
+        );
+      }
+
       const hashed = await bcrypt.hash(password, 10);
       const user = await db.user.create({
         data: {

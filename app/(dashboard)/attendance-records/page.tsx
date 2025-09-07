@@ -1,46 +1,53 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AttendanceRecordsTableWrapper } from "@/components/attendance-records/attendance-records-table-wrapper";
-import { listAttendanceRecords } from "@/actions/attendance-records";
-import Link from "next/link";
-import { Plus, CheckCircle } from "lucide-react";
+import { EnhancedCard } from "@/components/ui/enhanced-card";
+import { PageHeader } from "@/components/ui/page-header";
+import { UserCheck } from "lucide-react";
+import { listClassrooms } from "@/actions/classrooms";
+import { listSubjects } from "@/actions/subjects";
+import { getActiveAcademicYear } from "@/actions/academic-years";
+import { AttendanceAnalyticsClient } from "@/components/attendance/AttendanceAnalyticsClient";
 
 export default async function AttendanceRecordsPage() {
-  const data: any = await listAttendanceRecords();
-  if (data?.error) {
-    throw new Error(data.error);
-  }
+  const [classroomsRes, subjectsRes, ayRes]: any = await Promise.all([
+    listClassrooms(),
+    listSubjects(),
+    getActiveAcademicYear(),
+  ]);
 
-  const records = Array.isArray(data?.attendanceRecords) ? data.attendanceRecords : [];
+  const classrooms = Array.isArray(classroomsRes?.classrooms) 
+    ? classroomsRes.classrooms.map((c: any) => ({ 
+        id: c.id, 
+        name: c.name, 
+        gradeLevel: c.gradeLevel?.name 
+      })) 
+    : [];
+  const subjects = Array.isArray(subjectsRes?.subjects) 
+    ? subjectsRes.subjects.map((s: any) => ({ 
+        id: s.id, 
+        name: s.name 
+      })) 
+    : [];
+  const academicYearId = ayRes?.academicYear?.id || "";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Présences</h1>
-          <p className="text-muted-foreground">
-            Gérez les présences des élèves
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/attendance-records/create">
-            <Plus className="mr-2 h-4 w-4" />
-            Créer un enregistrement
-          </Link>
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Liste des enregistrements de présence
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AttendanceRecordsTableWrapper initialRecords={records} />
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <PageHeader 
+        title="Présences et absences" 
+        description="Analyse des données de présence et d'assiduité" 
+        icon={UserCheck} 
+      />
+      
+      <EnhancedCard 
+        title="Tableau de bord" 
+        description="Statistiques et analyses des présences" 
+        icon={UserCheck} 
+        gradient
+      >
+        <AttendanceAnalyticsClient
+          academicYearId={academicYearId}
+          classrooms={classrooms}
+          subjects={subjects}
+        />
+      </EnhancedCard>
     </div>
   );
 }

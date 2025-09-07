@@ -7,8 +7,8 @@ export const TeacherCreateSchema = z.object({
   phone: z.string().optional(),
   dateOfBirth: z.string().optional(),
   hireDate: z.string().optional(),
-  specialization: z.string().optional(),
   bio: z.string().optional(),
+  subjectIds: z.array(z.string()).optional(),
 });
 
 export const TeacherUpdateSchema = z
@@ -19,8 +19,8 @@ export const TeacherUpdateSchema = z
     phone: z.string().optional(),
     dateOfBirth: z.string().optional(),
     hireDate: z.string().optional(),
-    specialization: z.string().optional(),
     bio: z.string().optional(),
+    subjectIds: z.array(z.string()).optional(),
   })
   .refine(
     data => {
@@ -30,4 +30,3 @@ export const TeacherUpdateSchema = z
       message: "Au moins un champ doit être fourni",
     }
   );
-

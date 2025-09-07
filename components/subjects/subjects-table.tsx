@@ -22,6 +22,7 @@ export type Subject = {
   description?: string;
   color?: string;
   schoolId: string;
+  category?: { id: string; name: string } | null;
 };
 
 interface SubjectsTableProps {
@@ -89,6 +90,14 @@ export function SubjectsTable({ subjects, onRefresh }: SubjectsTableProps) {
       cell: ({ row }) => {
         const description = row.getValue("description") as string;
         return description || "Aucune description";
+      },
+    },
+    {
+      accessorKey: "category.name",
+      header: "Catégorie",
+      cell: ({ row }) => {
+        const cat = row.original.category as any;
+        return cat?.name || "-";
       },
     },
     {

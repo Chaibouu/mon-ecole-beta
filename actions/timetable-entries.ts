@@ -4,54 +4,49 @@ import { makeAuthenticatedRequest } from "@/actions/makeAuthenticatedRequest";
 
 const API_BASE = `${process.env.NEXT_PUBLIC_APP_URL}/api`;
 
-export async function listTimetableEntries(
-  classroomId?: string,
-  teacherId?: string
-) {
-  const params = new URLSearchParams();
-  if (classroomId) params.append("classroomId", classroomId);
-  if (teacherId) params.append("teacherId", teacherId);
+type ListParams = {
+  classroomId?: string;
+  day?: string; // MONDAY..SUNDAY
+};
 
-  const queryString = params.toString();
-  const url = `${API_BASE}/timetable-entries${queryString ? `?${queryString}` : ""}`;
-
-  return await makeAuthenticatedRequest(url, "GET");
+export async function listTimetableEntries(params: ListParams = {}) {
+  const qs = new URLSearchParams();
+  if (params.classroomId) qs.append("classroomId", params.classroomId);
+  if (params.day) qs.append("day", params.day);
+  const url = `${API_BASE}/timetable-entries${qs.toString() ? `?${qs.toString()}` : ""}`;
+  return makeAuthenticatedRequest(url, "GET");
 }
 
-export async function createTimetableEntry(input: {
-  classroomId: string;
-  subjectId: string;
-  teacherId: string;
-  dayOfWeek:
-    | "MONDAY"
-    | "TUESDAY"
-    | "WEDNESDAY"
-    | "THURSDAY"
-    | "FRIDAY"
-    | "SATURDAY"
-    | "SUNDAY";
-  startTime: string;
-  endTime: string;
-}) {
-  return await makeAuthenticatedRequest(
-    `${API_BASE}/timetable-entries`,
-    "POST",
-    input
+export async function getWeeklyTimetable(classroomId: string) {
+  return makeAuthenticatedRequest(
+    `${API_BASE}/classrooms/${classroomId}/timetable`,
+    "GET"
   );
 }
 
-export async function getTimetableEntryById(id: string) {
-  return await makeAuthenticatedRequest(
-    `${API_BASE}/timetable-entries/${id}`,
-    "GET"
+type CreatePayload = {
+  classroomId: string;
+  academicYearId: string;
+  subjectId: string;
+  teacherId: string;
+  dayOfWeek: string; // enum as string
+  startTime: string; // ISO
+  endTime: string; // ISO
+};
+
+export async function createTimetableEntry(data: CreatePayload) {
+  return makeAuthenticatedRequest(
+    `${API_BASE}/timetable-entries`,
+    "POST",
+    data
   );
 }
 
 export async function updateTimetableEntry(
   id: string,
-  data: Record<string, any>
+  data: Partial<CreatePayload>
 ) {
-  return await makeAuthenticatedRequest(
+  return makeAuthenticatedRequest(
     `${API_BASE}/timetable-entries/${id}`,
     "PATCH",
     data
@@ -59,7 +54,7 @@ export async function updateTimetableEntry(
 }
 
 export async function deleteTimetableEntry(id: string) {
-  return await makeAuthenticatedRequest(
+  return makeAuthenticatedRequest(
     `${API_BASE}/timetable-entries/${id}`,
     "DELETE"
   );

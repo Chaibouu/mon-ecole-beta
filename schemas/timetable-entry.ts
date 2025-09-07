@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const TimetableEntryCreateSchema = z.object({
   classroomId: z.string().min(1, "La classe est requise"),
+  academicYearId: z.string().min(1, "L'année académique est requise"),
   subjectId: z.string().min(1, "La matière est requise"),
   teacherId: z.string().min(1, "L'enseignant est requis"),
   dayOfWeek: z.enum([
@@ -20,6 +21,10 @@ export const TimetableEntryCreateSchema = z.object({
 export const TimetableEntryUpdateSchema = z
   .object({
     classroomId: z.string().min(1, "La classe est requise").optional(),
+    academicYearId: z
+      .string()
+      .min(1, "L'année académique est requise")
+      .optional(),
     subjectId: z.string().min(1, "La matière est requise").optional(),
     teacherId: z.string().min(1, "L'enseignant est requis").optional(),
     dayOfWeek: z

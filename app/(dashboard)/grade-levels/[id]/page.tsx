@@ -5,6 +5,9 @@ import Link from "next/link";
 import { ArrowLeft, Edit, GraduationCap } from "lucide-react";
 import { getGradeLevelById } from "@/actions/grade-levels";
 import { notFound } from "next/navigation";
+import { listSubjects } from "@/actions/subjects";
+import { listGradeLevelSubjects } from "@/actions/grade-level-subjects";
+import { GradeLevelSubjectsTable } from "@/components/grade-level-subjects/grade-level-subjects-table";
 
 interface GradeLevelDetailPageProps {
   params: Promise<{
@@ -21,6 +24,14 @@ export default async function GradeLevelDetailPage({ params }: GradeLevelDetailP
   }
 
   const gradeLevel = data.gradeLevel;
+
+  // Charger matières et coefficients filtrés sur ce niveau
+  const [subjectsRes, coeffsRes]: any = await Promise.all([
+    listSubjects(),
+    listGradeLevelSubjects({ gradeLevelId: id }),
+  ]);
+  const subjects = subjectsRes?.subjects || [];
+  const gradeLevelSubjects = coeffsRes?.gradeLevelSubjects || [];
 
   return (
     <div className="space-y-6">
@@ -60,15 +71,6 @@ export default async function GradeLevelDetailPage({ params }: GradeLevelDetailP
               <span className="font-medium">Nom:</span>
               <span>{gradeLevel.name}</span>
             </div>
-            {/* <div className="flex justify-between">
-              <span className="font-medium">Code:</span>
-              <span>{gradeLevel.code}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Ordre:</span>
-              <span>{gradeLevel.order}</span>
-            </div> */}
-            
             <div className="flex justify-between">
               <span className="font-medium">Description:</span>
               <span className="text-right max-w-xs">
@@ -102,6 +104,20 @@ export default async function GradeLevelDetailPage({ params }: GradeLevelDetailP
           </CardContent>
         </Card>
       </div>
+
+      {/* Onglet Coefficients (simple section) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Coefficients par matière</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <GradeLevelSubjectsTable
+            gradeLevels={[gradeLevel]}
+            subjects={subjects}
+            items={gradeLevelSubjects}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

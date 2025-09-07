@@ -193,22 +193,24 @@ model School {
     updatedAt           DateTime @updatedAt
 
     // Relations
-    userSchools       UserSchool[]
-    academicYears     AcademicYear[]
-    gradeLevels       GradeLevel[]
-    classrooms        Classroom[]
-    subjects          Subject[]
-    teacherProfiles   TeacherProfile[]
-    studentProfiles   StudentProfile[]
-    parentProfiles    ParentProfile[]
-    settings          SchoolSetting[]
-    notifications     Notification[]
-    assessments       Assessment[]
-    feeSchedules      FeeSchedule[]
-    invoices          Invoice[]
+    userSchools        UserSchool[]
+    academicYears      AcademicYear[]
+    gradeLevels        GradeLevel[]
+    classrooms         Classroom[]
+    subjects           Subject[]
+    teacherProfiles    TeacherProfile[]
+    studentProfiles    StudentProfile[]
+    parentProfiles     ParentProfile[]
+    settings           SchoolSetting[]
+    notifications      Notification[]
+    assessments        Assessment[]
+    feeSchedules       FeeSchedule[]
     // Messagerie désactivée
     // conversations   Conversation[]
-    classroomSubjects ClassroomSubject[]
+    classroomSubjects  ClassroomSubject[]
+    gradeLevelSubjects GradeLevelSubject[]
+    SubjectCategory    SubjectCategory[]
+    Payment            Payment[]
 
     @@unique([code, isDeleted])
 }
@@ -244,6 +246,7 @@ model AcademicYear {
     terms              Term[]
     enrollments        Enrollment[]
     teacherAssignments TeacherAssignment[]
+    TimetableEntry     TimetableEntry[]
 
     @@index([schoolId])
 }
@@ -275,9 +278,10 @@ model GradeLevel {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
-    school       School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-    classrooms   Classroom[]
-    feeSchedules FeeSchedule[]
+    school             School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+    classrooms         Classroom[]
+    feeSchedules       FeeSchedule[]
+    gradeLevelSubjects GradeLevelSubject[]
 
     @@unique([schoolId, name])
     @@index([schoolId])
@@ -312,12 +316,29 @@ model Subject {
     schoolId    String
     name        String
     description String?
+    categoryId  String?
 
     school             School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+    category           SubjectCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
     teacherAssignments TeacherAssignment[]
     timetable          TimetableEntry[]
     assessments        Assessment[]
     classroomSubjects  ClassroomSubject[]
+    gradeLevelSubjects GradeLevelSubject[]
+    teacherProfiles    TeacherProfile[]    @relation("TeacherSubjects")
+
+    @@unique([schoolId, name])
+    @@index([schoolId])
+}
+
+model SubjectCategory {
+    id          String  @id @default(cuid())
+    schoolId    String
+    name        String
+    description String?
+
+    school   School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+    subjects Subject[]
 
     @@unique([schoolId, name])
     @@index([schoolId])
@@ -339,6 +360,22 @@ model ClassroomSubject {
     @@index([schoolId])
 }
 
+// Coefficient par matière et par niveau (source principale des coefficients)
+model GradeLevelSubject {
+    id           String @id @default(cuid())
+    schoolId     String
+    gradeLevelId String
+    subjectId    String
+    coefficient  Float  @default(1)
+
+    school     School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+    gradeLevel GradeLevel @relation(fields: [gradeLevelId], references: [id], onDelete: Cascade)
+    subject    Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+    @@unique([gradeLevelId, subjectId])
+    @@index([schoolId])
+}
+
 model TeacherProfile {
     id       String  @id @default(cuid())
     userId   String
@@ -347,6 +384,9 @@ model TeacherProfile {
 
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+    // Matières que ce professeur peut enseigner (sélection générale, hors affectations par classe)
+    subjects Subject[] @relation("TeacherSubjects")
 
     assignments        TeacherAssignment[]
     timetable          TimetableEntry[]
@@ -375,7 +415,7 @@ model StudentProfile {
     attendance  AttendanceRecord[]
     grades      StudentGrade[]
     reportCards ReportCard[]
-    invoices    Invoice[]
+    payments    Payment[]
 
     @@unique([userId, schoolId])
     @@index([schoolId])
@@ -456,20 +496,23 @@ enum DayOfWeek {
 }
 
 model TimetableEntry {
-    id          String    @id @default(cuid())
-    classroomId String
-    subjectId   String
-    teacherId   String
-    dayOfWeek   DayOfWeek
-    startTime   DateTime // heure/minute considérées
-    endTime     DateTime
+    id             String    @id @default(cuid())
+    classroomId    String
+    academicYearId String
+    subjectId      String
+    teacherId      String
+    dayOfWeek      DayOfWeek
+    startTime      DateTime // heure/minute considérées
+    endTime        DateTime
 
     classroom         Classroom          @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+    academicYear      AcademicYear       @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
     subject           Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
     teacher           TeacherProfile     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
     attendanceRecords AttendanceRecord[] @relation("AttendanceTimetableEntry")
 
     @@index([classroomId])
+    @@index([academicYearId])
 }
 
 enum AttendanceStatus {
@@ -597,62 +640,62 @@ model PushDeviceToken {
 // Frais de scolarité & paiements
 // =============================
 
-enum PaymentStatus {
-    PENDING
-    PARTIALLY_PAID
-    PAID
-    OVERDUE
-    CANCELED
+enum PaymentMethod {
+    CASH
+    BANK_TRANSFER
+    MOBILE_MONEY
+    CHECK
+    CARD
 }
 
 // Définition des frais par niveau/classe et période
 model FeeSchedule {
-    id           String    @id @default(cuid())
-    schoolId     String
-    gradeLevelId String?
-    classroomId  String?
-    termId       String?
-    itemName     String
-    amountCents  Int
-    dueDate      DateTime?
+    id               String    @id @default(cuid())
+    schoolId         String
+    gradeLevelId     String?
+    classroomId      String?
+    termId           String?
+    itemName         String
+    amountCents      Int
+    dueDate          DateTime?
+    isInstallment    Boolean   @default(false) // true si c'est une tranche
+    parentFeeId      String? // ID du frais parent si c'est une tranche
+    installmentOrder Int? // ordre de la tranche (1, 2, 3...)
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @default(now()) @updatedAt
 
-    school     School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-    gradeLevel GradeLevel? @relation(fields: [gradeLevelId], references: [id], onDelete: SetNull)
-    classroom  Classroom?  @relation(fields: [classroomId], references: [id], onDelete: SetNull)
-    term       Term?       @relation(fields: [termId], references: [id], onDelete: SetNull)
-    invoices   Invoice[]
+    school       School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+    gradeLevel   GradeLevel?   @relation(fields: [gradeLevelId], references: [id], onDelete: SetNull)
+    classroom    Classroom?    @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+    term         Term?         @relation(fields: [termId], references: [id], onDelete: SetNull)
+    parentFee    FeeSchedule?  @relation("FeeInstallments", fields: [parentFeeId], references: [id], onDelete: Cascade)
+    installments FeeSchedule[] @relation("FeeInstallments")
+    payments     Payment[]
 
     @@index([schoolId])
+    @@index([parentFeeId])
 }
 
-model Invoice {
+model Payment {
     id            String        @id @default(cuid())
     schoolId      String
     studentId     String
     feeScheduleId String
     amountCents   Int
-    status        PaymentStatus @default(PENDING)
+    method        PaymentMethod @default(CASH)
+    paidAt        DateTime      @default(now())
+    reference     String?
     dueDate       DateTime?
     createdAt     DateTime      @default(now())
+    notes         String?
 
     school      School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
     student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
     feeSchedule FeeSchedule    @relation(fields: [feeScheduleId], references: [id], onDelete: Cascade)
-    payments    Payment[]
 
     @@index([schoolId])
     @@index([studentId])
-}
-
-model Payment {
-    id          String   @id @default(cuid())
-    invoiceId   String
-    amountCents Int
-    method      String? // cash, card, mobile money
-    paidAt      DateTime @default(now())
-    reference   String?
-
-    invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+    @@index([feeScheduleId])
 }
 
 // =============================

@@ -20,12 +20,23 @@ export async function listClassroomSubjects(
   return await makeAuthenticatedRequest(url, "GET");
 }
 
+// Action spécifique pour définir/surcharger le coefficient de classe
+export async function setClassroomSubjectCoefficient(input: {
+  classroomId: string;
+  subjectId: string;
+  coefficient: number;
+}) {
+  return await makeAuthenticatedRequest(
+    `${API_BASE}/classroom-subjects`,
+    "POST",
+    input
+  );
+}
+
 export async function createClassroomSubject(input: {
   classroomId: string;
   subjectId: string;
-  academicYearId: string;
-  hoursPerWeek: number;
-  description?: string;
+  coefficient: number;
 }) {
   return await makeAuthenticatedRequest(
     `${API_BASE}/classroom-subjects`,
@@ -58,8 +69,3 @@ export async function deleteClassroomSubject(id: string) {
     "DELETE"
   );
 }
-
-
-
-
-

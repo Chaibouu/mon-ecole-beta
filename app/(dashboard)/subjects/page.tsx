@@ -6,33 +6,25 @@ import { SubjectsTableWrapper } from "@/components/subjects/subjects-table-wrapp
 import { listSubjects } from "@/actions/subjects";
 import Link from "next/link";
 import { Plus, BookOpen, Calculator, Beaker, Globe } from "lucide-react";
+import { listSubjectCategories } from "@/actions/subject-categories";
 
 export default async function SubjectsPage() {
-  const data: any = await listSubjects();
+  const [data, catRes]: any = await Promise.all([
+    listSubjects(),
+    listSubjectCategories(),
+  ]);
   if (data?.error) {
     throw new Error(data.error);
   }
 
   const subjects = Array.isArray(data?.subjects) ? data.subjects : [];
+  const categories = Array.isArray(catRes?.subjectCategories) ? catRes.subjectCategories : [];
   
   // Calculer les statistiques
   const totalSubjects = subjects.length;
-  const literarySubjects = subjects.filter((subject: any) => 
-    subject.name?.toLowerCase().includes('français') || 
-    subject.name?.toLowerCase().includes('littérature') ||
-    subject.name?.toLowerCase().includes('histoire')
-  ).length;
-  const scientificSubjects = subjects.filter((subject: any) => 
-    subject.name?.toLowerCase().includes('mathématiques') || 
-    subject.name?.toLowerCase().includes('physique') ||
-    subject.name?.toLowerCase().includes('chimie') ||
-    subject.name?.toLowerCase().includes('biologie')
-  ).length;
-  const languageSubjects = subjects.filter((subject: any) => 
-    subject.name?.toLowerCase().includes('anglais') || 
-    subject.name?.toLowerCase().includes('espagnol') ||
-    subject.name?.toLowerCase().includes('allemand')
-  ).length;
+  const literarySubjects = subjects.filter((s: any) => s.category?.name?.toLowerCase().includes('litt')).length;
+  const scientificSubjects = subjects.filter((s: any) => s.category?.name?.toLowerCase().includes('scien')).length;
+  const languageSubjects = subjects.filter((s: any) => s.category?.name?.toLowerCase().includes('lang')).length;
 
   return (
     <div className="space-y-8">

@@ -26,6 +26,7 @@ export async function GET(
   if (!ok) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const item = await db.subject.findFirst({
     where: { id, schoolId },
+    include: { category: true },
   });
   if (!item) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   return NextResponse.json({ subject: item });

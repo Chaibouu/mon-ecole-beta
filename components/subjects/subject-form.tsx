@@ -18,15 +18,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { SubjectCreateSchema, SubjectUpdateSchema } from "@/schemas/subject";
 import { createSubject, updateSubject } from "@/actions/subjects";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type SubjectFormProps = {
   mode: "create" | "edit";
   initialData?: any;
   subjectId?: string;
   onSuccess?: () => void;
+  categories?: any[];
 };
 
-export function SubjectForm({ mode, initialData, subjectId, onSuccess }: SubjectFormProps) {
+export function SubjectForm({ mode, initialData, subjectId, onSuccess, categories = [] }: SubjectFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   
   const schema = mode === "create" ? SubjectCreateSchema : SubjectUpdateSchema;
@@ -36,9 +38,11 @@ export function SubjectForm({ mode, initialData, subjectId, onSuccess }: Subject
     defaultValues: mode === "edit" ? {
       name: initialData?.name || "",
       description: initialData?.description || "",
+      categoryId: initialData?.categoryId || undefined,
     } : {
       name: "",
       description: "",
+      categoryId: undefined,
     },
   });
 
@@ -96,6 +100,31 @@ export function SubjectForm({ mode, initialData, subjectId, onSuccess }: Subject
                   {...field} 
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="categoryId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Catégorie</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez une catégorie" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categories.map((cat: any) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

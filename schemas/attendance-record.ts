@@ -4,8 +4,7 @@ export const AttendanceRecordCreateSchema = z.object({
   studentId: z.string().min(1, "L'élève est requis"),
   date: z.string().min(1, "La date est requise"),
   status: z.enum(["PRESENT", "ABSENT", "EXPELLED", "SICK", "LATE"]),
-  recordedById: z.string().optional(),
-  timetableEntryId: z.string().optional(),
+  timetableEntryId: z.string().min(1, "Le cours (emploi du temps) est requis"),
   notes: z.string().optional(),
 });
 

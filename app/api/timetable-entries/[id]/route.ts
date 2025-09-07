@@ -61,6 +61,74 @@ export async function PATCH(
     });
     if (!exists)
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    // Si modification du créneau, vérifier chevauchements
+    if (
+      parsed.data.startTime ||
+      parsed.data.endTime ||
+      parsed.data.dayOfWeek ||
+      parsed.data.teacherId ||
+      parsed.data.classroomId ||
+      parsed.data.academicYearId
+    ) {
+      const current = await db.timetableEntry.findUnique({
+        where: { id },
+        select: {
+          classroomId: true,
+          academicYearId: true,
+          teacherId: true,
+          dayOfWeek: true,
+          startTime: true,
+          endTime: true,
+        },
+      });
+      if (current) {
+        const day = (parsed.data.dayOfWeek as any) ?? current.dayOfWeek;
+        const classroomId = parsed.data.classroomId ?? current.classroomId;
+        const academicYearId =
+          parsed.data.academicYearId ?? current.academicYearId;
+        const teacherId = parsed.data.teacherId ?? current.teacherId;
+        const start = parsed.data.startTime
+          ? new Date(parsed.data.startTime)
+          : current.startTime;
+        const end = parsed.data.endTime
+          ? new Date(parsed.data.endTime)
+          : current.endTime;
+        const overlapClass = await db.timetableEntry.findFirst({
+          where: {
+            id: { not: id },
+            classroomId,
+            academicYearId,
+            dayOfWeek: day,
+            startTime: { lt: end },
+            endTime: { gt: start },
+          },
+          select: { id: true },
+        });
+        if (overlapClass) {
+          return NextResponse.json(
+            { error: "Conflit d'horaire pour cette classe" },
+            { status: 400 }
+          );
+        }
+        const overlapTeacher = await db.timetableEntry.findFirst({
+          where: {
+            id: { not: id },
+            teacherId,
+            academicYearId,
+            dayOfWeek: day,
+            startTime: { lt: end },
+            endTime: { gt: start },
+          },
+          select: { id: true },
+        });
+        if (overlapTeacher) {
+          return NextResponse.json(
+            { error: "L'enseignant a déjà un cours sur ce créneau" },
+            { status: 400 }
+          );
+        }
+      }
+    }
     const updated = await db.timetableEntry.update({
       where: { id },
       data: {

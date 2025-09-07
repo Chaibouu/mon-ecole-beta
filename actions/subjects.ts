@@ -11,6 +11,7 @@ export async function listSubjects() {
 export async function createSubject(input: {
   name: string;
   description?: string;
+  categoryId?: string | null;
 }) {
   return await makeAuthenticatedRequest(`${API_BASE}/subjects`, "POST", input);
 }

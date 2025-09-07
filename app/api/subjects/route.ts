@@ -22,6 +22,7 @@ export async function GET(req: Request) {
   if (!ok) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const list = await db.subject.findMany({
     where: { schoolId },
+    include: { category: true },
     orderBy: { name: "asc" },
   });
   return NextResponse.json({ subjects: list });
@@ -43,9 +44,14 @@ export async function POST(req: Request) {
       const error = parsed.error.issues.map(i => i.message).join(", ");
       return NextResponse.json({ error }, { status: 400 });
     }
-    const { name, description } = parsed.data;
+    const { name, description, categoryId } = parsed.data;
     const item = await db.subject.create({
-      data: { schoolId, name, description: description ?? null },
+      data: {
+        schoolId,
+        name,
+        description: description ?? null,
+        categoryId: categoryId ?? null,
+      },
     });
     return NextResponse.json({ subject: item }, { status: 201 });
   } catch {

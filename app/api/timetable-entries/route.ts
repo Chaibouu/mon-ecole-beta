@@ -18,7 +18,6 @@ export async function GET(req: Request) {
     "TEACHER",
     "PARENT",
     "STUDENT",
-    "USER",
   ]);
   if (!ok)
     return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
@@ -30,9 +29,7 @@ export async function GET(req: Request) {
       classroom: { schoolId },
       classroomId,
       dayOfWeek: day as any,
-      ...(academicYearId
-        ? { classroom: { enrollments: { some: { academicYearId } } } }
-        : {}),
+      academicYearId: academicYearId || undefined,
     },
     include: { subject: true, teacher: { include: { user: true } } },
     orderBy: { startTime: "asc" },
@@ -57,11 +54,61 @@ export async function POST(req: Request) {
       const error = parsed.error.issues.map((i: any) => i.message).join(", ");
       return NextResponse.json({ error }, { status: 400 });
     }
-    const { classroomId, subjectId, teacherId, dayOfWeek, startTime, endTime } =
-      parsed.data;
+    const {
+      classroomId,
+      academicYearId,
+      subjectId,
+      teacherId,
+      dayOfWeek,
+      startTime,
+      endTime,
+    } = parsed.data;
+    // Conflits: même classe/jour chevauchés
+    const overlapping = await db.timetableEntry.findFirst({
+      where: {
+        classroomId,
+        academicYearId,
+        dayOfWeek: dayOfWeek as any,
+        OR: [
+          {
+            startTime: { lt: new Date(endTime) },
+            endTime: { gt: new Date(startTime) },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+    if (overlapping) {
+      return NextResponse.json(
+        { error: "Conflit d'horaire pour cette classe" },
+        { status: 400 }
+      );
+    }
+    // Conflit prof: même créneau
+    const teacherBusy = await db.timetableEntry.findFirst({
+      where: {
+        teacherId,
+        academicYearId,
+        dayOfWeek: dayOfWeek as any,
+        OR: [
+          {
+            startTime: { lt: new Date(endTime) },
+            endTime: { gt: new Date(startTime) },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+    if (teacherBusy) {
+      return NextResponse.json(
+        { error: "L'enseignant a déjà un cours sur ce créneau" },
+        { status: 400 }
+      );
+    }
     const item = await db.timetableEntry.create({
       data: {
         classroomId,
+        academicYearId,
         subjectId,
         teacherId,
         dayOfWeek: dayOfWeek as any,

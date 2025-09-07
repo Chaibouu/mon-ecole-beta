@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getSubjectById } from "@/actions/subjects";
 import { notFound } from "next/navigation";
+import { listSubjectCategories } from "@/actions/subject-categories";
 
 interface EditSubjectPageProps {
   params: Promise<{
@@ -14,13 +15,17 @@ interface EditSubjectPageProps {
 
 export default async function EditSubjectPage({ params }: EditSubjectPageProps) {
   const { id } = await params;
-  const data: any = await getSubjectById(id);
+  const [data, catsRes]: any = await Promise.all([
+    getSubjectById(id),
+    listSubjectCategories(),
+  ]);
 
   if (data?.error || !data?.subject) {
     notFound();
   }
 
   const subject = data.subject;
+  const categories = Array.isArray(catsRes?.subjectCategories) ? catsRes.subjectCategories : [];
 
   return (
     <div className="space-y-6">
@@ -48,6 +53,7 @@ export default async function EditSubjectPage({ params }: EditSubjectPageProps) 
             mode="edit"
             initialData={subject}
             subjectId={id}
+            categories={categories}
           />
         </CardContent>
       </Card>

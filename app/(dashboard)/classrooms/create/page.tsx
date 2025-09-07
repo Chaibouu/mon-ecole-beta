@@ -4,10 +4,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { listGradeLevels } from "@/actions/grade-levels";
+import { listTeachers } from "@/actions/school-members";
 
 export default async function CreateClassroomPage() {
-  const data: any = await listGradeLevels();
-  const gradeLevels = Array.isArray(data?.gradeLevels) ? data.gradeLevels : [];
+  const [levelsRes, teachersRes]: any = await Promise.all([
+    listGradeLevels(),
+    listTeachers(),
+  ]);
+  const gradeLevels = Array.isArray(levelsRes?.gradeLevels) ? levelsRes.gradeLevels : [];
+  const teachers = Array.isArray(teachersRes?.teachers) ? teachersRes.teachers : [];
 
   return (
     <div className="space-y-6">
@@ -31,7 +36,7 @@ export default async function CreateClassroomPage() {
           <CardTitle>Informations de la classe</CardTitle>
         </CardHeader>
         <CardContent>
-          <ClassroomFormWrapper mode="create" gradeLevels={gradeLevels} />
+          <ClassroomFormWrapper mode="create" gradeLevels={gradeLevels} initialData={{ __teachers: teachers }} />
         </CardContent>
       </Card>
     </div>

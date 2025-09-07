@@ -288,21 +288,31 @@ export async function getTeacherById(id: string) {
 /**
  * Créer un nouvel enseignant
  */
-export async function createTeacher(input: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  dateOfBirth?: string;
-  hireDate?: string;
-  specialization?: string;
-  bio?: string;
-}) {
+export async function createTeacher(input: any) {
   try {
+    const subjectIds: string[] | undefined = input?.subjectIds;
+    let payload: any;
+
+    if (input?.existingUserId) {
+      payload = {
+        existingUserId: input.existingUserId,
+        ...(Array.isArray(subjectIds) ? { subjectIds } : {}),
+      };
+    } else {
+      const name = `${input?.firstName ?? ""} ${input?.lastName ?? ""}`.trim();
+      const email = input?.email ?? "";
+      // Generate a temporary password; admin can force reset later
+      const tempPwd = `Tch_${Math.random().toString(36).slice(2, 8)}A1!`;
+      payload = {
+        user: { name, email, password: tempPwd },
+        ...(Array.isArray(subjectIds) ? { subjectIds } : {}),
+      };
+    }
+
     const result: any = await makeAuthenticatedRequest(
       `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/active/teachers`,
       "POST",
-      input
+      payload
     );
 
     if (result?.error) return result;

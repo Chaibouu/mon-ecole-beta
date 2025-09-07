@@ -7,9 +7,10 @@ interface SubjectFormWrapperProps {
   mode: "create" | "edit";
   initialData?: any;
   subjectId?: string;
+  categories?: any[];
 }
 
-export function SubjectFormWrapper({ mode, initialData, subjectId }: SubjectFormWrapperProps) {
+export function SubjectFormWrapper({ mode, initialData, subjectId, categories }: SubjectFormWrapperProps) {
   const router = useRouter();
 
   const handleSuccess = () => {
@@ -26,6 +27,7 @@ export function SubjectFormWrapper({ mode, initialData, subjectId }: SubjectForm
       initialData={initialData}
       subjectId={subjectId}
       onSuccess={handleSuccess}
+      categories={categories}
     />
   );
 }

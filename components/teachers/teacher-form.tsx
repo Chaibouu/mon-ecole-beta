@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TeacherCreateSchema, TeacherUpdateSchema } from "@/schemas/teacher";
-import { createTeacher, updateTeacher } from "@/actions/school-members";
-import { useState } from "react";
+import { createTeacher } from "@/actions/school-members";
+import { updateTeacher as updateTeacherApi } from "@/actions/teachers";
+import { listSubjects } from "@/actions/subjects";
+import { useState, useEffect } from "react";
 
 type TeacherFormProps = {
   mode: "create" | "edit";
@@ -28,6 +31,9 @@ type TeacherFormProps = {
 
 export function TeacherForm({ mode, initialData, teacherId, onSuccess }: TeacherFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const subjects = Array.isArray((initialData as any)?.__subjects)
+    ? (initialData as any).__subjects
+    : [];
   
   const schema = mode === "create" ? TeacherCreateSchema : TeacherUpdateSchema;
   
@@ -40,8 +46,8 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       phone: initialData?.phone || "",
       dateOfBirth: initialData?.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString().split('T')[0] : "",
       hireDate: initialData?.hireDate ? new Date(initialData.hireDate).toISOString().split('T')[0] : "",
-      specialization: initialData?.specialization || "",
       bio: initialData?.bio || "",
+      subjectIds: Array.isArray(initialData?.subjectIds) ? initialData.subjectIds : [],
     } : {
       firstName: "",
       lastName: "",
@@ -49,10 +55,12 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       phone: "",
       dateOfBirth: "",
       hireDate: "",
-      specialization: "",
       bio: "",
+      subjectIds: [],
     },
   });
+
+  // subjects are passed from server via initialData.__subjects
 
   async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true);
@@ -61,7 +69,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       if (mode === "create") {
         result = await createTeacher(values as any);
       } else if (teacherId) {
-        result = await updateTeacher(teacherId, values);
+        result = await updateTeacherApi(teacherId, values);
       }
 
       if (result?.error) {
@@ -109,6 +117,36 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="subjectIds"
+          render={() => (
+            <FormItem>
+              <FormLabel>Matières enseignées</FormLabel>
+              <Controller
+                name="subjectIds"
+                control={form.control}
+                render={({ field }) => {
+                  const options: { value: string; label: string }[] = subjects.map((s: any) => ({ value: s.id, label: s.name }));
+                  const selectedIds: string[] = Array.isArray(field.value) ? field.value : [];
+                  const value = options.filter((o) => selectedIds.includes(o.value));
+                  const ReactSelect = require("react-select").default;
+                  return (
+                    <ReactSelect
+                      isMulti
+                      options={options}
+                      value={value}
+                      onChange={(vals: any) => field.onChange((vals || []).map((v: any) => v.value))}
+                      placeholder="Sélectionnez une ou plusieurs matières"
+                    />
+                  );
+                }}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -168,19 +206,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="specialization"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Spécialisation</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Mathématiques, Physique" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Primary subject removed per new model */}
 
         <FormField
           control={form.control}

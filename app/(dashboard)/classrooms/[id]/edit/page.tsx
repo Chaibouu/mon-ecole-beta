@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getClassroomById } from "@/actions/classrooms";
 import { listGradeLevels } from "@/actions/grade-levels";
+import { listTeachers } from "@/actions/school-members";
 import { notFound } from "next/navigation";
 
 interface EditClassroomPageProps {
@@ -16,16 +17,17 @@ interface EditClassroomPageProps {
 export default async function EditClassroomPage({ params }: EditClassroomPageProps) {
   const { id } = await params;
   
-  const [classroomData, gradeLevelsData] = await Promise.all([
+  const [classroomData, gradeLevelsData, teachersRes] = await Promise.all([
     getClassroomById(id),
-    listGradeLevels()
+    listGradeLevels(),
+    listTeachers(),
   ]);
 
   if (classroomData?.error || !classroomData?.classroom) {
     notFound();
   }
 
-  const classroom = classroomData.classroom;
+  const classroom = { ...classroomData.classroom, __teachers: Array.isArray(teachersRes?.teachers) ? teachersRes.teachers : [] };
   const gradeLevels = Array.isArray(gradeLevelsData?.gradeLevels) ? gradeLevelsData.gradeLevels : [];
 
   return (

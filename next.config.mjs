@@ -83,6 +83,7 @@ const nextConfig = {
                     },
                 },
             };
+
         }
 
         return config;

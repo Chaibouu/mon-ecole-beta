@@ -191,3 +191,6 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
 
 
 
+
+
+

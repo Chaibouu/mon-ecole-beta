@@ -24,6 +24,8 @@ import {
   Users2,
   BookMarked,
   CalendarDays,
+  Tags,
+  User,
 } from "lucide-react";
 
 export interface NavigationBadge {
@@ -255,23 +257,24 @@ export const schoolNavigation: NavigationGroup[] = [
             path: "/subjects/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
+          {
+            title: "Catégories",
+            path: "/subject-categories",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+            icon: Tags,
+          },
         ],
       },
       {
         title: "Coefficients",
         icon: BookMarked,
-        path: "/classroom-subjects",
+        path: "/grade-level-subjects",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Gestion des coefficients par matière",
+        description: "Coefficients par niveau et matière",
         children: [
           {
-            title: "Liste des coefficients",
-            path: "/classroom-subjects",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-          {
-            title: "Définir coefficients",
-            path: "/classroom-subjects/create",
+            title: "Par niveau",
+            path: "/grade-level-subjects",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],
@@ -296,7 +299,7 @@ export const schoolNavigation: NavigationGroup[] = [
         description: "Planification et consultation des cours",
         children: [
           {
-            title: "Voir les emplois du temps",
+            title: "Vue générale",
             path: "/timetable-entries",
             allowedRoles: [
               "SUPER_ADMIN",
@@ -306,11 +309,6 @@ export const schoolNavigation: NavigationGroup[] = [
               "PARENT",
               "USER",
             ],
-          },
-          {
-            title: "Créer un créneau",
-            path: "/timetable-entries/create",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
           },
         ],
       },
@@ -322,13 +320,13 @@ export const schoolNavigation: NavigationGroup[] = [
         description: "Suivi des absences et retards",
         children: [
           {
-            title: "Consulter les présences",
+            title: "Tableau de bord",
             path: "/attendance-records",
             allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER", "PARENT", "USER"],
           },
           {
-            title: "Saisir les présences",
-            path: "/attendance-records/create",
+            title: "Faire l'appel",
+            path: "/attendance-records/take-attendance",
             allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
           },
         ],
@@ -412,18 +410,18 @@ export const schoolNavigation: NavigationGroup[] = [
       {
         title: "Parents",
         icon: Users,
-        path: "/parents",
+        path: "/admin/parents",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Gestion des parents d'élèves",
+        description: "Gestion des parents d'élèves et liaisons parent-enfant",
         children: [
           {
-            title: "Liste des parents",
-            path: "/parents",
+            title: "Gestion des parents",
+            path: "/admin/parents",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
           {
             title: "Ajouter un parent",
-            path: "/parents/create",
+            path: "/admin/parents/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],
@@ -510,46 +508,54 @@ export const schoolNavigation: NavigationGroup[] = [
     ],
   },
   {
-    title: "Finances",
-    allowedRoles: ["SUPER_ADMIN", "ADMIN", "PARENT"],
+    title: "Espace Parent",
+    allowedRoles: ["PARENT"],
     items: [
       {
-        title: "Frais scolaires",
-        icon: CreditCard,
-        path: "/fees",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Configuration des frais de scolarité",
-      },
-      {
-        title: "Factures",
-        icon: FileText,
-        path: "/invoices",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN", "PARENT"],
-        description: "Gestion et suivi des factures",
-        children: [
-          {
-            title: "Toutes les factures",
-            path: "/invoices",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-          {
-            title: "Mes factures",
-            path: "/invoices/my-invoices",
-            allowedRoles: ["PARENT"],
-          },
-        ],
+        title: "Tableau de bord",
+        icon: Home,
+        path: "/parents/dashboard",
+        allowedRoles: ["PARENT"],
+        description: "Vue d'ensemble de vos enfants",
       },
       {
         title: "Paiements",
         icon: CreditCard,
         path: "/payments",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN", "PARENT"],
+        allowedRoles: ["PARENT"],
+        description: "Suivi des paiements de vos enfants",
+      },
+      {
+        title: "Mon profil",
+        icon: User,
+        path: "/parents/profile",
+        allowedRoles: ["PARENT"],
+        description: "Gérer mes informations personnelles",
+      },
+    ],
+  },
+  {
+    title: "Finances",
+    allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+    items: [
+      {
+        title: "Frais scolaires",
+        icon: CreditCard,
+        path: "/school-fees",
+        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+        description: "Configuration des frais de scolarité",
+      },
+      {
+        title: "Paiements",
+        icon: CreditCard,
+        path: "/payments",
+        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
         description: "Suivi des paiements",
         children: [
           {
             title: "Historique des paiements",
             path: "/payments",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN", "PARENT"],
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],
       },

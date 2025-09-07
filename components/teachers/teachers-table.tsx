@@ -4,57 +4,60 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { ArrowUpDown, MoreHorizontal, Eye, Edit, Trash } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowUpDown, MoreHorizontal, BookOpen, Mail, Phone, Pencil, Star } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteTeacher } from "@/actions/school-members";
 import { toast } from "sonner";
+import { updateTeacher } from "@/actions/teachers";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
-export type Teacher = {
+type Teacher = {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  dateOfBirth?: string;
-  hireDate?: string;
-  specialization?: string;
+  user: { name: string; email: string; image?: string; phone?: string };
   bio?: string;
-  schoolId: string;
+  subjects?: Array<{ id: string; name: string }>;
+  assignments: Array<{
+    subject: { id: string; name: string };
+    classroom: { name: string };
+    academicYear: { name: string };
+  }>;
 };
 
-interface TeachersTableProps {
-  teachers: Teacher[];
-  onRefresh?: () => void;
-}
+export function TeachersTable({ teachers, onRefresh }: { teachers: Teacher[]; onRefresh?: () => void }) {
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
 
-export function TeachersTable({ teachers, onRefresh }: TeachersTableProps) {
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer le professeur "${name}" ?`)) {
-      return;
-    }
-
+  const handleUpdateTeacher = async (teacherId: string, data: Record<string, any>) => {
     try {
-      const result: any = await deleteTeacher(id);
+      const result: any = await updateTeacher(teacherId, data);
       if (result?.error) {
         toast.error(result.error);
       } else {
-        toast.success("Professeur supprimé avec succès");
+        toast.success("Professeur mis à jour avec succès");
+        setEditingTeacher(null);
         onRefresh?.();
       }
     } catch (error) {
-      toast.error("Erreur lors de la suppression");
+      toast.error("Erreur lors de la mise à jour");
     }
   };
 
   const columns: ColumnDef<Teacher>[] = [
     {
-      accessorKey: "lastName",
+      id: "name",
+      accessorFn: (row) => row.user?.name || "",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -66,36 +69,69 @@ export function TeachersTable({ teachers, onRefresh }: TeachersTableProps) {
       ),
       cell: ({ row }) => {
         const teacher = row.original;
-        return `${teacher.lastName} ${teacher.firstName}`;
+        return (
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={teacher.user.image || ""} />
+              <AvatarFallback className="text-sm font-medium">
+                {teacher.user.name?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || "?"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-sm">{teacher.user.name}</p>
+              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                <Mail className="h-3 w-3" />
+                <span>{teacher.user.email}</span>
+              </div>
+              {teacher.user.phone && (
+                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                  <Phone className="h-3 w-3" />
+                  <span>{teacher.user.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       },
     },
     {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "phone",
-      header: "Téléphone",
+      accessorKey: "assignments",
+      header: "Matières enseignées",
       cell: ({ row }) => {
-        const phone = row.getValue("phone") as string;
-        return phone || "Non renseigné";
+        const subjectsList = Array.isArray(row.original.subjects) ? row.original.subjects : [];
+        if (!subjectsList.length) {
+          return <span className="text-muted-foreground text-sm">Aucune matière</span>;
+        }
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {subjectsList.slice(0, 4).map((s) => (
+              <Badge
+                key={s.id}
+                variant={"secondary"}
+                className="text-xs flex items-center gap-1"
+              >
+                <BookOpen className="h-3 w-3" />
+                {s.name}
+              </Badge>
+            ))}
+            {subjectsList.length > 4 && (
+              <Badge variant="outline" className="text-xs">+{subjectsList.length - 4}</Badge>
+            )}
+          </div>
+        );
       },
     },
     {
-      accessorKey: "specialization",
-      header: "Spécialisation",
+      accessorKey: "bio",
+      header: "Bio",
       cell: ({ row }) => {
-        const specialization = row.getValue("specialization") as string;
-        return specialization || "Non renseignée";
-      },
-    },
-    {
-      accessorKey: "hireDate",
-      header: "Date d'embauche",
-      cell: ({ row }) => {
-        const hireDate = row.getValue("hireDate") as string;
-        if (!hireDate) return "Non renseignée";
-        return new Date(hireDate).toLocaleDateString("fr-FR");
+        const bio = row.original.bio;
+        return bio ? (
+          <p className="text-sm text-muted-foreground truncate max-w-40">{bio}</p>
+        ) : (
+          <span className="text-muted-foreground text-sm">-</span>
+        );
       },
     },
     {
@@ -114,23 +150,10 @@ export function TeachersTable({ teachers, onRefresh }: TeachersTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/teachers/${teacher.id}`}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Voir détails
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/teachers/${teacher.id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
+                <Link href={`/teachers/${teacher.id}/edit`} className="flex items-center">
+                  <Pencil className="mr-2 h-4 w-4" />
                   Modifier
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleDelete(teacher.id, `${teacher.lastName} ${teacher.firstName}`)}
-                className="text-red-600"
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -143,7 +166,7 @@ export function TeachersTable({ teachers, onRefresh }: TeachersTableProps) {
     <DataTable
       columns={columns}
       data={teachers}
-      searchKey="lastName"
+      searchKey="name"
       searchPlaceholder="Rechercher un professeur..."
     />
   );

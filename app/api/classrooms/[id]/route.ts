@@ -38,7 +38,13 @@ export async function GET(
   const item = await db.classroom.findFirst({
     where: { id, schoolId },
     include: {
-      gradeLevel: true,
+      gradeLevel: {
+        include: {
+          gradeLevelSubjects: {
+            include: { subject: true },
+          },
+        },
+      },
       headTeacher: {
         include: { user: true },
       },
@@ -71,15 +77,32 @@ export async function GET(
 
   if (!item) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
+  // Construire un fallback de coefficients par niveau
+  const levelCoeffMap = new Map<string, number>();
+  item.gradeLevel?.gradeLevelSubjects?.forEach((gls: any) => {
+    levelCoeffMap.set(gls.subjectId, gls.coefficient);
+  });
+
+  // Construire la liste des matières à partir du NIVEAU (source unique)
+  const classroomSubjectsResolved = (
+    item.gradeLevel?.gradeLevelSubjects || []
+  ).map((gls: any) => ({
+    id: `gls:${gls.id}`,
+    subjectId: gls.subjectId,
+    subject: gls.subject,
+    coefficientResolved: gls.coefficient ?? 1,
+  }));
+
   // Calculer des statistiques
   const totalStudents = item.enrollments?.length || 0;
   const totalTeachers = new Set(
     item.teacherAssignments?.map(ta => ta.teacherId) || []
   ).size;
-  const totalSubjects = item.classroomSubjects?.length || 0;
+  const totalSubjects = classroomSubjectsResolved.length;
 
   const classroomWithStats = {
     ...item,
+    classroomSubjects: classroomSubjectsResolved,
     stats: {
       totalStudents,
       totalTeachers,

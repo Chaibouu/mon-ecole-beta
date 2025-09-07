@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ClassroomCreateSchema, ClassroomUpdateSchema } from "@/schemas/classroom";
 import { createClassroom, updateClassroom } from "@/actions/classrooms";
 import { listTeachers } from "@/actions/school-members";
+import { TeacherSelect } from "@/components/classrooms/teacher-select";
 import { useState, useEffect } from "react";
 
 type ClassroomFormProps = {
@@ -31,7 +32,9 @@ type ClassroomFormProps = {
 
 export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onSuccess }: ClassroomFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [teachers, setTeachers] = useState<any[]>([]);
+  const teachers = Array.isArray((initialData as any)?.__teachers)
+    ? (initialData as any).__teachers
+    : Array.isArray((initialData as any)?.teachers) ? (initialData as any).teachers : [];
   
   const schema = mode === "create" ? ClassroomCreateSchema : ClassroomUpdateSchema;
   
@@ -41,40 +44,33 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
       name: initialData?.name || "",
       gradeLevelId: initialData?.gradeLevelId || "",
       description: initialData?.description || "",
-      headTeacherId: initialData?.headTeacherId || "",
+      headTeacherId: initialData?.headTeacherId || "none",
       room: initialData?.room || "",
     } : {
       name: "",
       gradeLevelId: "",
       description: "",
-      headTeacherId: "",
+      headTeacherId: "none",
       room: "",
     },
   });
 
-  // Charger les professeurs
-  useEffect(() => {
-    const loadTeachers = async () => {
-      try {
-        const result = await listTeachers();
-        if (result?.teachers) {
-          setTeachers(result.teachers);
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des professeurs:", error);
-      }
-    };
-    loadTeachers();
-  }, []);
+  // teachers are passed from server via initialData.__teachers
 
   async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true);
     try {
+      // Traiter la valeur "none" pour headTeacherId
+      const processedValues = {
+        ...values,
+        headTeacherId: values.headTeacherId === "none" ? undefined : values.headTeacherId,
+      };
+
       let result: any;
       if (mode === "create") {
-        result = await createClassroom(values as any);
+        result = await createClassroom(processedValues as any);
       } else if (classroomId) {
-        result = await updateClassroom(classroomId, values);
+        result = await updateClassroom(classroomId, processedValues);
       }
 
       if (result?.error) {
@@ -154,21 +150,14 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Professeur principal</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un professeur principal (optionnel)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="">Aucun professeur principal</SelectItem>
-                    {teachers.map((teacher) => (
-                      <SelectItem key={teacher.id} value={teacher.id}>
-                        {teacher.user?.name || "Nom non renseigné"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <TeacherSelect
+                    teachers={teachers}
+                    value={field.value}
+                    onChange={(option) => field.onChange(option?.value || "none")}
+                    placeholder="Rechercher un professeur principal..."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

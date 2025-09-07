@@ -42,7 +42,8 @@ import {
   Mail,
   User,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  CreditCard
 } from "lucide-react";
 import { deleteStudent } from "@/actions/school-members";
 import { toast } from "sonner";
@@ -218,6 +219,12 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
                 <Link href={`/students/${student.id}/edit`} className="flex items-center">
                   <Edit className="mr-2 h-4 w-4" />
                   Modifier
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href={`/students/${student.id}/payments`} className="flex items-center">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Paiements
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
