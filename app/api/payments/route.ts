@@ -180,11 +180,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify fee schedule belongs to school
+    // Verify fee schedule belongs to school and load relations
     const feeSchedule = await db.feeSchedule.findFirst({
       where: {
         id: parsed.data.feeScheduleId,
         schoolId,
+      },
+      include: {
+        parentFee: true,
+        installments: true,
       },
     });
 
@@ -193,6 +197,96 @@ export async function POST(req: NextRequest) {
         { error: "Structure de frais non trouvée" },
         { status: 404 }
       );
+    }
+
+    // Business rules: sequential installments vs full payment
+    // Build context: determine parent and installments set
+    const isInstallment = !!feeSchedule.parentFeeId;
+    const parentFeeId = isInstallment
+      ? feeSchedule.parentFeeId!
+      : feeSchedule.id;
+    const parentFee = isInstallment ? feeSchedule.parentFee : feeSchedule;
+
+    // Fetch all installments for parent (ordered)
+    const installments = await db.feeSchedule.findMany({
+      where: { schoolId, parentFeeId },
+      orderBy: { installmentOrder: "asc" },
+    });
+
+    // Fetch existing payments for this student on parent and installments
+    const relatedFeeIds = [parentFeeId, ...installments.map(i => i.id)];
+    const existingPayments = await db.payment.findMany({
+      where: {
+        schoolId,
+        studentId: parsed.data.studentId,
+        feeScheduleId: { in: relatedFeeIds },
+      },
+    });
+
+    // Helpers
+    const sumPaidFor = (feeId: string) =>
+      existingPayments
+        .filter(p => p.feeScheduleId === feeId)
+        .reduce((s, p) => s + p.amountCents, 0);
+
+    // If paying full (parent), allow even if some installments were paid.
+    // We'll cap the amount to the remaining global below.
+
+    // If paying an installment, enforce order and prevent overlap with full payment
+    if (isInstallment) {
+      // Enforce sequential order: all previous installments must be fully paid
+      const ordered = installments;
+      const currentIndex = ordered.findIndex(i => i.id === feeSchedule.id);
+      for (let i = 0; i < currentIndex; i++) {
+        const inst = ordered[i];
+        const paid = sumPaidFor(inst.id);
+        if (paid < inst.amountCents) {
+          return NextResponse.json(
+            {
+              error: `Veuillez d'abord régler la tranche ${i + 1} avant de payer la suivante.`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+      // Amount must not exceed remaining for this installment
+      const alreadyPaid = sumPaidFor(feeSchedule.id);
+      const remaining = feeSchedule.amountCents - alreadyPaid;
+      if (parsed.data.amountCents > remaining) {
+        return NextResponse.json(
+          { error: "Montant supérieur au restant de la tranche." },
+          { status: 400 }
+        );
+      }
+      // Global cap: also ensure we don't exceed the remaining global across parent + all installments
+      const paidOnParent = sumPaidFor(parentFeeId);
+      const paidOnInstallments = installments.reduce(
+        (s, inst) => s + sumPaidFor(inst.id),
+        0
+      );
+      const globalRemaining =
+        parentFee!.amountCents - (paidOnParent + paidOnInstallments);
+      if (parsed.data.amountCents > globalRemaining) {
+        return NextResponse.json(
+          { error: "Montant supérieur au restant total du frais." },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Paying full: amount must not exceed remaining on parent (consider all installment payments too)
+      const paidOnParent = sumPaidFor(parentFeeId);
+      const paidOnInstallments = installments.reduce(
+        (s, inst) => s + sumPaidFor(inst.id),
+        0
+      );
+      const remaining =
+        parentFee!.amountCents - (paidOnParent + paidOnInstallments);
+      if (parsed.data.amountCents > remaining) {
+        return NextResponse.json(
+          { error: "Montant supérieur au restant à payer." },
+          { status: 400 }
+        );
+      }
     }
 
     // Create payment

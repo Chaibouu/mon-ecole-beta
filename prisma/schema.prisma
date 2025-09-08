@@ -447,6 +447,7 @@ model ParentStudent {
     student StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
 
     @@unique([parentProfileId, studentProfileId])
+    @@unique([studentProfileId]) // Un enfant ne peut avoir qu'un seul parent
 }
 
 // Inscription d'un élève dans une classe pour une année donnée

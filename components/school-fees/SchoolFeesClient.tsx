@@ -43,7 +43,7 @@ interface SchoolFeesClientProps {
   analytics: Analytics;
 }
 
-export default function SchoolFeesClient({
+export default function   SchoolFeesClient({
   initialFeeSchedules,
   gradeLevels,
   classrooms,
@@ -196,7 +196,7 @@ export default function SchoolFeesClient({
             // Si le rechargement échoue, ajouter au moins l'élément principal
             setFeeSchedules(prev => [result.feeSchedule, ...prev]);
           }
-                        toast.success("Frais scolaires créés avec succès");
+            toast.success("Frais scolaires créés avec succès");
           resetForm();
           setIsCreateDialogOpen(false);
         }
@@ -282,7 +282,32 @@ export default function SchoolFeesClient({
         { name: "", amountCents: 0, dueDate: "" }
       ]
     }));
-  };
+  };   {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Confirmer la suppression
+            </DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer ces frais scolaires "{feeScheduleToDelete?.itemName}" ?
+              <br />
+              <span className="font-medium text-destructive">
+                Cette action est irréversible et supprimera également tous les paiements associés.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Supprimer définitivement
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
   const removeInstallment = (index: number) => {
     setFormData(prev => ({

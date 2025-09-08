@@ -66,7 +66,7 @@ export function TermForm({ mode, initialData, termId, academicYears, onSuccess }
       if (result?.error) {
         toast.error(result.error);
       } else {
-        toast.success(mode === "create" ? "Trimestre créé avec succès" : "Trimestre mis à jour avec succès");
+        toast.success(mode === "create" ? "Période créée avec succès" : "Période mise à jour avec succès");
         form.reset();
         onSuccess?.();
       }
@@ -86,9 +86,9 @@ export function TermForm({ mode, initialData, termId, academicYears, onSuccess }
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nom du trimestre *</FormLabel>
+                <FormLabel>Nom de la période *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ex: Premier trimestre" {...field} />
+                  <Input placeholder="Ex: Premier semestre, Trimestre 1, Quadrimestre A..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,7 +159,7 @@ export function TermForm({ mode, initialData, termId, academicYears, onSuccess }
             Annuler
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Enregistrement..." : mode === "create" ? "Créer le trimestre" : "Mettre à jour"}
+            {isLoading ? "Enregistrement..." : mode === "create" ? "Créer la période" : "Mettre à jour"}
           </Button>
         </div>
       </form>

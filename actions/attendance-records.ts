@@ -43,6 +43,9 @@ export async function createAttendance(data: CreateAttendancePayload) {
   );
 }
 
+// Alias pour la compatibilité
+export const createAttendanceRecord = createAttendance;
+
 export async function updateAttendance(
   id: string,
   data: Partial<CreateAttendancePayload>
@@ -54,12 +57,25 @@ export async function updateAttendance(
   );
 }
 
+// Alias pour la compatibilité
+export const updateAttendanceRecord = updateAttendance;
+
+export async function getAttendanceRecordById(id: string) {
+  return makeAuthenticatedRequest(
+    `${API_BASE}/attendance-records/${id}`,
+    "GET"
+  );
+}
+
 export async function deleteAttendance(id: string) {
   return makeAuthenticatedRequest(
     `${API_BASE}/attendance-records/${id}`,
     "DELETE"
   );
 }
+
+// Alias pour la compatibilité
+export const deleteAttendanceRecord = deleteAttendance;
 
 export async function getAttendanceAnalytics(filters: AttendanceFilters = {}) {
   const qs = new URLSearchParams();

@@ -23,10 +23,22 @@ export const TeacherCreateSchema = z.union([
   CreateNewUserSchema,
 ]);
 
-export const ParentCreateSchema = z.union([
-  LinkExistingUserSchema,
-  CreateNewUserSchema,
-]);
+export const ParentCreateSchema = z
+  .union([LinkExistingUserSchema, CreateNewUserSchema])
+  .and(
+    z.object({
+      phone: z.string().optional(),
+      address: z.string().optional(),
+      children: z
+        .array(
+          z.object({
+            studentId: z.string(),
+            relationship: z.string().optional(),
+          })
+        )
+        .optional(),
+    })
+  );
 
 export const StudentCreateSchema = z
   .union([LinkExistingUserSchema, CreateNewUserSchema])

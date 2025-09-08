@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Users, 
   Phone, 
@@ -315,12 +314,13 @@ export function AdminParentsTableWrapper({ initialParents }: AdminParentsTableWr
                 ))}
               </div>
             ) : (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  Aucun enfant lié à ce parent. Utilisez le bouton "Ajouter un enfant" pour créer des liaisons.
-                </AlertDescription>
-              </Alert>
+              <div className="text-center py-8">
+                <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Aucun enfant lié à ce parent</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Utilisez le bouton "Ajouter un enfant" pour créer des liaisons.
+                </p>
+              </div>
             )}
           </div>
         </DialogContent>

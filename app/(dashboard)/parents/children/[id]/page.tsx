@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { User, AlertTriangle } from "lucide-react";
-import { ChildDetailClient } from "@/components/parents/ChildDetailClient";
+// import { ChildDetailClient } from "@/components/parents/ChildDetailClient";
 import { getStudentPayments } from "@/actions/student-payments";
 
 export const metadata: Metadata = {
@@ -46,7 +46,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
         icon={User}
       />
 
-      <ChildDetailClient childId={id} initialData={studentData} />
+      {/* <ChildDetailClient childId={id} initialData={studentData} /> */}
     </div>
   );
 }

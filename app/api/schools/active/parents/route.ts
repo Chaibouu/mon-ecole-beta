@@ -21,7 +21,18 @@ export async function GET(req: NextRequest) {
 
     const parents = await db.parentProfile.findMany({
       where: { schoolId },
-      include: { user: true },
+      include: {
+        user: true,
+        children: {
+          include: {
+            student: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { id: "desc" },
     });
     return NextResponse.json({ parents });
@@ -84,18 +95,50 @@ export async function POST(req: NextRequest) {
       userId = user.id;
     }
 
-    await db.parentProfile.upsert({
+    const data = parsed.data as any;
+    const parentProfile = await db.parentProfile.upsert({
       where: { userId_schoolId: { userId, schoolId } },
       update: {},
-      create: { userId, schoolId },
+      create: {
+        userId,
+        schoolId,
+        phone: data.phone || null,
+        address: data.address || null,
+      },
     });
+
     await db.userSchool.upsert({
       where: { userId_schoolId: { userId, schoolId } },
       update: { role: "PARENT" as any },
       create: { userId, schoolId, role: "PARENT" as any },
     });
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    // Si des enfants sont spécifiés, créer les liaisons
+    if (data.children && Array.isArray(data.children)) {
+      const children = data.children;
+      for (const child of children) {
+        // Vérifier que l'étudiant existe dans cette école
+        const student = await db.studentProfile.findFirst({
+          where: { id: child.studentId, schoolId },
+        });
+
+        if (student) {
+          // Créer la liaison parent-enfant
+          await db.parentStudent.create({
+            data: {
+              parentProfileId: parentProfile.id,
+              studentProfileId: child.studentId,
+              relationship: child.relationship || "parent",
+            },
+          });
+        }
+      }
+    }
+
+    return NextResponse.json(
+      { success: true, parent: parentProfile },
+      { status: 201 }
+    );
   } catch (e) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

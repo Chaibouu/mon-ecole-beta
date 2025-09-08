@@ -114,8 +114,8 @@ export async function GET(
     let mainFees: any[] = [];
 
     if (currentEnrollment) {
-      // Récupérer SEULEMENT les frais généraux (pas les tranches) pour le calcul du total
-      mainFees = await db.feeSchedule.findMany({
+      // Récupérer TOUS les frais applicables (parents + tranches)
+      const allApplicableFees = await db.feeSchedule.findMany({
         where: {
           schoolId,
           OR: [
@@ -125,7 +125,6 @@ export async function GET(
             },
             { classroomId: currentEnrollment.classroomId },
           ],
-          isInstallment: false, // Seulement les frais principaux
         },
         include: {
           gradeLevel: true,
@@ -139,17 +138,20 @@ export async function GET(
         },
       });
 
+      // Déterminer les frais principaux (éviter le double comptage)
+      // 1) parentFeeId == null
+      // 2) Fallback legacy: exclure les noms contenant " - "
+      mainFees = allApplicableFees.filter(
+        f => f.parentFeeId === null && !f.itemName.includes(" - ")
+      );
+
       // Pour les paiements, offrir les 2 options : paiement complet OU par tranches
       applicableFeeSchedules = [];
-
       for (const mainFee of mainFees) {
         if (mainFee.installments.length > 0) {
-          // Ajouter le frais principal (paiement en une fois)
           applicableFeeSchedules.push(mainFee);
-          // ET ajouter les tranches (paiement échelonné)
           applicableFeeSchedules.push(...mainFee.installments);
         } else {
-          // Frais sans tranches : seulement le frais principal
           applicableFeeSchedules.push(mainFee);
         }
       }
@@ -168,23 +170,9 @@ export async function GET(
       0
     );
 
-    // Calculer le total dû basé sur les frais principaux uniquement
+    // Calculer le total dû basé sur les frais principaux uniquement (utiliser mainFees)
     const totalDue = currentEnrollment
-      ? (
-          await db.feeSchedule.findMany({
-            where: {
-              schoolId,
-              OR: [
-                {
-                  gradeLevelId: currentEnrollment.classroom.gradeLevelId,
-                  classroomId: null,
-                },
-                { classroomId: currentEnrollment.classroomId },
-              ],
-              isInstallment: false, // Seulement les frais principaux
-            },
-          })
-        ).reduce((sum: number, fee: any) => sum + fee.amountCents, 0)
+      ? mainFees.reduce((sum: number, fee: any) => sum + fee.amountCents, 0)
       : 0;
 
     const balance = totalDue - totalPaid;
@@ -204,108 +192,64 @@ export async function GET(
 
     // Traiter chaque frais principal et ses tranches
     for (const mainFee of mainFees) {
-      if (mainFee.installments.length > 0) {
-        // Frais avec tranches : calculer les paiements sur TOUTES les tranches + frais principal
-        const allRelatedPayments = [];
+      // Calculer paiements agrégés (frais principal + tranches)
+      const allRelatedPayments = [];
+      const mainFeePayments = paymentsByFeeSchedule.get(mainFee.id) || [];
+      allRelatedPayments.push(...mainFeePayments);
+      for (const installment of mainFee.installments) {
+        const installmentPayments =
+          paymentsByFeeSchedule.get(installment.id) || [];
+        allRelatedPayments.push(...installmentPayments);
+      }
+      const totalPaidForMainFee = allRelatedPayments.reduce(
+        (sum: number, p: any) => sum + p.amountCents,
+        0
+      );
 
-        // Paiements sur le frais principal
-        const mainFeePayments = paymentsByFeeSchedule.get(mainFee.id) || [];
-        allRelatedPayments.push(...mainFeePayments);
+      // Toujours exposer le frais principal (option paiement global)
+      let mainStatus = "PENDING";
+      if (totalPaidForMainFee >= mainFee.amountCents) {
+        mainStatus = "PAID";
+      } else if (totalPaidForMainFee > 0) {
+        mainStatus = "PARTIALLY_PAID";
+      } else if (mainFee.dueDate && new Date(mainFee.dueDate) < new Date()) {
+        mainStatus = "OVERDUE";
+      }
+      feeScheduleStatuses.push({
+        ...mainFee,
+        status: mainStatus,
+        totalPaid: totalPaidForMainFee,
+        remainingAmount: mainFee.amountCents - totalPaidForMainFee,
+        payments: allRelatedPayments,
+      });
 
-        // Paiements sur les tranches
-        for (const installment of mainFee.installments) {
-          const installmentPayments =
-            paymentsByFeeSchedule.get(installment.id) || [];
-          allRelatedPayments.push(...installmentPayments);
-        }
-
-        const totalPaidForMainFee = allRelatedPayments.reduce(
-          (sum: number, p: any) => sum + p.amountCents,
-          0
-        );
-
-        // Déterminer si on utilise le mode "paiement complet" ou "par tranches"
-        const hasMainFeePayment = mainFeePayments.length > 0;
-        const hasInstallmentPayments = mainFee.installments.some(
-          (inst: any) => (paymentsByFeeSchedule.get(inst.id) || []).length > 0
-        );
-
-        if (hasMainFeePayment) {
-          // Mode paiement complet : montrer seulement le frais principal
-          let status = "PENDING";
-          if (totalPaidForMainFee >= mainFee.amountCents) {
-            status = "PAID";
-          } else if (totalPaidForMainFee > 0) {
-            status = "PARTIALLY_PAID";
-          } else if (
-            mainFee.dueDate &&
-            new Date(mainFee.dueDate) < new Date()
-          ) {
-            status = "OVERDUE";
-          }
-
-          feeScheduleStatuses.push({
-            ...mainFee,
-            status,
-            totalPaid: totalPaidForMainFee,
-            remainingAmount: mainFee.amountCents - totalPaidForMainFee,
-            payments: allRelatedPayments,
-          });
-        } else {
-          // Mode par tranches : montrer les tranches individuelles
-          for (const installment of mainFee.installments) {
-            const installmentPayments =
-              paymentsByFeeSchedule.get(installment.id) || [];
-            const totalPaidForInstallment = installmentPayments.reduce(
-              (sum: number, p: any) => sum + p.amountCents,
-              0
-            );
-
-            let status = "PENDING";
-            if (totalPaidForInstallment >= installment.amountCents) {
-              status = "PAID";
-            } else if (totalPaidForInstallment > 0) {
-              status = "PARTIALLY_PAID";
-            } else if (
-              installment.dueDate &&
-              new Date(installment.dueDate) < new Date()
-            ) {
-              status = "OVERDUE";
-            }
-
-            feeScheduleStatuses.push({
-              ...installment,
-              status,
-              totalPaid: totalPaidForInstallment,
-              remainingAmount:
-                installment.amountCents - totalPaidForInstallment,
-              payments: installmentPayments,
-            });
-          }
-        }
-      } else {
-        // Frais sans tranches : traitement normal
-        const payments = paymentsByFeeSchedule.get(mainFee.id) || [];
-        const totalPaidForFee = payments.reduce(
+      // Exposer aussi chaque tranche (option paiement échelonné)
+      for (const installment of mainFee.installments) {
+        const installmentPayments =
+          paymentsByFeeSchedule.get(installment.id) || [];
+        const totalPaidForInstallment = installmentPayments.reduce(
           (sum: number, p: any) => sum + p.amountCents,
           0
         );
 
         let status = "PENDING";
-        if (totalPaidForFee >= mainFee.amountCents) {
+        if (totalPaidForInstallment >= installment.amountCents) {
           status = "PAID";
-        } else if (totalPaidForFee > 0) {
+        } else if (totalPaidForInstallment > 0) {
           status = "PARTIALLY_PAID";
-        } else if (mainFee.dueDate && new Date(mainFee.dueDate) < new Date()) {
+        } else if (
+          installment.dueDate &&
+          new Date(installment.dueDate) < new Date()
+        ) {
           status = "OVERDUE";
         }
 
         feeScheduleStatuses.push({
-          ...mainFee,
+          ...installment,
           status,
-          totalPaid: totalPaidForFee,
-          remainingAmount: mainFee.amountCents - totalPaidForFee,
-          payments,
+          totalPaid: totalPaidForInstallment,
+          remainingAmount: installment.amountCents - totalPaidForInstallment,
+          payments: installmentPayments,
         });
       }
     }
@@ -343,7 +287,8 @@ export async function GET(
         totalDue,
         totalPaid,
         balance,
-        feeScheduleCount: applicableFeeSchedules.length,
+        // nombre de structures principales applicables
+        feeScheduleCount: mainFees.length,
         paidFeeScheduleCount: feeSchedulesByStatus.paid.length,
         overdueCount: feeSchedulesByStatus.overdue.length,
       },

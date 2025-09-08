@@ -55,7 +55,7 @@ const config = {
   				foreground: 'hsl(var(--card-foreground))'
   			},
   			body: '#64748B',
-  			black: '`${appConfig.adminSidebarColor}`',
+  			black: appConfig.adminSidebarColor,
   			'black-2': '#010101',
   			whiten: '#F1F5F9',
   			bodydark: '#AEB7C0',

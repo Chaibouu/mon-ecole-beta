@@ -26,7 +26,18 @@ export async function GET(
 
     const parent = await db.parentProfile.findFirst({
       where: { id, schoolId },
-      include: includeUser,
+      include: {
+        user: true,
+        children: {
+          include: {
+            student: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!parent)
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -87,7 +98,18 @@ export async function PATCH(
 
     const updated = await db.parentProfile.findFirst({
       where: { id, schoolId },
-      include: includeUser,
+      include: {
+        user: true,
+        children: {
+          include: {
+            student: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
     });
     return NextResponse.json({ parent: updated });
   } catch (e) {

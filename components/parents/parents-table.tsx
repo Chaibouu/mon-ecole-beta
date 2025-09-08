@@ -43,18 +43,20 @@ import {
   User,
   Phone,
   MapPin,
-  RefreshCw
+  RefreshCw,
+  Heart
 } from "lucide-react";
-import { deleteParent } from "@/actions/school-members";
+import { deleteParent } from "@/actions/parents";
 import { toast } from "sonner";
 import Link from "next/link";
 
 interface ParentsTableProps {
   parents: any[];
+  students: any[];
   onRefresh: () => void;
 }
 
-export function ParentsTable({ parents, onRefresh }: ParentsTableProps) {
+export function ParentsTable({ parents, students, onRefresh }: ParentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -181,6 +183,42 @@ export function ParentsTable({ parents, onRefresh }: ParentsTableProps) {
         ) : (
           <span className="text-gray-400 italic">Non renseignée</span>
         );
+      },
+    },
+    {
+      id: "children",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="hover:bg-emerald-50 dark:hover:bg-emerald-950"
+        >
+          <Heart className="mr-2 h-4 w-4" />
+          Enfants
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const parent = row.original;
+        const childrenCount = parent.children?.length || 0;
+        return (
+          <div className="flex items-center space-x-2">
+            <Heart className="h-4 w-4 text-pink-600" />
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {childrenCount}
+            </span>
+            {childrenCount > 0 && (
+              <span className="text-sm text-gray-500">
+                enfant{childrenCount > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        );
+      },
+      sortingFn: (rowA, rowB) => {
+        const countA = rowA.original.children?.length || 0;
+        const countB = rowB.original.children?.length || 0;
+        return countA - countB;
       },
     },
     {

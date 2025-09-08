@@ -43,11 +43,13 @@ import {
   User,
   Calendar,
   RefreshCw,
-  CreditCard
+  CreditCard,
+  Trash
 } from "lucide-react";
 import { deleteStudent } from "@/actions/school-members";
 import { toast } from "sonner";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 interface StudentsTableProps {
   students: any[];
@@ -60,7 +62,7 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const handleDelete = async (studentId: string, studentName: string) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'élève "${studentName}" ?`)) {
+
       try {
         const result = await deleteStudent(studentId);
         if (result?.error) {
@@ -72,7 +74,7 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
       } catch (error) {
         toast.error("Erreur lors de la suppression");
       }
-    }
+    
   };
 
   const columns: ColumnDef<any>[] = [
@@ -229,11 +231,35 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => handleDelete(student.id, student.user?.name || "cet élève")}
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
                 className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Supprimer
+                  <Dialog >
+                                  <DialogTrigger asChild>
+                                    <span className="flex"> <Trash className="mr-2 h-4 w-4" />Supprimer</span>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                
+                                  <div className="text-sm">
+                                    Êtes-vous sûr de vouloir supprimer l'élève "{student.user?.name}" ?
+                                  </div>
+                                  <div className="mt-4 flex justify-end space-x-2">
+                                    <Button variant="outline" size="sm">
+                                      Annuler
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => handleDelete(student.id, student.user?.name)}
+                                    >
+                                      Supprimer
+                                    </Button>
+                                  </div>
+                                  </DialogContent>
+                
+                                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

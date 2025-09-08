@@ -68,9 +68,9 @@ export const schoolNavigation: NavigationGroup[] = [
     title: "Tableau de bord",
     items: [
       {
-        title: "Accueil",
+        title: "Tableau de bord",
         icon: Home,
-        path: "/",
+        path: "/dashboard",
         allowedRoles: [
           "SUPER_ADMIN",
           "ADMIN",
@@ -81,13 +81,13 @@ export const schoolNavigation: NavigationGroup[] = [
         ],
         description: "Vue d'ensemble de l'établissement",
       },
-      {
-        title: "Statistiques",
-        icon: PieChart,
-        path: "/analytics",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
-        description: "Analyses et rapports détaillés",
-      },
+      // {
+      //   title: "Statistiques",
+      //   icon: PieChart,
+      //   path: "/analytics",
+      //   allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+      //   description: "Analyses et rapports détaillés",
+      // },
     ],
   },
   {
@@ -122,35 +122,35 @@ export const schoolNavigation: NavigationGroup[] = [
           },
         ],
       },
-      {
-        title: "Utilisateurs",
-        icon: Users,
-        path: "/users",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Gestion des comptes utilisateurs",
-        children: [
-          {
-            title: "Tous les utilisateurs",
-            path: "/users",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-          {
-            title: "Professeurs",
-            path: "/users/teachers",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-          {
-            title: "Étudiants",
-            path: "/users/students",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-          {
-            title: "Parents",
-            path: "/users/parents",
-            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-          },
-        ],
-      },
+      // {
+      //   title: "Utilisateurs",
+      //   icon: Users,
+      //   path: "/users",
+      //   allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //   description: "Gestion des comptes utilisateurs",
+      //   children: [
+      //     {
+      //       title: "Tous les utilisateurs",
+      //       path: "/users",
+      //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //     },
+      //     {
+      //       title: "Professeurs",
+      //       path: "/users/teachers",
+      //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //     },
+      //     {
+      //       title: "Étudiants",
+      //       path: "/users/students",
+      //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //     },
+      //     {
+      //       title: "Parents",
+      //       path: "/users/parents",
+      //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //     },
+      //   ],
+      // },
       {
         title: "Années académiques",
         icon: CalendarDays,
@@ -171,31 +171,31 @@ export const schoolNavigation: NavigationGroup[] = [
         ],
       },
       {
-        title: "Trimestres",
+        title: "Périodes scolaires",
         icon: Calendar,
         path: "/terms",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
         description: "Gestion des périodes d'évaluation",
         children: [
           {
-            title: "Liste des trimestres",
+            title: "Liste des périodes",
             path: "/terms",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
           {
-            title: "Créer un trimestre",
+            title: "Créer une période",
             path: "/terms/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],
       },
-      {
-        title: "Paramètres",
-        icon: Settings,
-        path: "/settings",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Configuration de l'établissement",
-      },
+      // {
+      //   title: "Paramètres",
+      //   icon: Settings,
+      //   path: "/settings",
+      //   allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+      //   description: "Configuration de l'établissement",
+      // },
     ],
   },
   {
@@ -410,18 +410,18 @@ export const schoolNavigation: NavigationGroup[] = [
       {
         title: "Parents",
         icon: Users,
-        path: "/admin/parents",
+        path: "/parents",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
         description: "Gestion des parents d'élèves et liaisons parent-enfant",
         children: [
           {
-            title: "Gestion des parents",
-            path: "/admin/parents",
+            title: "Liste des parents",
+            path: "/parents",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
           {
             title: "Ajouter un parent",
-            path: "/admin/parents/create",
+            path: "/parents/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
         ],
@@ -512,9 +512,9 @@ export const schoolNavigation: NavigationGroup[] = [
     allowedRoles: ["PARENT"],
     items: [
       {
-        title: "Tableau de bord",
-        icon: Home,
-        path: "/parents/dashboard",
+        title: "Mes enfants",
+        icon: Users,
+        path: "/parents",
         allowedRoles: ["PARENT"],
         description: "Vue d'ensemble de vos enfants",
       },
@@ -587,27 +587,13 @@ export const schoolNavigation: NavigationGroup[] = [
   {
     title: "Outils",
     items: [
-      {
-        title: "Test",
-        icon: FileText,
-        path: "/test",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Page de test du système",
-      },
-      {
-        title: "POP",
-        icon: Bell,
-        path: "/pop",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Page POP",
-      },
-      {
-        title: "Rapports",
-        icon: FileText,
-        path: "/reports",
-        allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
-        description: "Génération de rapports personnalisés",
-      },
+      // {
+      //   title: "Rapports",
+      //   icon: FileText,
+      //   path: "/reports",
+      //   allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
+      //   description: "Génération de rapports personnalisés",
+      // },
       {
         title: "Documentation API",
         icon: Database,

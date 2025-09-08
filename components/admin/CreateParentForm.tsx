@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   User, 
   Mail, 
@@ -369,12 +368,13 @@ export function CreateParentForm() {
               </div>
             </div>
           ) : (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Aucun enfant ajouté. Vous pouvez créer le parent sans enfants et les lier plus tard.
-              </AlertDescription>
-            </Alert>
+            <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+              <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Aucun enfant ajouté</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vous pouvez créer le parent sans enfants et les lier plus tard.
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

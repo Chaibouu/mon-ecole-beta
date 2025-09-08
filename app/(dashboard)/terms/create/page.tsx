@@ -18,9 +18,9 @@ export default async function CreateTermPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Créer un trimestre</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Créer une période</h1>
           <p className="text-muted-foreground">
-            Ajoutez un nouveau trimestre à votre établissement
+            Ajoutez une nouvelle période à votre établissement
           </p>
         </div>
       </div>

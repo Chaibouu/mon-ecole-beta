@@ -21,6 +21,7 @@ export default async function AcademicYearDetailPage({ params }: AcademicYearDet
   }
 
   const academicYear = data.academicYear;
+  console.log(academicYear)
 
   return (
     <div className="space-y-6">

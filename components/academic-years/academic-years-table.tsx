@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteAcademicYear } from "@/actions/academic-years";
 import { toast } from "sonner";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent, DialogTrigger } from "../ui/dialog";
 
 export type AcademicYear = {
   id: string;
@@ -31,9 +33,9 @@ interface AcademicYearsTableProps {
 
 export function AcademicYearsTable({ academicYears, onRefresh }: AcademicYearsTableProps) {
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'année académique "${name}" ?`)) {
-      return;
-    }
+    // if (!confirm(`Êtes-vous sûr de vouloir supprimer l'année académique "${name}" ?`)) {
+    //   return;
+    // }
 
     try {
       const result: any = await deleteAcademicYear(id);
@@ -117,12 +119,41 @@ export function AcademicYearsTable({ academicYears, onRefresh }: AcademicYearsTa
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => handleDelete(academicYear.id, academicYear.name)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  // handleDelete(academicYear.id, academicYear.name);
+                }}
                 className="text-red-600"
                 disabled={academicYear.isActive}
               >
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
+                {/* <Trash className="mr-2 h-4 w-4" /> */}
+                <Dialog >
+                  <DialogTrigger asChild>
+                    <span className="flex"> <Trash className="mr-2 h-4 w-4" />Supprimer</span>
+                  </DialogTrigger>
+                  <DialogContent>
+
+                  <div className="text-sm">
+                    {academicYear.isActive
+                      ? "Vous ne pouvez pas supprimer une année académique active."
+                      : `Êtes-vous sûr de vouloir supprimer l'année académique "${academicYear.name}" ? Cette action est irréversible.`}
+                  </div>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <Button variant="outline" size="sm">
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(academicYear.id, academicYear.name)}
+                      disabled={academicYear.isActive}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
+                  </DialogContent>
+
+                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

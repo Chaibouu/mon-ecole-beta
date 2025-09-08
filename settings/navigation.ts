@@ -19,39 +19,9 @@ export const adminNavigation: NavigationItem[] = [
     allowedRoles: ["STUDENT"],
   },
   {
-    title: "Test",
-    icon: "material-symbols:dashboard",
-    path: "/test",
-    allowedRoles: ["ADMIN", "STUDENT"],
-  },
-  {
     title: "Paramètres",
     icon: "material-symbols:settings",
     path: "/dashboard/settings",
-    allowedRoles: ["STUDENT"],
-  },
-  {
-    title: "POP",
-    icon: "material-symbols:settings",
-    path: "/pop",
-    allowedRoles: ["STUDENT"],
-  },
-  {
-    title: "Pages",
-    icon: "eos-icons:admin",
-    path: "#",
-    children: [
-      {
-        title: "Client",
-        path: "/dashboard/client",
-        allowedRoles: ["STUDENT"],
-      },
-      {
-        title: "Server",
-        path: "/dashboard/server",
-        allowedRoles: ["STUDENT"],
-      },
-    ],
     allowedRoles: ["STUDENT"],
   },
 ];

@@ -53,6 +53,10 @@ export async function updateTimetableEntry(
   );
 }
 
+export async function getTimetableEntryById(id: string) {
+  return makeAuthenticatedRequest(`${API_BASE}/timetable-entries/${id}`, "GET");
+}
+
 export async function deleteTimetableEntry(id: string) {
   return makeAuthenticatedRequest(
     `${API_BASE}/timetable-entries/${id}`,

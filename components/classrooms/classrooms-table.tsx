@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteClassroom } from "@/actions/classrooms";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 export type Classroom = {
   id: string;
@@ -34,9 +35,7 @@ interface ClassroomsTableProps {
 
 export function ClassroomsTable({ classrooms, onRefresh }: ClassroomsTableProps) {
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer la classe "${name}" ?`)) {
-      return;
-    }
+
 
     try {
       const result: any = await deleteClassroom(id);
@@ -76,14 +75,14 @@ export function ClassroomsTable({ classrooms, onRefresh }: ClassroomsTableProps)
         return gradeLevel?.name || "N/A";
       },
     },
-    {
-      accessorKey: "capacity",
-      header: "Capacité",
-      cell: ({ row }) => {
-        const capacity = row.getValue("capacity") as number;
-        return `${capacity} élèves`;
-      },
-    },
+    // {
+    //   accessorKey: "capacity",
+    //   header: "Capacité",
+    //   cell: ({ row }) => {
+    //     const capacity = row.getValue("capacity") as number;
+    //     return `${capacity} élèves`;
+    //   },
+    // },
     {
       accessorKey: "description",
       header: "Description",
@@ -120,11 +119,33 @@ export function ClassroomsTable({ classrooms, onRefresh }: ClassroomsTableProps)
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => handleDelete(classroom.id, classroom.name)}
+                onClick={(e) => e.preventDefault()}
                 className="text-red-600"
               >
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
+               <Dialog >
+                  <DialogTrigger asChild>
+                    <span className="flex"> <Trash className="mr-2 h-4 w-4" />Supprimer</span>
+                  </DialogTrigger>
+                  <DialogContent>
+
+                  <div className="text-sm">
+                    Êtes-vous sûr de vouloir supprimer la classe "{classroom.name}" ?
+                  </div>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <Button variant="outline" size="sm">
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(classroom.id, classroom.name)}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
+                  </DialogContent>
+
+                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

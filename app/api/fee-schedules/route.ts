@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     // Create installments if provided
     if (installments && installments.length > 0) {
       await Promise.all(
-        installments.map(installment =>
+        installments.map((installment, index) =>
           db.feeSchedule.create({
             data: {
               schoolId,
@@ -123,6 +123,10 @@ export async function POST(req: NextRequest) {
               itemName: `${feeData.itemName} - ${installment.name}`,
               amountCents: installment.amountCents,
               dueDate: new Date(installment.dueDate),
+              // Link to parent and mark as installment
+              parentFeeId: feeSchedule.id,
+              isInstallment: true,
+              installmentOrder: index + 1,
             },
           })
         )

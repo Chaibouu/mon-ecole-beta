@@ -22,7 +22,18 @@ export async function GET(req: NextRequest) {
 
     const students = await db.studentProfile.findMany({
       where: { schoolId },
-      include: { user: true },
+      include: {
+        user: true,
+        parentLinks: {
+          include: {
+            parent: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { id: "desc" },
     });
 
@@ -87,10 +98,23 @@ export async function POST(req: NextRequest) {
       userId = user.id;
     }
 
+    const { matricule, gender, dateOfBirth } =
+      (parsed.data as any).profile || {};
+
     await db.studentProfile.upsert({
       where: { userId_schoolId: { userId, schoolId } },
-      update: {},
-      create: { userId, schoolId },
+      update: {
+        ...(matricule && { matricule }),
+        ...(gender && { gender }),
+        ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
+      },
+      create: {
+        userId,
+        schoolId,
+        ...(matricule && { matricule }),
+        ...(gender && { gender }),
+        ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
+      },
     });
     await db.userSchool.upsert({
       where: { userId_schoolId: { userId, schoolId } },

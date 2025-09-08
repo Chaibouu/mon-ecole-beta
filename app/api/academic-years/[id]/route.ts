@@ -62,12 +62,21 @@ export async function PATCH(
       const error = parsed.error.issues.map((i: any) => i.message).join(", ");
       return NextResponse.json({ error }, { status: 400 });
     }
+    const updateData = {
+      ...parsed.data,
+      ...(parsed.data.startDate && {
+        startDate: new Date(parsed.data.startDate),
+      }),
+      ...(parsed.data.endDate && { endDate: new Date(parsed.data.endDate) }),
+    };
+
     const item = await db.academicYear.update({
       where: { id, schoolId },
-      data: parsed.data,
+      data: updateData,
     });
     return NextResponse.json({ academicYear: item });
-  } catch {
+  } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

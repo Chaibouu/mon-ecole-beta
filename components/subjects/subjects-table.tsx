@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteSubject } from "@/actions/subjects";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 export type Subject = {
   id: string;
@@ -32,10 +33,6 @@ interface SubjectsTableProps {
 
 export function SubjectsTable({ subjects, onRefresh }: SubjectsTableProps) {
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer la matière "${name}" ?`)) {
-      return;
-    }
-
     try {
       const result: any = await deleteSubject(id);
       if (result?.error) {
@@ -128,11 +125,33 @@ export function SubjectsTable({ subjects, onRefresh }: SubjectsTableProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => handleDelete(subject.id, subject.name)}
+                onClick={(e) => e.preventDefault()}
                 className="text-red-600"
               >
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
+                 <Dialog >
+                  <DialogTrigger asChild>
+                    <span className="flex"> <Trash className="mr-2 h-4 w-4" />Supprimer</span>
+                  </DialogTrigger>
+                  <DialogContent>
+
+                  <div className="text-sm">
+                    Êtes-vous sûr de vouloir supprimer la matière "{subject.name}" ?
+                  </div>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <Button variant="outline" size="sm">
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(subject.id, subject.name)}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
+                  </DialogContent>
+
+                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

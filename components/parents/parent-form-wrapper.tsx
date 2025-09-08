@@ -7,9 +7,10 @@ interface ParentFormWrapperProps {
   mode: "create" | "edit";
   initialData?: any;
   parentId?: string;
+  students?: any[];
 }
 
-export function ParentFormWrapper({ mode, initialData, parentId }: ParentFormWrapperProps) {
+export function ParentFormWrapper({ mode, initialData, parentId, students }: ParentFormWrapperProps) {
   const router = useRouter();
 
   const handleSuccess = () => {
@@ -25,6 +26,7 @@ export function ParentFormWrapper({ mode, initialData, parentId }: ParentFormWra
       mode={mode}
       initialData={initialData}
       parentId={parentId}
+      students={students}
       onSuccess={handleSuccess}
     />
   );

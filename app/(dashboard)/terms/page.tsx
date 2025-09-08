@@ -17,22 +17,22 @@ export default async function TermsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Trimestres</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Périodes scolaires</h1>
           <p className="text-muted-foreground">
-            Gérez les trimestres de votre établissement
+            Gérez les périodes scolaires de votre établissement
           </p>
         </div>
         <Button asChild>
           <Link href="/terms/create">
             <Plus className="mr-2 h-4 w-4" />
-            Créer un trimestre
+            Créer une période
           </Link>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Liste des trimestres</CardTitle>
+          <CardTitle>Liste des périodes</CardTitle>
         </CardHeader>
         <CardContent>
           <TermsTableWrapper initialTerms={terms} />

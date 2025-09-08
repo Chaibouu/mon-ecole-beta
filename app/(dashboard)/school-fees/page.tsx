@@ -41,6 +41,7 @@ export default async function SchoolFeesPage() {
     overdueAmount: 0,
   };
 
+
   return (
     <div className="space-y-8">
       <PageHeader 

@@ -84,42 +84,75 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
   // Grouper par frais principal pour une meilleure organisation
   const groupedFeeSchedules = new Map();
   availableFeeSchedules.forEach(fs => {
-    const groupKey = fs.parentFeeId || fs.id; // Utiliser parentFeeId si c'est une tranche, sinon l'id
+    // Détecter les tranches legacy (sans parentFeeId mais avec libellé "Main - Tranche")
+    let groupKey = fs.parentFeeId || fs.id;
+    let isLegacyInstallment = false;
+    if (!fs.parentFeeId && typeof fs.itemName === "string") {
+      const sepIndex = fs.itemName.indexOf(" - ");
+      if (sepIndex > -1) {
+        const baseName = fs.itemName.slice(0, sepIndex);
+        const main = availableFeeSchedules.find(x => !x.parentFeeId && x.itemName === baseName);
+        if (main) {
+          groupKey = main.id;
+          isLegacyInstallment = true;
+        }
+      }
+    }
+
     if (!groupedFeeSchedules.has(groupKey)) {
       groupedFeeSchedules.set(groupKey, {
         mainFee: null,
         installments: []
       });
     }
-    
     const group = groupedFeeSchedules.get(groupKey);
-    if (fs.isInstallment) {
-      group.installments.push(fs);
+
+    // Classer dans la bonne catégorie
+    if (fs.isInstallment || isLegacyInstallment) {
+      group.installments.push({ ...fs, isInstallment: true });
     } else {
       group.mainFee = fs;
     }
   });
   
   const selectedFeeSchedule = availableFeeSchedules.find(fs => fs.id === formData.feeScheduleId);
-  
-  const feeScheduleOptions = availableFeeSchedules.map(fs => {
-    let label = `${fs.itemName} - ${formatCurrency(fs.amountCents)}`;
-    
-    // Ajouter des indications pour distinguer paiement complet vs tranches
-    if (fs.installments && fs.installments.length > 0) {
-      label += ` (Paiement complet)`;
-    } else if (fs.isInstallment) {
-      label += ` (Tranche ${fs.installmentOrder})`;
+
+  // Construire des options en exposant le frais principal (paiement complet)
+  // et chaque tranche non totalement payée
+  const feeScheduleOptions: Array<{ value: string; label: string; meta?: any }> = [];
+  // Debug
+  // console.log('[CREATE_PAYMENT] availableFeeSchedules:', availableFeeSchedules);
+  groupedFeeSchedules.forEach((group: any, key: string) => {
+    const main = group.mainFee;
+    const installments = group.installments as any[];
+
+    // Option: paiement complet (frais principal) si non totalement payé
+    if (main) {
+      const remaining = typeof main.remainingAmount === "number"
+        ? main.remainingAmount
+        : (main.amountCents - (main.totalPaid || 0));
+      if (remaining > 0) {
+        let label = `${main.itemName} - ${formatCurrency(main.amountCents)} (Paiement complet)`;
+        if (main.dueDate) {
+          label += ` - Échéance: ${format(new Date(main.dueDate), "dd/MM/yyyy")}`;
+        }
+        feeScheduleOptions.push({ value: main.id, label, meta: { remaining } });
+      }
     }
-    
-    if (fs.dueDate) {
-      label += ` - Échéance: ${format(new Date(fs.dueDate), "dd/MM/yyyy")}`;
-    }
-    
-    return {
-      value: fs.id,
-      label: label,
-    };
+
+    // Options: tranches avec montant restant
+    installments?.forEach(inst => {
+      const remaining = typeof inst.remainingAmount === "number"
+        ? inst.remainingAmount
+        : (inst.amountCents - (inst.totalPaid || 0));
+      if (remaining > 0) {
+        let label = `${inst.itemName} - ${formatCurrency(inst.amountCents)} (Tranche${inst.installmentOrder ? ` ${inst.installmentOrder}` : ""})`;
+        if (inst.dueDate) {
+          label += ` - Échéance: ${format(new Date(inst.dueDate), "dd/MM/yyyy")}`;
+        }
+        feeScheduleOptions.push({ value: inst.id, label, meta: { remaining } });
+      }
+    });
   });
 
   return (

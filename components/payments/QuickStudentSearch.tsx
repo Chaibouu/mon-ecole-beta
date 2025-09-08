@@ -35,7 +35,7 @@ export function QuickStudentSearch() {
   const router = useRouter();
 
   useEffect(() => {
-    const searchStudents = async () => {
+    const performSearch = async () => {
       if (searchTerm.trim().length < 2) {
         setStudents([]);
         setShowResults(false);
@@ -44,7 +44,7 @@ export function QuickStudentSearch() {
 
       try {
         setLoading(true);
-        const data = await searchStudents(searchTerm);
+        const data = await searchStudents(searchTerm || "");
         if (data?.error) {
           toast.error(data.error);
           return;
@@ -59,7 +59,7 @@ export function QuickStudentSearch() {
       }
     };
 
-    const debounceTimer = setTimeout(searchStudents, 300);
+    const debounceTimer = setTimeout(performSearch, 300);
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
 

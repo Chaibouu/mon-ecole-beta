@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteGradeLevel } from "@/actions/grade-levels";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 export type GradeLevel = {
   id: string;
@@ -31,9 +32,7 @@ interface GradeLevelsTableProps {
 
 export function GradeLevelsTable({ gradeLevels, onRefresh }: GradeLevelsTableProps) {
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer le niveau "${name}" ?`)) {
-      return;
-    }
+  
 
     try {
       const result: any = await deleteGradeLevel(id);
@@ -114,11 +113,33 @@ export function GradeLevelsTable({ gradeLevels, onRefresh }: GradeLevelsTablePro
                 </Link>
               </DropdownMenuItem>
                              <DropdownMenuItem
-                 onClick={() => handleDelete(gradeLevel.id, gradeLevel.name)}
+                 onClick={(e) => e.preventDefault()}
                  className="text-red-600"
                >
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
+                <Dialog >
+                  <DialogTrigger asChild>
+                    <span className="flex"> <Trash className="mr-2 h-4 w-4" />Supprimer</span>
+                  </DialogTrigger>
+                  <DialogContent>
+
+                  <div className="text-sm">
+                    Êtes-vous sûr de vouloir supprimer le niveau scolaire "{gradeLevel.name}" ?
+                  </div>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <Button variant="outline" size="sm">
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(gradeLevel.id, gradeLevel.name)}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
+                  </DialogContent>
+
+                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

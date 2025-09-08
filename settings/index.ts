@@ -1,7 +1,7 @@
 const appConfig = {
   appName: "Mon Ecole",
   websiteTitle: "Mon Ecole",
-  websiteDescription: "Mon Ecole simple authentication service and admin panel",
+  websiteDescription: "Mon Ecole Plateforme d'éducation",
   logoUrl: "/logo.jpg",
   sidebarClearlogoUrl: "/logo.jpg",
   adminSidebarColor: "#1C2434",
@@ -15,8 +15,8 @@ const appConfig = {
     },
   },
   publicRoutes: ["/", "/api-docs"],
-  defaultLoginRedirect: "/test",
-  primaryColor: "#148D21",
+  defaultLoginRedirect: "/dashboard",
+  primaryColor: "#4467EE",
 
   // Ajout d'une option pour autoriser ou non les connexions multiples
   allowMultipleSessions: false, // ou false pour invalider les anciennes sessions

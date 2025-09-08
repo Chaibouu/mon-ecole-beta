@@ -3,8 +3,11 @@ import { ParentFormWrapper } from "@/components/parents/parent-form-wrapper";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, UserPlus, Heart } from "lucide-react";
+import { listStudents } from "@/actions/school-members";
 
-export default function CreateParentPage() {
+export default async function CreateParentPage() {
+  const studentsData: any = await listStudents();
+  const students = Array.isArray(studentsData?.students) ? studentsData.students : [];
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
@@ -37,7 +40,7 @@ export default function CreateParentPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8">
-          <ParentFormWrapper mode="create" />
+          <ParentFormWrapper mode="create" students={students} />
         </CardContent>
       </Card>
     </div>
