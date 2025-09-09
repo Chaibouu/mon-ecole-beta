@@ -72,11 +72,6 @@ export async function GET(
             academicYear: true,
           },
         },
-        payments: {
-          include: {
-            feeSchedule: true,
-          },
-        },
       },
     });
 
@@ -100,28 +95,39 @@ export async function GET(
       });
     }
 
-    // Récupérer les frais scolaires applicables
-    const applicableFeeSchedules = await db.feeSchedule.findMany({
+    // Récupérer TOUS les frais scolaires applicables (principaux ET tranches)
+    const allApplicableFees = await db.feeSchedule.findMany({
       where: {
         schoolId,
         term: {
           academicYearId: currentEnrollment.academicYearId,
         },
-        isInstallment: false, // Seulement les frais principaux
         OR: [
-          { gradeLevelId: currentEnrollment.classroom.gradeLevelId },
+          {
+            gradeLevelId: currentEnrollment.classroom.gradeLevelId,
+            classroomId: null,
+          },
           { classroomId: currentEnrollment.classroomId },
         ],
       },
       include: {
+        gradeLevel: true,
+        classroom: true,
+        term: true,
         installments: {
-          orderBy: { installmentOrder: "asc" },
+          orderBy: {
+            installmentOrder: "asc",
+          },
         },
       },
-      orderBy: { createdAt: "desc" },
     });
 
-    // Récupérer les paiements existants
+    // Déterminer les frais principaux (éviter le double comptage)
+    const mainFees = allApplicableFees.filter(
+      f => f.parentFeeId === null && !f.itemName.includes(" - ")
+    );
+
+    // Récupérer les paiements existants pour cet étudiant
     const existingPayments = await db.payment.findMany({
       where: {
         studentId: studentId,
@@ -136,11 +142,33 @@ export async function GET(
       },
     });
 
-    // Calculer le résumé des paiements
+    // Debug logs
+    console.log(`[Parent Payment Debug] Student: ${studentId}`);
+    console.log(
+      `[Parent Payment Debug] All applicable fees:`,
+      allApplicableFees.length
+    );
+    console.log(`[Parent Payment Debug] Main fees:`, mainFees.length);
+    console.log(
+      `[Parent Payment Debug] Existing payments:`,
+      existingPayments.length
+    );
+    console.log(
+      `[Parent Payment Debug] Payment details:`,
+      existingPayments.map(p => ({
+        id: p.id,
+        feeScheduleId: p.feeScheduleId,
+        amountCents: p.amountCents,
+        feeItemName: p.feeSchedule?.itemName,
+      }))
+    );
+
+    // Calculer le résumé des paiements basé sur les frais principaux uniquement
     let totalDue = 0;
     let totalPaid = 0;
 
-    const feeSchedulesWithStatus = applicableFeeSchedules.map(fee => {
+    const feeSchedulesWithStatus = mainFees.map(fee => {
+      // Trouver tous les paiements liés à ce frais principal OU ses tranches
       const feePayments = existingPayments.filter(
         p =>
           p.feeScheduleId === fee.id ||
@@ -151,6 +179,7 @@ export async function GET(
         (sum, p) => sum + p.amountCents,
         0
       );
+
       const feeStatus =
         feeTotalPaid >= fee.amountCents
           ? "paid"
@@ -158,6 +187,7 @@ export async function GET(
             ? "partial"
             : "unpaid";
 
+      // Compter chaque frais principal une seule fois
       totalDue += fee.amountCents;
       totalPaid += feeTotalPaid;
 
@@ -166,7 +196,8 @@ export async function GET(
         payments: feePayments,
         totalPaid: feeTotalPaid,
         status: feeStatus,
-        remainingAmount: fee.amountCents - feeTotalPaid,
+        remainingAmount: Math.max(0, fee.amountCents - feeTotalPaid),
+        installments: fee.installments || [],
       };
     });
 
