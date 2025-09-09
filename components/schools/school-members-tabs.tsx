@@ -44,6 +44,11 @@ export function SchoolMembersTabs({ schoolId, initialMembers }: SchoolMembersTab
     setIsDialogOpen(false);
   };
 
+  const handleRefresh = () => {
+    // Rafraîchir la page pour récupérer les données à jour
+    window.location.reload();
+  };
+
   const getTabContent = () => {
     const currentTab = memberTabs.find((tab) => tab.id === activeTab);
     return (
@@ -85,7 +90,12 @@ export function SchoolMembersTabs({ schoolId, initialMembers }: SchoolMembersTab
         <CardContent className="p-0">
           <ScrollArea className="max-h-[60vh]">
             <div className="p-4">
-              <MembersTable members={filteredMembers} memberType={activeTab} />
+              <MembersTable 
+                members={filteredMembers} 
+                memberType={activeTab} 
+                schoolId={schoolId}
+                onRefresh={handleRefresh}
+              />
             </div>
           </ScrollArea>
         </CardContent>

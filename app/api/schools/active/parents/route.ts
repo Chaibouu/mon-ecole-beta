@@ -54,11 +54,16 @@ export async function POST(req: NextRequest) {
     if (access instanceof Response) return access;
 
     const payload = await req.json();
+    console.log("[PARENT_API] Payload reçu:", payload);
+
     const parsed = ParentCreateSchema.safeParse(payload);
     if (!parsed.success) {
+      console.log("[PARENT_API] Validation échouée:", parsed.error.issues);
       const error = parsed.error.issues.map(i => i.message).join(", ");
       return NextResponse.json({ error }, { status: 400 });
     }
+
+    console.log("[PARENT_API] Validation réussie:", parsed.data);
 
     let userId: string;
     if ("existingUserId" in parsed.data) {

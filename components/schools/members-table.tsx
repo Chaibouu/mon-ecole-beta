@@ -6,13 +6,141 @@ import { DataTable } from "@/components/ui/data-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Edit, Trash } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
+import { toast } from "sonner";
+import { updateSchoolAdmin, deleteSchoolAdmin } from "@/actions/school-members";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface MembersTableProps {
   members: any[];
   memberType: string;
+  schoolId: string;
+  onRefresh?: () => void;
 }
 
-export function MembersTable({ members, memberType }: MembersTableProps) {
+export function MembersTable({ members, memberType, schoolId, onRefresh }: MembersTableProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingMember, setEditingMember] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    isActive: true
+  });
+
+  const handleEdit = (member: any) => {
+    if (memberType !== "admin") {
+      toast.error("Modification non supportée pour ce type de membre");
+      return;
+    }
+
+    setEditingMember(member);
+    setEditForm({
+      name: member.user.name || "",
+      email: member.user.email || "",
+      password: "",
+      isActive: member.user.isActive || false
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingMember) return;
+
+    setIsLoading(true);
+    try {
+      const updateData: any = {};
+      
+      if (editForm.name !== editingMember.user.name) {
+        updateData.name = editForm.name;
+      }
+      if (editForm.email !== editingMember.user.email) {
+        updateData.email = editForm.email;
+      }
+      if (editForm.password.trim()) {
+        updateData.password = editForm.password;
+      }
+      if (editForm.isActive !== editingMember.user.isActive) {
+        updateData.isActive = editForm.isActive;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        toast.info("Aucune modification détectée");
+        setEditingMember(null);
+        return;
+      }
+
+      const result = await updateSchoolAdmin(schoolId, editingMember.user.id, updateData);
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Administrateur modifié avec succès");
+        setEditingMember(null);
+        onRefresh?.();
+      }
+    } catch (error) {
+      toast.error("Erreur lors de la modification");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleStatus = async (member: any) => {
+    if (memberType !== "admin") {
+      toast.error("Modification non supportée pour ce type de membre");
+      return;
+    }
+
+    const newStatus = !member.user.isActive;
+    
+    setIsLoading(true);
+    try {
+      const result = await updateSchoolAdmin(schoolId, member.user.id, {
+        isActive: newStatus
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(`Administrateur ${newStatus ? 'activé' : 'désactivé'} avec succès`);
+        onRefresh?.();
+      }
+    } catch (error) {
+      toast.error("Erreur lors de la modification");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (member: any) => {
+    if (memberType !== "admin") {
+      toast.error("Suppression non supportée pour ce type de membre");
+      return;
+    }
+
+    if (!confirm(`Êtes-vous sûr de vouloir retirer ${member.user.name} de cette école ?`)) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await deleteSchoolAdmin(schoolId, member.user.id);
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Administrateur retiré avec succès");
+        onRefresh?.();
+      }
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const getRoleBadgeColor = (role: string) => {
     switch (role.toLowerCase()) {
       case "admin":
@@ -92,20 +220,34 @@ export function MembersTable({ members, memberType }: MembersTableProps) {
                 Voir les détails
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  // TODO: Edit member
-                  console.log("Modifier", member.user.name);
-                }}
+                disabled={isLoading}
+                onClick={() => handleEdit(member)}
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Modifier
               </DropdownMenuItem>
+              {memberType === "admin" && (
+                <DropdownMenuItem
+                  disabled={isLoading}
+                  onClick={() => handleToggleStatus(member)}
+                >
+                  {member.user.isActive ? (
+                    <>
+                      <span className="mr-2 h-4 w-4 rounded-full bg-red-500" />
+                      Désactiver
+                    </>
+                  ) : (
+                    <>
+                      <span className="mr-2 h-4 w-4 rounded-full bg-green-500" />
+                      Activer
+                    </>
+                  )}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="text-destructive"
-                onClick={() => {
-                  // TODO: Remove member from school
-                  console.log("Retirer", member.user.name);
-                }}
+                disabled={isLoading}
+                onClick={() => handleDelete(member)}
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Retirer de l'école
@@ -140,6 +282,76 @@ export function MembersTable({ members, memberType }: MembersTableProps) {
                                            memberType === "student" ? "un élève" : "un parent"}...`}
         />
       )}
+
+      {/* Modal de modification */}
+      <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Modifier l'administrateur</DialogTitle>
+          </DialogHeader>
+          
+          {editingMember && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Nom complet</Label>
+                <Input
+                  id="edit-name"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Nom complet"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="adresse@email.com"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-password">Nouveau mot de passe (optionnel)</Label>
+                <Input
+                  id="edit-password"
+                  type="password"
+                  value={editForm.password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, password: e.target.value }))}
+                  placeholder="Laisser vide pour conserver l'actuel"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="edit-active"
+                  checked={editForm.isActive}
+                  onCheckedChange={(checked) => setEditForm(prev => ({ ...prev, isActive: !!checked }))}
+                />
+                <Label htmlFor="edit-active">Compte actif</Label>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingMember(null)}
+                  disabled={isLoading}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

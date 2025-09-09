@@ -20,6 +20,62 @@ export async function createSchoolAdmin(schoolId: string, data: any) {
 }
 
 /**
+ * Récupérer la liste des admins d'une école
+ */
+export async function getSchoolAdmins(schoolId: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/${schoolId}/admins`,
+      "GET"
+    );
+
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+/**
+ * Modifier un admin d'école
+ */
+export async function updateSchoolAdmin(
+  schoolId: string,
+  userId: string,
+  data: any
+) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/${schoolId}/admins?userId=${userId}`,
+      "PUT",
+      data
+    );
+
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+/**
+ * Supprimer un admin d'école
+ */
+export async function deleteSchoolAdmin(schoolId: string, userId: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/schools/${schoolId}/admins?userId=${userId}`,
+      "DELETE"
+    );
+
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+/**
  * Créer/lier un enseignant à une école
  */
 export async function createSchoolTeacher(schoolId: string, data: any) {

@@ -251,63 +251,166 @@ Réponse:
       </section>
         <section>
           <h2 className="text-xl font-medium">Endpoints Parents</h2>
-          <div className="text-sm space-y-2">
+          <div className="text-sm space-y-4">
+            <p className="text-gray-600">Tous ces endpoints requièrent une authentification avec un compte parent et les headers Authorization + x-school-id.</p>
+            
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="font-medium mb-2">GET /api/parents/children</p>
-              <p><b>Description :</b> Récupère la liste des enfants d'un parent connecté</p>
+              <p className="font-medium mb-2">GET /api/parent/children</p>
+              <p><b>Description :</b> Récupère la liste des enfants du parent connecté avec leurs informations scolaires</p>
               <p><b>Authentification :</b> Requise (rôle PARENT)</p>
               <p><b>Réponse :</b></p>
               <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
-  "parentProfile": {
-    "id": "string",
-    "phone": "string",
-    "address": "string"
-  },
   "children": [{
-    "id": "string",
-    "name": "string",
-    "matricule": "string", 
-    "gender": "string",
-    "relationship": "string",
-    "currentEnrollment": {
-      "classroom": {
-        "name": "string",
-        "gradeLevel": { "name": "string" }
-      },
-      "academicYear": { "name": "string" }
+    "student": {
+      "id": "string",
+      "user": { "name": "string" },
+      "enrollments": [{
+        "classroom": {
+          "name": "string",
+          "gradeLevel": { "name": "string" }
+        },
+        "academicYear": { "name": "string" }
+      }]
     }
   }]
 }`}</pre>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="font-medium mb-2">GET /api/parents/payments-summary</p>
-              <p><b>Description :</b> Récupère le résumé des paiements de tous les enfants d'un parent</p>
-              <p><b>Authentification :</b> Requise (rôle PARENT)</p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/payments</p>
+              <p><b>Description :</b> Récupère la situation financière complète d'un enfant</p>
+              <p><b>Authentification :</b> Requise (parent de cet enfant)</p>
+              <p><b>Headers optionnels :</b> x-academic-year-id pour une année spécifique</p>
               <p><b>Réponse :</b></p>
               <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
-  "globalSummary": {
-    "totalDue": number,
-    "totalPaid": number,
-    "balance": number,
-    "overdueCount": number
-  },
-  "children": [{
-    "id": "string",
-    "name": "string",
-    "matricule": "string",
-    "relationship": "string",
-    "currentEnrollment": {...},
-    "summary": {
-      "totalDue": number,
-      "totalPaid": number,
-      "balance": number,
-      "overdueCount": number
-    },
-    "recentPayments": [...],
-    "upcomingPayments": [...]
-  }]
+  "student": { "id": "string", "user": {...} },
+  "paymentSummary": {
+    "totalDue": 500000,
+    "totalPaid": 200000,
+    "remainingBalance": 300000,
+    "feeSchedules": [{
+      "id": "string",
+      "itemName": "Frais de scolarité",
+      "amountCents": 500000,
+      "status": "partial",
+      "totalPaid": 200000,
+      "remainingAmount": 300000,
+      "payments": [...],
+      "installments": [...]
+    }]
+  }
 }`}</pre>
+            </div>
+
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/timetable</p>
+              <p><b>Description :</b> Récupère l'emploi du temps d'un enfant</p>
+              <p><b>Authentification :</b> Requise (parent de cet enfant)</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "student": { "id": "string", "user": {...} },
+  "classroom": { "name": "string", "gradeLevel": {...} },
+  "timetable": {
+    "MONDAY": [
+      {
+        "id": "string",
+        "subject": { "name": "Mathématiques" },
+        "teacher": { "user": { "name": "Prof. Dupont" } },
+        "startTime": "2024-01-01T08:00:00Z",
+        "endTime": "2024-01-01T09:00:00Z"
+      }
+    ],
+    "TUESDAY": [...],
+    ...
+  },
+  "timetableEntries": [...]
+}`}</pre>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/grades</p>
+              <p><b>Description :</b> Récupère les notes et moyennes d'un enfant</p>
+              <p><b>Authentification :</b> Requise (parent de cet enfant)</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "student": { "id": "string", "user": {...} },
+  "grades": [{
+    "id": "string",
+    "score": 15.5,
+    "assessment": {
+      "title": "Devoir de mathématiques",
+      "subject": { "name": "Mathématiques" },
+      "term": { "name": "1er Trimestre" }
+    }
+  }],
+  "subjectAverages": [{
+    "subject": "Mathématiques",
+    "average": 14.2,
+    "gradeCount": 5
+  }],
+  "termAverages": [{
+    "termName": "1er Trimestre",
+    "average": 13.8,
+    "gradeCount": 15,
+    "subjectCount": 3
+  }],
+  "overallAverage": 14.1,
+  "totalGrades": 20
+}`}</pre>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/attendance</p>
+              <p><b>Description :</b> Récupère l'assiduité d'un enfant</p>
+              <p><b>Authentification :</b> Requise (parent de cet enfant)</p>
+              <p><b>Paramètres optionnels :</b> ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD ou ?month=YYYY-MM</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "student": { "id": "string", "user": {...} },
+  "attendanceRecords": [{
+    "id": "string",
+    "status": "PRESENT|ABSENT|LATE|EXCUSED",
+    "date": "2024-01-15T00:00:00Z",
+    "timetableEntry": {
+      "subject": { "name": "Mathématiques" },
+      "teacher": { "user": { "name": "Prof. Dupont" } }
+    }
+  }],
+  "statistics": {
+    "totalRecords": 20,
+    "presentCount": 18,
+    "absentCount": 1,
+    "lateCount": 1,
+    "excusedCount": 0,
+    "attendanceRate": 90.0
+  },
+  "recordsByDate": {
+    "2024-01-15": [...],
+    "2024-01-16": [...]
+  },
+  "subjectStats": {
+    "Mathématiques": {
+      "total": 5,
+      "present": 5,
+      "absent": 0
+    }
+  }
+}`}</pre>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="font-medium mb-2">Actions côté client disponibles</p>
+              <p><b>Fichier :</b> actions/parent-dashboard.ts</p>
+              <p><b>Fonctions disponibles :</b></p>
+              <ul className="list-disc pl-4 mt-2">
+                <li><code>getParentChildren()</code> - Liste des enfants</li>
+                <li><code>getChildPayments(studentId)</code> - Situation financière</li>
+                <li><code>getChildTimetable(studentId)</code> - Emploi du temps</li>
+                <li><code>getChildGrades(studentId)</code> - Notes et moyennes</li>
+                <li><code>getChildAttendance(studentId, options?)</code> - Assiduité</li>
+                <li><code>getChildSummary(studentId)</code> - Résumé complet (toutes les infos)</li>
+              </ul>
+              <p className="text-xs text-gray-600 mt-2">Ces actions utilisent automatiquement makeAuthenticatedRequest avec les bons headers.</p>
             </div>
           </div>
         </section>

@@ -85,6 +85,25 @@ export const ParentUpdateSchema = z
         address: z.string().optional(),
       })
       .optional(),
+    children: z
+      .array(
+        z.object({
+          studentId: z.string(),
+          relationship: z.string().optional(),
+        })
+      )
+      .optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: "Au moins un champ doit être fourni",
+  });
+
+export const AdminUpdateSchema = z
+  .object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(),
+    password: z.string().min(6).optional(),
+    isActive: z.boolean().optional(),
   })
   .refine(data => Object.keys(data).length > 0, {
     message: "Au moins un champ doit être fourni",

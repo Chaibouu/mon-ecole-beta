@@ -36,6 +36,7 @@ export async function createFeeSchedule(data: {
     dueDate: string;
   }>;
 }) {
+  console.log("[CREATE_FEE_SCHEDULE] API URL:", `${API_BASE}/fee-schedules`);
   return makeAuthenticatedRequest(`${API_BASE}/fee-schedules`, "POST", data);
 }
 

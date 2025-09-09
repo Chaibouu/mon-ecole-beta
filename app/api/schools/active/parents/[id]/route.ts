@@ -96,6 +96,34 @@ export async function PATCH(
       });
     }
 
+    // Gérer les relations parent-enfant
+    if (data.children !== undefined) {
+      // Supprimer toutes les relations existantes
+      await db.parentStudent.deleteMany({
+        where: { parentProfileId: id },
+      });
+
+      // Créer les nouvelles relations
+      if (data.children && Array.isArray(data.children)) {
+        for (const child of data.children) {
+          // Vérifier que l'étudiant existe dans cette école
+          const student = await db.studentProfile.findFirst({
+            where: { id: child.studentId, schoolId },
+          });
+
+          if (student) {
+            await db.parentStudent.create({
+              data: {
+                parentProfileId: id,
+                studentProfileId: child.studentId,
+                relationship: child.relationship || "parent",
+              },
+            });
+          }
+        }
+      }
+    }
+
     const updated = await db.parentProfile.findFirst({
       where: { id, schoolId },
       include: {

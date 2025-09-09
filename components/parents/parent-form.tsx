@@ -24,8 +24,17 @@ import dynamic from "next/dynamic";
 // Import react-select dynamically to avoid SSR issues
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
-// Schema pour le formulaire parent
-const ParentFormSchema = z.object({
+// Schémas pour le formulaire parent
+const ParentCreateSchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  email: z.string().email("Adresse email invalide"),
+  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  children: z.array(z.string()).optional(),
+});
+
+const ParentEditSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Adresse email invalide"),
   phone: z.string().optional(),
@@ -45,17 +54,18 @@ export function ParentForm({ mode, initialData, parentId, students = [], onSucce
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
   
-  const form = useForm<z.infer<typeof ParentFormSchema>>({
-    resolver: zodResolver(ParentFormSchema),
+  const form = useForm<z.infer<typeof ParentCreateSchema> | z.infer<typeof ParentEditSchema>>({
+    resolver: zodResolver(mode === "create" ? ParentCreateSchema : ParentEditSchema),
     defaultValues: mode === "edit" ? {
-      name: initialData?.user?.name || "",
-      email: initialData?.user?.email || "",
-      phone: initialData?.phone || "",
-      address: initialData?.address || "",
-      children: initialData?.children?.map((link: any) => link.studentProfileId) || [],
+      name: initialData?.user?.name ?? "",
+      email: initialData?.user?.email ?? "",
+      phone: initialData?.phone ?? "",
+      address: initialData?.address ?? "",
+      children: initialData?.children?.map((link: any) => link.studentProfileId) ?? [],
     } : {
       name: "",
       email: "",
+      password: "",
       phone: "",
       address: "",
       children: [],
@@ -93,16 +103,16 @@ export function ParentForm({ mode, initialData, parentId, students = [], onSucce
     form.setValue('children', childrenIds);
   };
 
-  async function onSubmit(values: z.infer<typeof ParentFormSchema>) {
+  async function onSubmit(values: any) {
     setIsLoading(true);
     try {
       let result: any;
       if (mode === "create") {
-        // Pour la création, on utilise le format attendu par l'API
+        // Pour la création, on utilise le format attendu par l'action
         const payload = {
           name: values.name,
           email: values.email,
-          password: "Parent123!", // Mot de passe par défaut
+          password: values.password,
           phone: values.phone,
           address: values.address,
           children: selectedChildren.length > 0 ? selectedChildren.map(studentId => ({ 
@@ -110,7 +120,9 @@ export function ParentForm({ mode, initialData, parentId, students = [], onSucce
             relationship: "parent" 
           })) : undefined,
         };
+        console.log("[PARENT_FORM] Payload envoyé:", payload);
         result = await createParent(payload);
+        console.log("[PARENT_FORM] Résultat API:", result);
       } else if (parentId) {
         // Pour la mise à jour
         const payload = {
@@ -120,8 +132,14 @@ export function ParentForm({ mode, initialData, parentId, students = [], onSucce
             phone: values.phone,
             address: values.address,
           },
+          children: selectedChildren.length > 0 ? selectedChildren.map(studentId => ({ 
+            studentId, 
+            relationship: "parent" 
+          })) : [],
         };
+        console.log("[PARENT_FORM] Payload modification:", payload);
         result = await updateParent(parentId, payload);
+        console.log("[PARENT_FORM] Résultat modification:", result);
       }
 
       if (result?.error) {
@@ -193,6 +211,29 @@ export function ParentForm({ mode, initialData, parentId, students = [], onSucce
                   </FormItem>
                 )}
               />
+              
+              {mode === "create" && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center space-x-2">
+                        <span>Mot de passe *</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="Minimum 6 caractères" 
+                          className="border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
 
             <FormField
