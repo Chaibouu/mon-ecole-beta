@@ -72,6 +72,11 @@ export async function GET(
             academicYear: true,
           },
         },
+        payments: {
+          include: {
+            feeSchedule: true,
+          },
+        },
       },
     });
 
