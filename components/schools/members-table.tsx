@@ -27,6 +27,7 @@ export function MembersTable({ members, memberType, schoolId, onRefresh }: Membe
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     isActive: true
   });
@@ -41,6 +42,7 @@ export function MembersTable({ members, memberType, schoolId, onRefresh }: Membe
     setEditForm({
       name: member.user.name || "",
       email: member.user.email || "",
+      phone: member.user.phone || "",
       password: "",
       isActive: member.user.isActive || false
     });
@@ -310,6 +312,17 @@ export function MembersTable({ members, memberType, schoolId, onRefresh }: Membe
                   value={editForm.email}
                   onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="adresse@email.com"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-phone">Téléphone</Label>
+                <Input
+                  id="edit-phone"
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+227XXXXXXXX"
                 />
               </div>
 

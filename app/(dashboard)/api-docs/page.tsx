@@ -5,6 +5,37 @@ export default function ApiDocsPage() {
       <p>Cette page recense les endpoints disponibles et leurs paramètres.</p>
       <p className="text-sm">Toutes les routes protégées requièrent les headers: Authorization: Bearer &lt;token&gt; et x-school-id: &lt;schoolId&gt;.</p>
       <p className="text-sm">La sélection de l'école active peut se faire via POST /api/active-school avec {`{ schoolId }`} dans le body.</p>
+      
+      <section className="bg-blue-50 p-4 rounded-lg">
+        <h2 className="text-xl font-medium text-blue-800">📱 Authentification Hybride</h2>
+        <p className="text-blue-700">Le système supporte maintenant l'authentification par <strong>email OU téléphone</strong>.</p>
+        <ul className="list-disc pl-6 text-blue-700">
+          <li><strong>Format téléphone</strong>: +227XXXXXXXX (ex: +22712345678)</li>
+          <li><strong>Rétrocompatibilité</strong>: Les emails existants continuent de fonctionner</li>
+          <li><strong>Détection automatique</strong>: Le système détecte le format saisi</li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2 className="text-xl font-medium">/api/auth/login</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Authentification utilisateur (email OU téléphone)</li>
+          <li><b>POST</b>: Connexion avec {`{ email?, phone?, password, rememberMe? }`}</li>
+          <li><b>Format téléphone</b>: +227XXXXXXXX</li>
+          <li><b>Rétrocompatibilité</b>: Accepte les emails existants</li>
+        </ul>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",  // OU
+  "phone": "+22712345678",      // OU (un des deux requis)
+  "password": "motdepasse123",
+  "rememberMe": true
+}`}</pre>
+      </section>
+      
       <section>
         <h2 className="text-xl font-medium">/api/active-school</h2>
         <ul className="list-disc pl-6">
@@ -471,13 +502,18 @@ x-school-id: <schoolId>
 Content-Type: application/json
 
 {
-  "email": "student@example.com",
-  "name": "Jean Dupont",
-  "password": "motdepasse123",
-  "matricule": "2024001",
-  "gender": "MALE",
-  "dateOfBirth": "2010-05-15",
-  "placeOfBirth": "Dakar"
+  "user": {
+    "email": "student@example.com",
+    "phone": "+22712345678",  // Optionnel
+    "name": "Jean Dupont",
+    "password": "motdepasse123"
+  },
+  "profile": {
+    "matricule": "2024001",
+    "gender": "MALE",
+    "dateOfBirth": "2010-05-15",
+    "placeOfBirth": "Dakar"
+  }
 }`}</pre>
       </section>
       <section>

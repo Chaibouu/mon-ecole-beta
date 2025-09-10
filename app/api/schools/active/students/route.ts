@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         data: { role: "STUDENT" as any },
       });
     } else {
-      const { name, email, password } = (parsed.data as any).user;
+      const { name, email, phone, password } = (parsed.data as any).user;
 
       // Vérifier si l'email existe déjà
       const existingUser = await db.user.findUnique({ where: { email } });
@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
         data: {
           name,
           email,
+          phone,
           password: hashed,
           role: "STUDENT" as any,
           isActive: true,

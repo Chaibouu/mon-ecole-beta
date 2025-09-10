@@ -29,7 +29,10 @@ const ParentCreateSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Adresse email invalide"),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
-  phone: z.string().optional(),
+   phone: z
+    .string()
+    .regex(/^\+227[0-9]{8}$/, { message: "Le numéro doit être au format +227XXXXXXXX" })
+    .optional(),
   address: z.string().optional(),
   children: z.array(z.string()).optional(),
 });
@@ -37,7 +40,10 @@ const ParentCreateSchema = z.object({
 const ParentEditSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Adresse email invalide"),
-  phone: z.string().optional(),
+  phone: z
+    .string()
+    .regex(/^\+227[0-9]{8}$/, { message: "Le numéro doit être au format +227XXXXXXXX" })
+    .optional(),
   address: z.string().optional(),
   children: z.array(z.string()).optional(),
 });

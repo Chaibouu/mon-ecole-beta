@@ -95,19 +95,81 @@ export async function GET(
       });
     }
 
-    // Récupérer TOUS les frais scolaires applicables (principaux ET tranches)
-    const allApplicableFees = await db.feeSchedule.findMany({
+    // Debug: Vérifier les données de base
+    console.log(`[Parent Payment Debug] School ID: ${schoolId}`);
+    console.log(
+      `[Parent Payment Debug] Academic Year ID: ${currentEnrollment.academicYearId}`
+    );
+    console.log(
+      `[Parent Payment Debug] Grade Level ID: ${currentEnrollment.classroom.gradeLevelId}`
+    );
+    console.log(
+      `[Parent Payment Debug] Classroom ID: ${currentEnrollment.classroomId}`
+    );
+
+    // Vérifier d'abord tous les frais de l'école
+    const allSchoolFees = await db.feeSchedule.findMany({
+      where: { schoolId },
+      include: {
+        gradeLevel: true,
+        classroom: true,
+        term: true,
+      },
+    });
+
+    console.log(
+      `[Parent Payment Debug] Total fees in school: ${allSchoolFees.length}`
+    );
+    allSchoolFees.forEach(fee => {
+      console.log(
+        `[Parent Payment Debug] Fee: ${fee.itemName} - Term: ${fee.term?.name} - Grade: ${fee.gradeLevel?.name} - Classroom: ${fee.classroom?.name || "All"}`
+      );
+    });
+
+    // Vérifier les frais pour cette année académique
+    const feesForAcademicYear = await db.feeSchedule.findMany({
       where: {
         schoolId,
         term: {
           academicYearId: currentEnrollment.academicYearId,
         },
+      },
+      include: {
+        gradeLevel: true,
+        classroom: true,
+        term: true,
+      },
+    });
+
+    console.log(
+      `[Parent Payment Debug] Fees for academic year: ${feesForAcademicYear.length}`
+    );
+    feesForAcademicYear.forEach(fee => {
+      console.log(
+        `[Parent Payment Debug] Academic Year Fee: ${fee.itemName} - Term: ${fee.term?.name} - Grade: ${fee.gradeLevel?.name} - Classroom: ${fee.classroom?.name || "All"}`
+      );
+    });
+
+    // Récupérer TOUS les frais scolaires applicables (principaux ET tranches)
+    // CORRECTION: Ne pas filtrer par academicYearId car les frais ne sont pas liés aux termes
+    const allApplicableFees = await db.feeSchedule.findMany({
+      where: {
+        schoolId,
         OR: [
+          // Frais pour tous les étudiants (pas de gradeLevelId ni classroomId)
+          {
+            gradeLevelId: null,
+            classroomId: null,
+          },
+          // Frais pour le niveau de classe de l'étudiant (toutes les classes de ce niveau)
           {
             gradeLevelId: currentEnrollment.classroom.gradeLevelId,
             classroomId: null,
           },
-          { classroomId: currentEnrollment.classroomId },
+          // Frais pour la classe spécifique de l'étudiant
+          {
+            classroomId: currentEnrollment.classroomId,
+          },
         ],
       },
       include: {
@@ -127,15 +189,34 @@ export async function GET(
       f => f.parentFeeId === null && !f.itemName.includes(" - ")
     );
 
+    // Vérifier tous les paiements pour cet étudiant (sans filtre)
+    const allStudentPayments = await db.payment.findMany({
+      where: {
+        studentId: studentId,
+      },
+      include: {
+        feeSchedule: {
+          include: {
+            term: true,
+          },
+        },
+      },
+    });
+
+    console.log(
+      `[Parent Payment Debug] All payments for student: ${allStudentPayments.length}`
+    );
+    allStudentPayments.forEach(payment => {
+      console.log(
+        `[Parent Payment Debug] Payment: ${payment.feeSchedule?.itemName} - ${payment.amountCents} FCFA - Term: ${payment.feeSchedule?.term?.name}`
+      );
+    });
+
     // Récupérer les paiements existants pour cet étudiant
+    // CORRECTION: Ne pas filtrer par academicYearId car les paiements ne sont pas liés aux termes
     const existingPayments = await db.payment.findMany({
       where: {
         studentId: studentId,
-        feeSchedule: {
-          term: {
-            academicYearId: currentEnrollment.academicYearId,
-          },
-        },
       },
       include: {
         feeSchedule: true,

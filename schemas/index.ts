@@ -1,5 +1,19 @@
 import * as z from "zod";
 import { UserRole } from "@prisma/client";
+import {
+  isEmail,
+  isPhoneNumber,
+  isNigerianPhone,
+} from "@/lib/validation-utils";
+
+// Schéma de validation pour les numéros de téléphone internationaux
+export const PhoneSchema = z
+  .string()
+  .refine(val => isPhoneNumber(val), {
+    message:
+      "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+  })
+  .optional();
 
 export const SettingsSchema = z
   .object({
@@ -55,9 +69,19 @@ export const resetPasswordSchema = z.object({
 });
 
 export const LoginSchema = z.object({
-  email: z.string().email({
-    message: "L'adresse email n'est pas valide",
-  }),
+  email: z
+    .string()
+    .min(1, "Email ou numéro de téléphone requis")
+    .refine(
+      val => {
+        // Accepter soit un email valide soit un numéro de téléphone international
+        return isEmail(val) || isPhoneNumber(val);
+      },
+      {
+        message:
+          "Format invalide. Utilisez un email valide ou un numéro de téléphone international (ex: +227XXXXXXXX)",
+      }
+    ),
   password: z
     .string({
       message: "Le mot de passe est requis",
@@ -69,25 +93,7 @@ export const LoginSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-export const SignupSchema = z.object({
-  email: z.string().email({
-    message: "L'adresse email n'est pas valide",
-  }),
-  password: z
-    .string({
-      message: "Le mot de passe est requis",
-    })
-    .min(8, {
-      message: "Le mot de passe doit comporter au moins 8 caractères",
-    }),
-  name: z
-    .string({
-      message: "Le nom est requis",
-    })
-    .min(3, {
-      message: "Le nom doit comporter au moins 3 caractères",
-    }),
-});
+// SignupSchema supprimé - non utilisé dans l'application
 
 export const ResendVerificationSchema = z.object({
   email: z.string().email({

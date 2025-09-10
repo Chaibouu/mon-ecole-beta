@@ -23,6 +23,8 @@ model User {
     lastName              String?
     email                 String?                @unique
     emailVerified         DateTime?
+    phone                 String?                @unique // Nouveau champ pour migration progressive
+    phoneVerified         DateTime? // Pour future vérification SMS
     image                 String?
     password              String?
     role                  UserRole               @default(STUDENT)

@@ -54,8 +54,17 @@ export const LoginForm = () => {
     setError("");
     setSuccess("");
 
+    // L'identifiant peut être soit un email soit un téléphone
+    const identifier = values.email || "";
+    
+    const loginData = {
+      email: identifier, // Le champ email contient soit un email soit un téléphone
+      password: values.password,
+      rememberMe: values.rememberMe,
+    };
+
     startTransition(() => {
-      login({ ...values })
+      login(loginData)
         .then((data) => {
           if (data?.error) {
             // form.reset();
@@ -115,13 +124,13 @@ export const LoginForm = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-700 dark:text-slate-300 font-medium">Adresse email</FormLabel>
+                      <FormLabel className="text-slate-700 dark:text-slate-300 font-medium">Email ou Téléphone</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           disabled={isPending}
-                          placeholder="votre.email@exemple.com"
-                          type="email"
+                          placeholder="votre.email@exemple.com ou +227XXXXXXXX"
+                          type="text"
                           className="bg-white/50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                         />
                       </FormControl>

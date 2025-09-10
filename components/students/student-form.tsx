@@ -18,12 +18,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createStudent, updateStudent } from "@/actions/school-members";
 import { useState } from "react";
-import { User, Mail, Calendar, Hash, UserCheck } from "lucide-react";
+import { User, Mail, Phone, Calendar, Hash, UserCheck } from "lucide-react";
 
 // Schema simplifié pour la création d'élève
 const StudentFormSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Adresse email invalide"),
+  phone: z
+    .string()
+    .regex(/^\+227[0-9]{8}$/, { message: "Le numéro doit être au format +227XXXXXXXX" })
+    .optional(),
   matricule: z.string().optional(),
   gender: z.string().optional(),
   dateOfBirth: z.string().optional(),
@@ -44,12 +48,14 @@ export function StudentForm({ mode, initialData, studentId, onSuccess }: Student
     defaultValues: mode === "edit" ? {
       name: initialData?.user?.name || "",
       email: initialData?.user?.email || "",
+      phone: initialData?.user?.phone || "",
       matricule: initialData?.matricule || "",
       gender: initialData?.gender || "",
       dateOfBirth: initialData?.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString().split('T')[0] : "",
     } : {
       name: "",
       email: "",
+      phone: "",
       matricule: "",
       gender: "",
       dateOfBirth: "",
@@ -149,6 +155,27 @@ export function StudentForm({ mode, initialData, studentId, onSuccess }: Student
                       <Input 
                         type="email" 
                         placeholder="jean.dupont@email.com" 
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center space-x-2">
+                      <Phone className="h-4 w-4" />
+                      <span>Téléphone</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="tel" 
+                        placeholder="+227XXXXXXXX" 
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
                         {...field} 
                       />

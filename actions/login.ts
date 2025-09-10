@@ -4,20 +4,30 @@ import { LoginSchema } from "@/schemas";
 import { setMultipleCookies } from "./setMultipleCookies";
 
 export const login = async (data: {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
+  code?: string;
   rememberMe?: boolean;
 }) => {
+  // L'identifiant peut être soit un email soit un téléphone
+  const identifier = data.email || data.phone || "";
+
+  // Préparer les données pour l'API
+  const loginData = {
+    email: identifier, // Le champ email contient soit un email soit un téléphone
+    password: data.password,
+    rememberMe: data.rememberMe,
+  };
+
   // Valider les données avec Zod
-  const validatedData = LoginSchema.safeParse(data);
+  const validatedData = LoginSchema.safeParse(loginData);
 
   if (!validatedData.success) {
     return {
       error: validatedData.error.issues.map(issue => issue.message).join(", "),
     };
   }
-
-  const { email, password, rememberMe } = validatedData.data;
 
   try {
     // Appeler l'API login
@@ -26,7 +36,7 @@ export const login = async (data: {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, rememberMe }),
+        body: JSON.stringify(loginData),
       }
     );
 
@@ -67,7 +77,7 @@ export const login = async (data: {
         options: {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          maxAge: rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60,
+          maxAge: loginData.rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60,
           sameSite: "lax", // Cross-site permis
         },
       },

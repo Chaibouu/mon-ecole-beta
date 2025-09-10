@@ -33,12 +33,13 @@ export async function POST(
         data: { role: "ADMIN" as any },
       });
     } else {
-      const { name, email, password } = (parsed.data as any).user;
+      const { name, email, phone, password } = (parsed.data as any).user;
       const hashed = await bcrypt.hash(password, 10);
       const user = await db.user.create({
         data: {
           name,
           email,
+          phone,
           password: hashed,
           role: "ADMIN",
           isActive: true,
@@ -81,6 +82,7 @@ export async function GET(
             id: true,
             name: true,
             email: true,
+            phone: true,
             isActive: true,
             emailVerified: true,
           },
@@ -125,7 +127,7 @@ export async function PUT(
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    const { name, email, password, isActive } = parsed.data;
+    const { name, email, phone, password, isActive } = parsed.data;
 
     // Vérifier que l'admin existe dans cette école
     const existingAdmin = await db.userSchool.findFirst({
@@ -150,6 +152,7 @@ export async function PUT(
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
     if (isActive !== undefined) updateData.isActive = isActive;
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);

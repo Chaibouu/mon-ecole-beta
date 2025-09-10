@@ -2,7 +2,7 @@ import { NextResponse, userAgent } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail, getUserByEmailOrPhone } from "@/data/user";
 import { createEncryptedJWT, generateVerificationToken } from "@/lib/tokens";
 import { createSession } from "@/data/session";
 import appConfig from "@/settings";
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // Vérification des champs manquants
     if (!email) {
       return NextResponse.json(
-        { error: "L'email est requis" },
+        { error: "Email ou numéro de téléphone requis" },
         { status: 400 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     }
 
     // Validation des données avec Zod
-    const parsedData = LoginSchema.safeParse({ email, password });
+    const parsedData = LoginSchema.safeParse({ email, password, rememberMe });
 
     // Si la validation échoue, renvoyer les erreurs de Zod
     if (!parsedData.success) {
@@ -48,8 +48,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Recherche de l'utilisateur par email
-    const user = await getUserByEmail(email);
+    // Recherche de l'utilisateur par email OU phone
+    const identifier = email; // Le champ email contient soit un email soit un téléphone
+    const user = await getUserByEmailOrPhone(identifier);
 
     if (!user) {
       return NextResponse.json(

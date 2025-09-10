@@ -18,6 +18,10 @@ const NewUserSchema = z.object({
   user: z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Email invalide"),
+    phone: z
+      .string()
+      .regex(/^\+227[0-9]{8}$/, { message: "Le numéro doit être au format +227XXXXXXXX" })
+      .optional(),
     password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   }),
 });
@@ -49,6 +53,7 @@ export function MemberForm({ schoolId, memberType, onSuccess, onCancel }: Member
       user: {
         name: "",
         email: "",
+        phone: "",
         password: "",
       },
     },
@@ -161,6 +166,19 @@ export function MemberForm({ schoolId, memberType, onSuccess, onCancel }: Member
                     <FormLabel>Adresse email *</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="jean.dupont@exemple.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="user.phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Numéro de téléphone</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="+227XXXXXXXX" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

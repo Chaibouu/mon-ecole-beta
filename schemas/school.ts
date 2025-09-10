@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPhoneNumber } from "@/lib/validation-utils";
 
 export const SchoolCreateSchema = z.object({
   code: z
@@ -9,7 +10,13 @@ export const SchoolCreateSchema = z.object({
     .string({ message: "Le nom de l'école est requis" })
     .min(3, { message: "Le nom doit contenir au moins 3 caractères" }),
   address: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z
+    .string()
+    .refine(val => !val || isPhoneNumber(val), {
+      message:
+        "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+    })
+    .optional(),
   email: z
     .string()
     .email({ message: "L'adresse email de l'école n'est pas valide" })
@@ -29,7 +36,14 @@ export const SchoolUpdateSchema = z
       .max(20, { message: "Le code ne doit pas dépasser 20 caractères" })
       .optional(),
     address: z.string().optional().nullable(),
-    phone: z.string().optional().nullable(),
+    phone: z
+      .string()
+      .refine(val => !val || isPhoneNumber(val), {
+        message:
+          "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+      })
+      .optional()
+      .nullable(),
     email: z
       .string()
       .email({ message: "L'adresse email de l'école n'est pas valide" })

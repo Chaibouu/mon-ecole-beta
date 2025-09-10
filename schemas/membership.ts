@@ -1,10 +1,18 @@
 import { z } from "zod";
+import { isPhoneNumber } from "@/lib/validation-utils";
 
 const BaseUserInfo = z.object({
   name: z
     .string()
     .min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
   email: z.string().email({ message: "Adresse email invalide" }),
+  phone: z
+    .string()
+    .refine(val => isPhoneNumber(val), {
+      message:
+        "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+    })
+    .optional(),
   password: z
     .string()
     .min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" }),
@@ -63,6 +71,13 @@ export const StudentUpdateSchema = z
   .object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
+    phone: z
+      .string()
+      .refine(val => isPhoneNumber(val), {
+        message:
+          "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+      })
+      .optional(),
     profile: z
       .object({
         matricule: z.string().optional(),
@@ -79,6 +94,13 @@ export const ParentUpdateSchema = z
   .object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
+    phone: z
+      .string()
+      .refine(val => isPhoneNumber(val), {
+        message:
+          "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+      })
+      .optional(),
     profile: z
       .object({
         phone: z.string().optional(),
@@ -102,6 +124,13 @@ export const AdminUpdateSchema = z
   .object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
+    phone: z
+      .string()
+      .refine(val => isPhoneNumber(val), {
+        message:
+          "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX, +33123456789)",
+      })
+      .optional(),
     password: z.string().min(6).optional(),
     isActive: z.boolean().optional(),
   })
