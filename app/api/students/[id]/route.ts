@@ -10,19 +10,19 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const studentId = resolvedParams.id;
+    const userId = resolvedParams.id; // L'ID passé est maintenant le userId
 
     const auth = req.headers.get("authorization");
     const token = auth?.split(" ")[1] || "";
     const schoolId = req.headers.get("x-school-id") || "";
     const academicYearId = req.headers.get("x-academic-year-id") || "";
-    const userId = await getUserIdFromToken(token);
+    const authenticatedUserId = await getUserIdFromToken(token);
 
-    if (!userId) {
+    if (!authenticatedUserId) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const roleOk = await requireSchoolRole(userId, schoolId, [
+    const roleOk = await requireSchoolRole(authenticatedUserId, schoolId, [
       "SUPER_ADMIN",
       "ADMIN",
       "TEACHER",
@@ -33,16 +33,31 @@ export async function GET(
       return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
-    // Vérifier si l'utilisateur est un parent et s'il a accès à cet étudiant
-    const userRole = await db.userSchool.findFirst({
+    // D'abord, récupérer l'ID du studentProfile à partir du userId
+    const studentProfile = await db.studentProfile.findFirst({
       where: { userId, schoolId },
+      select: { id: true },
+    });
+
+    if (!studentProfile) {
+      return NextResponse.json(
+        { error: "Profil étudiant non trouvé" },
+        { status: 404 }
+      );
+    }
+
+    const studentId = studentProfile.id;
+
+    // Vérifier si l'utilisateur authentifié a accès à cet étudiant
+    const userRole = await db.userSchool.findFirst({
+      where: { userId: authenticatedUserId, schoolId },
       select: { role: true },
     });
 
     if (userRole?.role === "PARENT") {
       // Vérifier que ce parent a bien ce student comme enfant
       const parentProfile = await db.parentProfile.findFirst({
-        where: { userId, schoolId },
+        where: { userId: authenticatedUserId, schoolId },
       });
 
       if (!parentProfile) {
@@ -70,7 +85,7 @@ export async function GET(
     // Vérifier si l'utilisateur est un enseignant et s'il a accès à cet étudiant
     if (userRole?.role === "TEACHER") {
       const teacherProfile = await db.teacherProfile.findFirst({
-        where: { userId, schoolId },
+        where: { userId: authenticatedUserId, schoolId },
       });
 
       if (!teacherProfile) {
@@ -100,6 +115,16 @@ export async function GET(
       if (!hasAccess) {
         return NextResponse.json(
           { error: "Accès non autorisé à cet étudiant" },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Vérifier si l'utilisateur est l'étudiant lui-même
+    if (userRole?.role === "STUDENT") {
+      if (authenticatedUserId !== userId) {
+        return NextResponse.json(
+          { error: "Accès non autorisé" },
           { status: 403 }
         );
       }
