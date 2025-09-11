@@ -27,6 +27,7 @@ export async function GET(
       "ADMIN",
       "TEACHER",
       "PARENT",
+      "STUDENT",
     ]);
     if (!roleOk) {
       return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
