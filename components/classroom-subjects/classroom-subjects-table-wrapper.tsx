@@ -32,3 +32,6 @@ export function ClassroomSubjectsTableWrapper({ initialClassroomSubjects }: Clas
 
 
 
+
+
+

@@ -447,6 +447,283 @@ Réponse:
         </section>
 
         <section>
+          <h2 className="text-xl font-medium">Endpoints Enseignants</h2>
+          <div className="text-sm space-y-4">
+            <p className="text-gray-600">Tous ces endpoints requièrent une authentification avec un compte enseignant et les headers Authorization + x-school-id.</p>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/teacher/classes</p>
+              <p><b>Description :</b> Récupère toutes les classes où l'enseignant a des cours avec les élèves et matières</p>
+              <p><b>Authentification :</b> Requise (rôle TEACHER)</p>
+              <p><b>Headers optionnels :</b> x-academic-year-id pour une année spécifique</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "teacher": {
+    "id": "string",
+    "user": { "name": "string", "email": "string" }
+  },
+  "classes": [{
+    "classroom": {
+      "id": "string",
+      "name": "6ème A",
+      "gradeLevel": { "name": "6ème" }
+    },
+    "students": [{
+      "id": "string",
+      "user": { "name": "string" },
+      "matricule": "2024001",
+      "gender": "MALE",
+      "enrollment": {
+        "id": "string",
+        "academicYear": { "name": "2024-2025" }
+      }
+    }],
+    "subjects": ["Mathématiques", "Français"],
+    "timetableEntries": [{
+      "id": "string",
+      "subject": { "name": "Mathématiques" },
+      "dayOfWeek": "MONDAY",
+      "startTime": "2024-01-01T08:00:00Z",
+      "endTime": "2024-01-01T09:00:00Z"
+    }],
+    "studentCount": 25
+  }],
+  "totalClasses": 3,
+  "totalStudents": 75
+}`}</pre>
+            </div>
+
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/teacher/classes/[classroomId]/students</p>
+              <p><b>Description :</b> Récupère les élèves d'une classe spécifique avec leurs statistiques d'assiduité</p>
+              <p><b>Authentification :</b> Requise (enseignant ayant accès à cette classe)</p>
+              <p><b>Headers optionnels :</b> x-academic-year-id pour une année spécifique</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "classroom": {
+    "id": "string",
+    "name": "6ème A",
+    "gradeLevel": { "name": "6ème" }
+  },
+  "students": [{
+    "id": "string",
+    "user": { "name": "string" },
+    "matricule": "2024001",
+    "gender": "MALE",
+    "dateOfBirth": "2010-05-15",
+    "enrollment": {
+      "id": "string",
+      "academicYear": { "name": "2024-2025" }
+    },
+    "attendanceStats": {
+      "totalRecords": 20,
+      "presentCount": 18,
+      "attendanceRate": 90.0
+    }
+  }],
+  "totalStudents": 25
+}`}</pre>
+            </div>
+
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/teacher/timetable</p>
+              <p><b>Description :</b> Récupère l'emploi du temps de l'enseignant organisé par jour</p>
+              <p><b>Authentification :</b> Requise (rôle TEACHER)</p>
+              <p><b>Headers optionnels :</b> x-academic-year-id pour une année spécifique</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "teacher": {
+    "id": "string",
+    "user": { "name": "string" }
+  },
+  "timetable": {
+    "MONDAY": [{
+      "id": "string",
+      "subject": { "name": "Mathématiques" },
+      "classroom": {
+        "name": "6ème A",
+        "gradeLevel": { "name": "6ème" }
+      },
+      "startTime": "2024-01-01T08:00:00Z",
+      "endTime": "2024-01-01T09:00:00Z",
+      "academicYear": { "name": "2024-2025" }
+    }],
+    "TUESDAY": [...],
+    "WEDNESDAY": [...],
+    "THURSDAY": [...],
+    "FRIDAY": [...],
+    "SATURDAY": [...],
+    "SUNDAY": [...]
+  },
+  "timetableEntries": [...],
+  "statistics": {
+    "totalClasses": 15,
+    "totalHoursPerWeek": 25.5,
+    "subjectCount": 3,
+    "classroomCount": 5,
+    "subjectBreakdown": {
+      "Mathématiques": 8,
+      "Français": 4,
+      "Sciences": 3
+    },
+    "classBreakdown": {
+      "6ème A": 5,
+      "6ème B": 4,
+      "5ème A": 6
+    }
+  }
+}`}</pre>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/teacher/assessments</p>
+              <p><b>Description :</b> Récupère les évaluations créées par l'enseignant avec statistiques</p>
+              <p><b>Authentification :</b> Requise (rôle TEACHER)</p>
+              <p><b>Paramètres optionnels :</b> ?classroomId=...&subjectId=...&termId=...</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "teacher": {
+    "id": "string",
+    "user": { "name": "string" }
+  },
+  "assessments": [{
+    "id": "string",
+    "title": "Devoir de mathématiques",
+    "description": "Exercices sur les fractions",
+    "type": "HOMEWORK",
+    "coefficient": 2,
+    "assignedAt": "2024-01-15T00:00:00Z",
+    "dueAt": "2024-01-20T00:00:00Z",
+    "isBlocked": false,
+    "subject": { "name": "Mathématiques" },
+    "classroom": {
+      "name": "6ème A",
+      "gradeLevel": { "name": "6ème" }
+    },
+    "term": { "name": "1er Trimestre" },
+    "statistics": {
+      "totalGrades": 25,
+      "averageScore": 14.2,
+      "maxScore": 18,
+      "minScore": 8,
+      "gradedStudents": 25,
+      "pendingGrades": 0
+    },
+    "grades": [{
+      "id": "string",
+      "score": 15.5,
+      "student": {
+        "id": "string",
+        "user": { "name": "Jean Dupont" },
+        "matricule": "2024001"
+      }
+    }]
+  }],
+  "statistics": {
+    "totalAssessments": 10,
+    "totalGrades": 250,
+    "subjectBreakdown": {
+      "Mathématiques": 6,
+      "Français": 4
+    },
+    "averageGradesPerAssessment": 25.0
+  }
+}`}</pre>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/teacher/attendance</p>
+              <p><b>Description :</b> Récupère les enregistrements d'assiduité pour un cours/date</p>
+              <p><b>Authentification :</b> Requise (enseignant ayant accès à cette classe)</p>
+              <p><b>Paramètres requis :</b> ?date=YYYY-MM-DD&classroomId=...</p>
+              <p><b>Paramètres optionnels :</b> ?timetableEntryId=...</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "date": "2024-01-15T00:00:00Z",
+  "classroomId": "string",
+  "timetableEntryId": "string",
+  "students": [{
+    "id": "string",
+    "user": { "name": "string" },
+    "matricule": "2024001",
+    "gender": "MALE"
+  }],
+  "attendanceRecords": [{
+    "id": "string",
+    "status": "PRESENT|ABSENT|LATE|EXCUSED",
+    "notes": "À l'heure",
+    "date": "2024-01-15T00:00:00Z",
+    "student": {
+      "id": "string",
+      "user": { "name": "Jean Dupont" }
+    },
+    "timetableEntry": {
+      "subject": { "name": "Mathématiques" }
+    }
+  }],
+  "totalStudents": 25,
+  "recordedCount": 20
+}`}</pre>
+            </div>
+
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <p className="font-medium mb-2">POST /api/teacher/attendance</p>
+              <p><b>Description :</b> Enregistre l'assiduité des élèves pour un cours/date</p>
+              <p><b>Authentification :</b> Requise (enseignant ayant accès à cette classe)</p>
+              <p><b>Body :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "classroomId": "string",
+  "date": "2024-01-15",
+  "timetableEntryId": "string", // Optionnel
+  "attendanceData": [
+    {
+      "studentId": "string",
+      "status": "PRESENT|ABSENT|LATE|EXCUSED",
+      "notes": "À l'heure" // Optionnel
+    },
+    {
+      "studentId": "string",
+      "status": "ABSENT",
+      "notes": "Maladie"
+    }
+  ]
+}`}</pre>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "success": true,
+  "recordsCreated": 25,
+  "records": [{
+    "id": "string",
+    "studentId": "string",
+    "status": "PRESENT",
+    "notes": "À l'heure",
+    "date": "2024-01-15T00:00:00Z",
+    "student": {
+      "id": "string",
+      "user": { "name": "Jean Dupont" }
+    }
+  }]
+}`}</pre>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="font-medium mb-2">Actions côté client disponibles</p>
+              <p><b>Fichier :</b> actions/teacher-dashboard.ts</p>
+              <p><b>Fonctions disponibles :</b></p>
+              <ul className="list-disc pl-4 mt-2">
+                <li><code>getTeacherClasses()</code> - Liste des classes de l'enseignant</li>
+                <li><code>getClassStudents(classroomId)</code> - Élèves d'une classe</li>
+                <li><code>getTeacherTimetable()</code> - Emploi du temps</li>
+                <li><code>getTeacherAssessments(filters?)</code> - Évaluations créées</li>
+                <li><code>getAttendanceRecords(params)</code> - Enregistrements d'assiduité</li>
+                <li><code>createAttendanceRecords(data)</code> - Enregistrer l'assiduité</li>
+              </ul>
+              <p className="text-xs text-gray-600 mt-2">Ces actions utilisent automatiquement makeAuthenticatedRequest avec les bons headers.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-xl font-medium">Endpoints École Active</h2>
         <ul className="list-disc pl-6">
           <li>
@@ -777,6 +1054,133 @@ x-school-id: <schoolId>`}</pre>
       "BANK_TRANSFER": { "count": 10, "amount": 10000000 }
     },
     "monthlyTrends": [...]
+  }
+}`}</pre>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 className="text-xl font-medium">/api/students/[id]</h2>
+        <ul className="list-disc pl-6">
+          <li><b>Objectif</b>: Détails complets d'un élève avec toutes ses informations</li>
+          <li><b>GET</b>: Profil, inscriptions, paiements, notes, assiduité, emploi du temps, parents</li>
+          <li><b>Authentification</b>: ADMIN, TEACHER (avec accès à la classe), PARENT (de cet élève)</li>
+        </ul>
+        <div className="mt-2 grid gap-2">
+          <div>
+            <div className="font-mono text-sm">Obtenir tous les détails d'un élève</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/students/cmf9lqfc90002rgfd7lxbv22f
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+x-academic-year-id: <academicYearId> // Optionnel
+
+Réponse:
+{
+  "student": {
+    "id": "string",
+    "user": { "name": "string", "email": "string" },
+    "matricule": "2024001",
+    "gender": "MALE",
+    "dateOfBirth": "2010-05-15",
+    "placeOfBirth": "Dakar",
+    "address": "123 Rue Example",
+    "phone": "+22712345678",
+    "emergencyContact": "Papa Dupont",
+    "emergencyPhone": "+22787654321",
+    "medicalInfo": "Aucun problème médical",
+    "allergies": "Aucune allergie connue"
+  },
+  "currentEnrollment": {
+    "id": "string",
+    "classroom": {
+      "name": "6ème A",
+      "gradeLevel": { "name": "6ème" }
+    },
+    "academicYear": { "name": "2024-2025" },
+    "status": "ACTIVE"
+  },
+  "allEnrollments": [...],
+  "timetable": {
+    "classroom": { "name": "6ème A", "gradeLevel": {...} },
+    "timetable": {
+      "MONDAY": [
+        {
+          "id": "string",
+          "subject": { "name": "Mathématiques" },
+          "teacher": { "user": { "name": "Prof. Dupont" } },
+          "startTime": "2024-01-01T08:00:00Z",
+          "endTime": "2024-01-01T09:00:00Z"
+        }
+      ],
+      "TUESDAY": [...],
+      ...
+    },
+    "timetableEntries": [...]
+  },
+  "parents": [
+    {
+      "id": "string",
+      "user": { "name": "Papa Dupont", "email": "papa@example.com" },
+      "relationship": "FATHER"
+    }
+  ],
+  "paymentSummary": {
+    "totalDue": 20000000,
+    "totalPaid": 10000000,
+    "balance": 10000000,
+    "feeScheduleCount": 3,
+    "recentPayments": [...]
+  },
+  "attendanceSummary": {
+    "totalRecords": 50,
+    "presentCount": 45,
+    "absentCount": 3,
+    "lateCount": 2,
+    "excusedCount": 0,
+    "attendanceRate": 90.0,
+    "recentRecords": [...],
+    "recordsBySubject": {
+      "Mathématiques": {
+        "total": 15,
+        "present": 14,
+        "absent": 1,
+        "late": 0,
+        "excused": 0
+      }
+    }
+  },
+  "academicSummary": {
+    "totalGrades": 25,
+    "averageScore": 14.2,
+    "maxScore": 18,
+    "minScore": 8,
+    "overallAverage": 14.2,
+    "subjectAverages": [
+      {
+        "subject": "Mathématiques",
+        "average": 15.5,
+        "gradeCount": 8
+      }
+    ],
+    "termAverages": [
+      {
+        "termName": "1er Trimestre",
+        "average": 14.2,
+        "gradeCount": 25,
+        "subjectCount": 5
+      }
+    ],
+    "recentGrades": [...],
+    "gradesBySubject": {...},
+    "gradesByTerm": {...}
+  },
+  "statistics": {
+    "totalEnrollments": 2,
+    "totalPayments": 5,
+    "totalGrades": 25,
+    "totalAttendanceRecords": 50,
+    "parentsCount": 2
   }
 }`}</pre>
           </div>

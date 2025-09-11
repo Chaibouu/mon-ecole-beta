@@ -32,3 +32,6 @@ export function StudentGradesTableWrapper({ initialGrades }: StudentGradesTableW
 
 
 
+
+
+

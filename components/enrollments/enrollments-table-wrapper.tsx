@@ -32,3 +32,6 @@ export function EnrollmentsTableWrapper({ initialEnrollments }: EnrollmentsTable
 
 
 
+
+
+
