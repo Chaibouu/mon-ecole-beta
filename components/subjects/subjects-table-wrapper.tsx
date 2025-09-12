@@ -40,3 +40,6 @@ export function SubjectsTableWrapper({ initialSubjects }: SubjectsTableWrapperPr
 
 
 
+
+
+

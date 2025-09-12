@@ -19,12 +19,7 @@ export async function GET(
     const authenticatedUserId = await getUserIdFromToken(token);
 
     if (!authenticatedUserId) {
-      console.log('tokeen');
-      console.log(token);
-      console.log('authenticatedUserId');
-      console.log(authenticatedUserId);
-      
-      return NextResponse.json({ error: "Non autoriséééé" }, { status: 401 });
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const roleOk = await requireSchoolRole(authenticatedUserId, schoolId, [

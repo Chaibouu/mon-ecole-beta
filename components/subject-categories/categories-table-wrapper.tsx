@@ -23,3 +23,6 @@ export function CategoriesTableWrapper({ initialItems }: { initialItems: any[] }
 
 
 
+
+
+
