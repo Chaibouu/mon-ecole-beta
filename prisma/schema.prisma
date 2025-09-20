@@ -172,8 +172,8 @@ model School {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   academicYears       AcademicYear[]
-  assessments         Assessment[]
   assessmentTypes     AssessmentTypeModel[]
+  assessments         Assessment[]
   classrooms          Classroom[]
   classroomSubjects   ClassroomSubject[]
   feeSchedules        FeeSchedule[]
@@ -257,9 +257,9 @@ model Classroom {
   gradeLevelId       String
   name               String
   description        String?
+  createdAt          DateTime            @default(now())
   headTeacherId      String?
   room               String?
-  createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   assessments        Assessment[]
   gradeLevel         GradeLevel          @relation(fields: [gradeLevelId], references: [id], onDelete: Cascade)
@@ -427,15 +427,17 @@ model ParentStudent {
 }
 
 model Enrollment {
-  id             String         @id @default(cuid())
-  studentId      String
-  classroomId    String
-  academicYearId String
-  enrolledAt     DateTime       @default(now())
-  status         String         @default("ACTIVE")
-  academicYear   AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  classroom      Classroom      @relation(fields: [classroomId], references: [id], onDelete: Cascade)
-  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id                 String         @id @default(cuid())
+  studentId          String
+  classroomId        String
+  academicYearId     String
+  enrolledAt         DateTime       @default(now())
+  status             String         @default("ACTIVE")
+  // Abonnement mobile pour l'application parent sur cette inscription (annuel)
+  isMobileSubscribed Boolean        @default(false)
+  academicYear       AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  classroom          Classroom      @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student            StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, classroomId, academicYearId])
 }
@@ -457,12 +459,12 @@ model TeacherAssignment {
 model TimetableEntry {
   id                String             @id @default(cuid())
   classroomId       String
-  academicYearId    String
   subjectId         String
   teacherId         String
   dayOfWeek         DayOfWeek
   startTime         DateTime
   endTime           DateTime
+  academicYearId    String
   attendanceRecords AttendanceRecord[] @relation("AttendanceTimetableEntry")
   academicYear      AcademicYear       @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
   classroom         Classroom          @relation(fields: [classroomId], references: [id], onDelete: Cascade)
@@ -598,10 +600,10 @@ model FeeSchedule {
   itemName         String
   amountCents      Int
   dueDate          DateTime?
+  createdAt        DateTime      @default(now())
+  installmentOrder Int?
   isInstallment    Boolean       @default(false)
   parentFeeId      String?
-  installmentOrder Int?
-  createdAt        DateTime      @default(now())
   updatedAt        DateTime      @default(now()) @updatedAt
   classroom        Classroom?    @relation(fields: [classroomId], references: [id])
   gradeLevel       GradeLevel?   @relation(fields: [gradeLevelId], references: [id])
@@ -617,16 +619,16 @@ model FeeSchedule {
 
 model Payment {
   id            String         @id @default(cuid())
-  schoolId      String
-  studentId     String
-  feeScheduleId String
   amountCents   Int
-  method        PaymentMethod  @default(CASH)
   paidAt        DateTime       @default(now())
   reference     String?
-  dueDate       DateTime?
   createdAt     DateTime       @default(now())
+  dueDate       DateTime?
+  feeScheduleId String
   notes         String?
+  schoolId      String
+  studentId     String
+  method        PaymentMethod  @default(CASH)
   feeSchedule   FeeSchedule    @relation(fields: [feeScheduleId], references: [id], onDelete: Cascade)
   school        School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)

@@ -281,6 +281,65 @@ Réponse:
 }`}</pre>
       </section>
         <section>
+          <h2 className="text-xl font-medium">📱 Endpoints Application Mobile</h2>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="font-medium mb-2">🔴 Consultation de présence en temps réel</p>
+            <p className="text-sm text-gray-700 mb-3">Ces endpoints sont spécialement conçus pour l'application mobile afin de permettre aux parents de consulter la présence de leurs enfants en temps réel.</p>
+            
+            <div className="bg-white border border-blue-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/attendance/realtime</p>
+              <p className="text-sm mb-2"><b>Objectif :</b> Permettre aux parents de voir en temps réel si leur enfant est présent en cours</p>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p className="font-medium text-sm mb-2">🕐 Logique de fonctionnement :</p>
+                  <ul className="list-disc pl-4 text-xs space-y-1">
+                    <li>Détection automatique du cours en cours selon l'heure actuelle</li>
+                    <li>Comparaison avec l'emploi du temps de l'enfant</li>
+                    <li>Vérification si le professeur a pris la présence</li>
+                    <li>Retour du statut ou "non disponible"</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-medium text-sm mb-2">📋 Cas d'usage :</p>
+                  <ul className="list-disc pl-4 text-xs space-y-1">
+                    <li><b>8h10 :</b> Parent consulte → Cours de 8h-9h → Statut de présence</li>
+                    <li><b>12h :</b> Parent consulte → Cours de 12h-13h → Statut de présence</li>
+                    <li><b>Pas de cours :</b> Message "Aucun cours en cours actuellement"</li>
+                    <li><b>Présence non prise :</b> Message "Présence non encore prise"</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <p className="font-medium text-sm mb-2">📝 Exemple de requête :</p>
+                <pre className="bg-gray-100 p-2 rounded text-xs">{`GET /api/parent/children/cm123.../attendance/realtime
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+
+Réponse si cours en cours et présence prise :
+{
+  "student": { "name": "Jean Dupont", "classroom": {...} },
+  "currentSession": {
+    "subject": "Mathématiques",
+    "teacher": "Prof. Dupont",
+    "startTime": "08:00",
+    "endTime": "09:00"
+  },
+  "attendance": {
+    "status": "PRESENT",
+    "statusText": "Présent",
+    "recordedAt": "2024-01-15T08:15:00Z"
+  },
+  "message": "Présent en cours",
+  "timestamp": "2024-01-15T08:30:00Z"
+}`}</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-xl font-medium">Endpoints Parents</h2>
           <div className="text-sm space-y-4">
             <p className="text-gray-600">Tous ces endpoints requièrent une authentification avec un compte parent et les headers Authorization + x-school-id.</p>
@@ -289,19 +348,17 @@ Réponse:
               <p className="font-medium mb-2">GET /api/parent/children</p>
               <p><b>Description :</b> Récupère la liste des enfants du parent connecté avec leurs informations scolaires</p>
               <p><b>Authentification :</b> Requise (rôle PARENT)</p>
+              <p><b>Cas d'usage :</b> Application mobile pour afficher la liste des enfants</p>
               <p><b>Réponse :</b></p>
               <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
   "children": [{
-    "student": {
-      "id": "string",
-      "user": { "name": "string" },
-      "enrollments": [{
-        "classroom": {
-          "name": "string",
-          "gradeLevel": { "name": "string" }
-        },
-        "academicYear": { "name": "string" }
-      }]
+    "id": "string",
+    "name": "Jean Dupont",
+    "email": "jean@example.com",
+    "matricule": "2024001",
+    "classroom": {
+      "name": "6ème A",
+      "gradeLevel": "Sixième"
     }
   }]
 }`}</pre>
@@ -428,6 +485,56 @@ Réponse:
   }
 }`}</pre>
             </div>
+
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+              <p className="font-medium mb-2">GET /api/parent/children/[studentId]/attendance/realtime</p>
+              <p><b>Description :</b> Consultation de présence en temps réel selon l'heure actuelle</p>
+              <p><b>Authentification :</b> Requise (rôle PARENT)</p>
+              <p><b>Fonctionnalités :</b></p>
+              <ul className="list-disc pl-4 text-xs">
+                <li>Détection automatique du cours en cours selon l'heure actuelle</li>
+                <li>Vérification si le professeur a pris la présence</li>
+                <li>Retour du statut de présence ou "non disponible"</li>
+                <li>Informations complètes sur le cours (matière, professeur, horaires)</li>
+              </ul>
+              <p><b>Cas d'usage :</b> Application mobile pour consultation instantanée</p>
+              <p><b>Réponse :</b></p>
+              <pre className="bg-gray-100 p-2 rounded mt-2 text-xs">{`{
+  "student": {
+    "id": "string",
+    "name": "Jean Dupont",
+    "email": "jean@example.com",
+    "classroom": {
+      "name": "6ème A",
+      "gradeLevel": "Sixième"
+    }
+  },
+  "currentSession": {
+    "subject": "Mathématiques",
+    "teacher": "Prof. Dupont",
+    "startTime": "08:00",
+    "endTime": "09:00",
+    "classroom": "6ème A",
+    "dayOfWeek": 1,
+    "date": "2024-01-15"
+  },
+  "attendance": {
+    "status": "PRESENT",
+    "statusText": "Présent",
+    "recordedAt": "2024-01-15T08:15:00Z",
+    "recordedBy": "Prof. Dupont",
+    "comments": "À l'heure"
+  },
+  "message": "Présent en cours",
+  "timestamp": "2024-01-15T08:30:00Z"
+}`}</pre>
+              <p><b>États possibles :</b></p>
+              <ul className="list-disc pl-4 text-xs">
+                <li><b>Aucun cours :</b> currentSession: null, message: "Aucun cours en cours actuellement"</li>
+                <li><b>Présence non prise :</b> attendance: null, message: "Présence non encore prise par le professeur"</li>
+                <li><b>Présence prise :</b> attendance: {"{...}"}, message: "Présent en cours" / "Absent du cours" / etc.</li>
+              </ul>
+            </div>
             
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <p className="font-medium mb-2">Actions côté client disponibles</p>
@@ -442,6 +549,7 @@ Réponse:
                 <li><code>getChildSummary(studentId)</code> - Résumé complet (toutes les infos)</li>
               </ul>
               <p className="text-xs text-gray-600 mt-2">Ces actions utilisent automatiquement makeAuthenticatedRequest avec les bons headers.</p>
+              
             </div>
           </div>
         </section>
@@ -822,9 +930,9 @@ Content-Type: application/json
             <b>/api/enrollments</b>: Inscriptions élèves
             <ul className="list-disc pl-6">
               <li><b>GET</b>: Liste des inscriptions (param classroomId/studentId optionnels)</li>
-              <li><b>POST</b> (ADMIN): Créer une inscription</li>
+              <li><b>POST</b> (ADMIN): Créer une inscription (avec abonnement mobile optionnel)</li>
               <li><b>GET /[id]</b>: Détail d'une inscription</li>
-              <li><b>PATCH /[id]</b> (ADMIN): Modifier une inscription</li>
+              <li><b>PATCH /[id]</b> (ADMIN): Modifier une inscription (ex: isMobileSubscribed)</li>
               <li><b>DELETE /[id]</b> (ADMIN): Supprimer une inscription</li>
             </ul>
             <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
@@ -836,7 +944,28 @@ Content-Type: application/json
 {
   "studentId": "...",
   "classroomId": "...",
-  "academicYearId": "..."
+  "academicYearId": "...",
+  "isMobileSubscribed": true // optionnel, défaut false
+}`}</pre>
+          </li>
+          <li>
+            <div className="font-mono text-sm">Exemple réponse GET</div>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{`
+GET /api/enrollments?classroomId=...
+Authorization: Bearer <token>
+x-school-id: <schoolId>
+
+{
+  "enrollments": [
+    {
+      "id": "...",
+      "status": "ACTIVE",
+      "isMobileSubscribed": false,
+      "student": { "id": "...", "user": { "name": "..." } },
+      "classroom": { "id": "...", "name": "6ème A" },
+      "academicYear": { "id": "...", "name": "2024-2025" }
+    }
+  ]
 }`}</pre>
           </li>
           <li>

@@ -21,6 +21,7 @@ import { useState } from "react";
 import { StudentSelect } from "./student-select";
 import { ClassSelect } from "./class-select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Switch } from "@/components/ui/switch";
 
 type EnrollmentFormProps = {
   mode: "create" | "edit";
@@ -59,11 +60,13 @@ export function EnrollmentForm({
       classroomId: initialData?.classroomId || "",
       academicYearId: initialData?.academicYearId || "",
       status: initialData?.status || "ACTIVE",
+      isMobileSubscribed: initialData?.isMobileSubscribed ?? false,
     } : {
       studentId: "",
       classroomId: "",
       academicYearId: "",
       status: "ACTIVE",
+      isMobileSubscribed: false,
     },
   });
 
@@ -160,6 +163,25 @@ export function EnrollmentForm({
                     onChange={(option) => field.onChange(option?.value || "")}
                     placeholder="Sélectionner un statut"
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="isMobileSubscribed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Abonnement application mobile (parent)</FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-3">
+                    <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    <span className="text-sm text-muted-foreground">Activer pour cette année scolaire</span>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

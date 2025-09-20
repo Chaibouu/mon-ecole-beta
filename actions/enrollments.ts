@@ -23,6 +23,7 @@ export async function createEnrollment(input: {
   classroomId: string;
   academicYearId: string;
   status?: "ACTIVE" | "TRANSFERRED" | "COMPLETED" | "DROPPED";
+  isMobileSubscribed?: boolean;
 }) {
   return await makeAuthenticatedRequest(
     `${API_BASE}/enrollments`,

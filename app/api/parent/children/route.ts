@@ -66,7 +66,31 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ children });
+    // Formater la réponse pour l'app mobile: inclure le flag d'abonnement sur l'inscription active
+    const formatted = children.map((link: any) => {
+      const student = link.student;
+      const enrollment = Array.isArray(student.enrollments)
+        ? student.enrollments[0]
+        : null;
+      return {
+        id: student.id,
+        name:
+          student.user?.name ||
+          `${student.user?.firstName || ""} ${student.user?.lastName || ""}`.trim() ||
+          student.user?.email,
+        email: student.user?.email,
+        matricule: student.matricule,
+        isMobileSubscribed: enrollment?.isMobileSubscribed ?? false,
+        classroom: enrollment?.classroom
+          ? {
+              name: enrollment.classroom.name,
+              gradeLevel: enrollment.classroom.gradeLevel?.name,
+            }
+          : null,
+      };
+    });
+
+    return NextResponse.json({ children: formatted });
   } catch (error) {
     console.error("Error fetching parent children:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

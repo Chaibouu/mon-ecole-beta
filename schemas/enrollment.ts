@@ -7,6 +7,7 @@ export const EnrollmentCreateSchema = z.object({
   status: z
     .enum(["ACTIVE", "TRANSFERRED", "COMPLETED", "DROPPED"])
     .default("ACTIVE"),
+  isMobileSubscribed: z.boolean().optional(),
 });
 
 export const EnrollmentUpdateSchema = z
@@ -20,6 +21,7 @@ export const EnrollmentUpdateSchema = z
     status: z
       .enum(["ACTIVE", "TRANSFERRED", "COMPLETED", "DROPPED"])
       .optional(),
+    isMobileSubscribed: z.boolean().optional(),
   })
   .refine(
     data => {
