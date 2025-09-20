@@ -20,11 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ReactSelect from "react-select";
+import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AssessmentCreateSchema, AssessmentUpdateSchema } from "@/schemas/assessment";
 import { createAssessment, updateAssessment } from "@/actions/assessments";
-import { useState } from "react";
+import { listAssessmentTypes } from "@/actions/assessment-types";
+import React, { useState } from "react";
 
 type AssessmentFormProps = {
   mode: "create" | "edit";
@@ -36,11 +39,7 @@ type AssessmentFormProps = {
   onSuccess?: () => void;
 };
 
-const typeOptions = [
-  { value: "EXAM", label: "Examen" },
-  { value: "QUIZ", label: "Quiz" },
-  { value: "HOMEWORK", label: "Devoir" },
-];
+// Phase 1: types dynamiques chargés côté client
 
 export function AssessmentForm({ 
   mode, 
@@ -52,6 +51,7 @@ export function AssessmentForm({
   onSuccess 
 }: AssessmentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [typeOptions, setTypeOptions] = useState<{ value: string; label: string; defaults?: { maxScore?: number } }[]>([]);
   
   const schema = mode === "create" ? AssessmentCreateSchema : AssessmentUpdateSchema;
   
@@ -63,8 +63,9 @@ export function AssessmentForm({
       termId: initialData?.termId || "",
       title: initialData?.title || "",
       description: initialData?.description || "",
-      type: initialData?.type || "EXAM",
-      coefficient: initialData?.coefficient || 1,
+      assessmentTypeId: initialData?.assessmentTypeId || "",
+      type: initialData?.type || undefined,
+      maxScore: initialData?.maxScore || 20,
       assignedAt: initialData?.assignedAt ? new Date(initialData.assignedAt).toISOString().split('T')[0] : "",
       dueAt: initialData?.dueAt ? new Date(initialData.dueAt).toISOString().split('T')[0] : "",
     } : {
@@ -73,12 +74,28 @@ export function AssessmentForm({
       termId: "",
       title: "",
       description: "",
-      type: "EXAM",
-      coefficient: 1,
+      assessmentTypeId: "",
+      type: undefined,
+      maxScore: 20,
       assignedAt: new Date().toISOString().split('T')[0],
       dueAt: "",
     },
   });
+
+  // Charger les types dynamiques
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const res = await listAssessmentTypes(true);
+        const opts = (res?.types || []).map((t: any) => ({
+          value: t.id,
+          label: t.name,
+          defaults: { maxScore: t.defaultMaxScore },
+        }));
+        setTypeOptions(opts);
+      } catch {}
+    })();
+  }, []);
 
   async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true);
@@ -114,20 +131,17 @@ export function AssessmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Classe *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {classrooms.map((classroom) => (
-                      <SelectItem key={classroom.id} value={classroom.id}>
-                        {classroom.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <div>
+                    <ReactSelect
+                      classNamePrefix="rs"
+                      options={classrooms.map((c: any) => ({ value: c.id, label: c.name }))}
+                      value={classrooms.map((c: any) => ({ value: c.id, label: c.name })).find((o: any) => o.value === field.value) || null}
+                      onChange={(opt: any) => field.onChange(opt?.value || "")}
+                      placeholder="Sélectionnez une classe"
+                    />
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -138,20 +152,17 @@ export function AssessmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Matière *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une matière" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <div>
+                    <ReactSelect
+                      classNamePrefix="rs"
+                      options={subjects.map((s: any) => ({ value: s.id, label: s.name }))}
+                      value={subjects.map((s: any) => ({ value: s.id, label: s.name })).find((o: any) => o.value === field.value) || null}
+                      onChange={(opt: any) => field.onChange(opt?.value || "")}
+                      placeholder="Sélectionnez une matière"
+                    />
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -162,20 +173,17 @@ export function AssessmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Trimestre *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un trimestre" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {terms.map((term) => (
-                      <SelectItem key={term.id} value={term.id}>
-                        {term.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <div>
+                    <ReactSelect
+                      classNamePrefix="rs"
+                      options={terms.map((t: any) => ({ value: t.id, label: t.name }))}
+                      value={terms.map((t: any) => ({ value: t.id, label: t.name })).find((o: any) => o.value === field.value) || null}
+                      onChange={(opt: any) => field.onChange(opt?.value || "")}
+                      placeholder="Sélectionnez un trimestre"
+                    />
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -185,11 +193,15 @@ export function AssessmentForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="type"
+            name="assessmentTypeId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Type d'évaluation *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={(v) => {
+                  field.onChange(v);
+                  const sel = typeOptions.find(o => o.value === v);
+                  if (sel?.defaults?.maxScore) form.setValue("maxScore" as any, sel.defaults.maxScore);
+                }} defaultValue={field.value as any}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionnez un type" />
@@ -209,18 +221,18 @@ export function AssessmentForm({
           />
           <FormField
             control={form.control}
-            name="coefficient"
+            name="maxScore"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Coefficient *</FormLabel>
+                <FormLabel>Barème (score max) *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
-                    min="0.1" 
-                    step="0.1"
-                    placeholder="1"
+                    min="1" 
+                    step="1"
+                    placeholder="20"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 1)}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 20)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -243,52 +255,56 @@ export function AssessmentForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Description détaillée de l'évaluation..."
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="assignedAt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date d'attribution *</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="dueAt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date limite (optionnel)</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <details className="rounded-md border p-4">
+          <summary className="cursor-pointer font-medium">Options avancées</summary>
+          <div className="mt-4 space-y-6">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Description détaillée de l'évaluation..."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="assignedAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date d'attribution *</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dueAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date limite (optionnel)</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </details>
 
         <div className="flex justify-end space-x-4">
           <Button

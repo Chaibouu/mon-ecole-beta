@@ -232,6 +232,23 @@ export async function listClassrooms() {
 }
 
 /**
+ * Lister les élèves d'une classe (par classroomId)
+ */
+export async function listStudentsByClassroom(classroomId: string) {
+  try {
+    const result: any = await makeAuthenticatedRequest(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/classrooms/${classroomId}/students`,
+      "GET"
+    );
+
+    if (result?.error) return result;
+    return result;
+  } catch (error) {
+    return { error: "Erreur de connexion" };
+  }
+}
+
+/**
  * Lister tous les parents de l'école active
  */
 export async function listParents() {

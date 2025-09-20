@@ -470,6 +470,11 @@ export const schoolNavigation: NavigationGroup[] = [
             path: "/assessments/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN", "TEACHER"],
           },
+          {
+            title: "Types d'évaluation",
+            path: "/assessment-types",
+            allowedRoles: ["SUPER_ADMIN", "ADMIN"],
+          },
         ],
       },
       {

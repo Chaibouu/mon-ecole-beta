@@ -4,15 +4,21 @@ import { makeAuthenticatedRequest } from "@/actions/makeAuthenticatedRequest";
 
 const API_BASE = `${process.env.NEXT_PUBLIC_APP_URL}/api`;
 
-export async function listAssessments(
-  subjectId?: string,
-  classroomId?: string,
-  termId?: string
-) {
+export async function listAssessments(filters?: {
+  subjectId?: string;
+  classroomId?: string;
+  termId?: string;
+  teacherId?: string;
+  search?: string;
+  type?: string;
+}) {
   const params = new URLSearchParams();
-  if (subjectId) params.append("subjectId", subjectId);
-  if (classroomId) params.append("classroomId", classroomId);
-  if (termId) params.append("termId", termId);
+  if (filters?.subjectId) params.append("subjectId", filters.subjectId);
+  if (filters?.classroomId) params.append("classroomId", filters.classroomId);
+  if (filters?.termId) params.append("termId", filters.termId);
+  if (filters?.teacherId) params.append("teacherId", filters.teacherId);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.type) params.append("type", filters.type);
 
   const queryString = params.toString();
   const url = `${API_BASE}/assessments${queryString ? `?${queryString}` : ""}`;

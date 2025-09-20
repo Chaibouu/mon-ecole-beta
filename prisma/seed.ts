@@ -61,6 +61,63 @@ async function main() {
     console.log("📧 Super Admin Email: admin@sahel-coders.com");
     console.log("🔑 Super Admin Password: admin123");
     console.log("🏫 School: École Sahel Coders");
+
+    // Phase 1 Backfill: Assessment Types & link existing assessments
+    console.log("🧱 Backfilling assessment types...");
+    const schools = await prisma.school.findMany({ select: { id: true } });
+    for (const s of schools) {
+      const existing = await prisma.assessmentTypeModel.findMany({
+        where: { schoolId: s.id },
+      });
+      if (existing.length === 0) {
+        await prisma.assessmentTypeModel.createMany({
+          data: [
+            {
+              schoolId: s.id,
+              name: "Examen",
+              code: "EXAM",
+              defaultMaxScore: 20,
+              defaultCoefficient: 1,
+              order: 1,
+            },
+            {
+              schoolId: s.id,
+              name: "Quiz",
+              code: "QUIZ",
+              defaultMaxScore: 10,
+              defaultCoefficient: 1,
+              order: 2,
+            },
+            {
+              schoolId: s.id,
+              name: "Devoir",
+              code: "HOMEWORK",
+              defaultMaxScore: 20,
+              defaultCoefficient: 1,
+              order: 3,
+            },
+          ],
+          skipDuplicates: true,
+        });
+      }
+      const types = await prisma.assessmentTypeModel.findMany({
+        where: { schoolId: s.id },
+      });
+      const mapByCode = new Map(types.map(t => [t.code || t.name, t.id]));
+      const assessments = await prisma.assessment.findMany({
+        where: { schoolId: s.id, assessmentTypeId: null },
+      });
+      for (const a of assessments) {
+        const mappedId = mapByCode.get(a.type as any);
+        await prisma.assessment.update({
+          where: { id: a.id },
+          data: {
+            assessmentTypeId: mappedId,
+            maxScore: a.maxScore || (a.type === "QUIZ" ? 10 : 20),
+          },
+        });
+      }
+    }
   } catch (error) {
     console.error("❌ Error during seeding:", error);
     throw error;

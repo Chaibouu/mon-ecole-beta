@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { listStudents } from "@/actions/school-members";
 import { listAssessments } from "@/actions/assessments";
 
-export default async function CreateStudentGradePage() {
+export default async function CreateStudentGradePage({ searchParams }: { searchParams?: Promise<{ assessmentId?: string }> }) {
   const [studentsData, assessmentsData] = await Promise.all([
     listStudents(),
     listAssessments(),
@@ -14,6 +14,9 @@ export default async function CreateStudentGradePage() {
 
   const students = Array.isArray(studentsData?.students) ? studentsData.students : [];
   const assessments = Array.isArray(assessmentsData?.assessments) ? assessmentsData.assessments : [];
+
+  const qp = searchParams ? await searchParams : undefined;
+  const lockedAssessmentId = qp?.assessmentId;
 
   return (
     <div className="space-y-6">
@@ -41,6 +44,7 @@ export default async function CreateStudentGradePage() {
             mode="create"
             students={students}
             assessments={assessments}
+            lockedAssessmentId={lockedAssessmentId}
           />
         </CardContent>
       </Card>

@@ -23,48 +23,47 @@ import { MoreHorizontal, Edit, Trash2, Eye, Calendar, BookOpen, GraduationCap } 
 import Link from "next/link";
 import { deleteAssessment } from "@/actions/assessments";
 import { toast } from "sonner";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 
 interface AssessmentsTableProps {
   assessments: any[];
   onDelete?: (id: string) => void;
+  loading?: boolean;
 }
 
-const getTypeBadge = (type: string) => {
-  switch (type) {
-    case "EXAM":
-      return <Badge variant="destructive">Examen</Badge>;
-    case "QUIZ":
-      return <Badge variant="secondary">Quiz</Badge>;
-    case "HOMEWORK":
-      return <Badge variant="outline">Devoir</Badge>;
-    case "PROJECT":
-      return <Badge variant="default">Projet</Badge>;
-    case "PRESENTATION":
-      return <Badge variant="secondary">Présentation</Badge>;
-    default:
-      return <Badge variant="secondary">{type}</Badge>;
-  }
+const getTypeBadge = (assessment: any) => {
+  const name = assessment?.assessmentType?.name || assessment?.type || "Type";
+  return <Badge variant="secondary">{name}</Badge>;
 };
 
-export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProps) {
+export function AssessmentsTable({ assessments, onDelete, loading = false }: AssessmentsTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [assessmentToDelete, setAssessmentToDelete] = useState<any>(null);
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette évaluation ?")) {
-      setDeletingId(id);
-      try {
-        const result = await deleteAssessment(id);
-        if (result?.error) {
-          toast.error(result.error);
-        } else {
-          toast.success("Évaluation supprimée avec succès");
-          onDelete?.(id);
-        }
-      } catch (error) {
-        toast.error("Une erreur est survenue");
-      } finally {
-        setDeletingId(null);
+  const handleDeleteClick = (assessment: any) => {
+    setAssessmentToDelete(assessment);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!assessmentToDelete) return;
+    
+    setDeletingId(assessmentToDelete.id);
+    try {
+      const result = await deleteAssessment(assessmentToDelete.id);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Évaluation supprimée avec succès");
+        onDelete?.(assessmentToDelete.id);
       }
+    } catch (error) {
+      toast.error("Une erreur est survenue");
+    } finally {
+      setDeletingId(null);
+      setDeleteDialogOpen(false);
+      setAssessmentToDelete(null);
     }
   };
 
@@ -73,8 +72,9 @@ export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProp
   };
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <>
+      <div className="rounded-md border">
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Titre</TableHead>
@@ -84,14 +84,20 @@ export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProp
             <TableHead>Type</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Score max</TableHead>
-            <TableHead>Poids</TableHead>
+            
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {assessments.length === 0 ? (
+          {loading ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center text-muted-foreground">
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
+                Chargement...
+              </TableCell>
+            </TableRow>
+          ) : assessments.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
                 Aucune évaluation trouvée
               </TableCell>
             </TableRow>
@@ -110,42 +116,38 @@ export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProp
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">
-                    {assessment.teacherAssignment?.teacher?.user?.firstName} {assessment.teacherAssignment?.teacher?.user?.lastName}
+                    {assessment.createdBy?.user?.name || 
+                     (assessment.createdBy?.user?.firstName && assessment.createdBy?.user?.lastName
+                       ? `${assessment.createdBy.user.firstName} ${assessment.createdBy.user.lastName}`
+                       : assessment.createdBy?.user?.email || 'Enseignant')
+                    }
                   </div>
+                  {assessment.createdBy?.user?.email && (
+                    <div className="text-sm text-muted-foreground">
+                      {assessment.createdBy.user.email}
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{assessment.subject?.name}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">{assessment.classroom?.name}</div>
                   <div className="text-sm text-muted-foreground">
-                    {assessment.teacherAssignment?.teacher?.user?.email}
+                    {assessment.classroom?.gradeLevel?.name}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Badge variant="secondary">
-                    {assessment.teacherAssignment?.subject?.name}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">
-                    {assessment.teacherAssignment?.classroom?.name}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {assessment.teacherAssignment?.classroom?.gradeLevel?.name}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {getTypeBadge(assessment.type)}
-                </TableCell>
+                <TableCell>{getTypeBadge(assessment)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span className="text-sm">
-                      {formatDate(assessment.assessmentDate)}
-                    </span>
+                    <span className="text-sm">{formatDate(assessment.assignedAt)}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span className="font-medium">{assessment.maxScore}</span>
                 </TableCell>
-                <TableCell>
-                  <span className="font-medium">{assessment.weight}%</span>
-                </TableCell>
+                
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -171,7 +173,7 @@ export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProp
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() => handleDelete(assessment.id)}
+                        onClick={() => handleDeleteClick(assessment)}
                         disabled={deletingId === assessment.id}
                         className="text-red-600"
                       >
@@ -186,9 +188,22 @@ export function AssessmentsTable({ assessments, onDelete }: AssessmentsTableProp
           )}
         </TableBody>
       </Table>
-    </div>
+      </div>
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Supprimer l'évaluation"
+        description={`Êtes-vous sûr de vouloir supprimer l'évaluation "${assessmentToDelete?.title}" ? Cette action ne peut pas être annulée.`}
+        loading={deletingId === assessmentToDelete?.id}
+      />
+    </>
   );
 }
+
+
+
 
 
 

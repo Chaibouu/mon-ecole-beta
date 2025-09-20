@@ -13,13 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { StudentGradeCreateSchema, StudentGradeUpdateSchema } from "@/schemas/student-grade";
@@ -94,20 +88,29 @@ export function StudentGradeForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Élève *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un élève" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.user?.firstName} {student.user?.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <SearchableSelect
+                    options={students.map((s) => ({
+                      value: s.id,
+                      label: s.user?.name || `${s.user?.firstName ?? ""} ${s.user?.lastName ?? ""}`.trim() || s.user?.email || "Élève",
+                      data: s,
+                    }))}
+                    value={
+                      field.value
+                        ? {
+                            value: field.value,
+                            label:
+                              students.find((s) => s.id === field.value)?.user?.name ||
+                              `${students.find((s) => s.id === field.value)?.user?.firstName ?? ""} ${students.find((s) => s.id === field.value)?.user?.lastName ?? ""}`.trim() ||
+                              students.find((s) => s.id === field.value)?.user?.email ||
+                              "Élève",
+                          }
+                        : null
+                    }
+                    onChange={(opt) => field.onChange(opt?.value || "")}
+                    placeholder="Sélectionnez un élève"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -118,20 +121,28 @@ export function StudentGradeForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Évaluation *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une évaluation" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessments.map((assessment) => (
-                      <SelectItem key={assessment.id} value={assessment.id}>
-                        {assessment.title} - {assessment.teacherAssignment?.subject?.name} ({assessment.teacherAssignment?.classroom?.name})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <SearchableSelect
+                    options={assessments.map((a) => ({
+                      value: a.id,
+                      label: `${a.title} — ${a.subject?.name ?? ""} (${a.classroom?.name ?? ""})`.trim(),
+                      data: a,
+                    }))}
+                    value={
+                      field.value
+                        ? {
+                            value: field.value,
+                            label: (() => {
+                              const a = assessments.find((x) => x.id === field.value);
+                              return a ? `${a.title} — ${a.subject?.name ?? ""} (${a.classroom?.name ?? ""})`.trim() : "";
+                            })(),
+                          }
+                        : null
+                    }
+                    onChange={(opt) => field.onChange(opt?.value || "")}
+                    placeholder="Sélectionnez une évaluation"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -143,7 +154,7 @@ export function StudentGradeForm({
           name="score"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Score *</FormLabel>
+          <FormLabel>Note *</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 

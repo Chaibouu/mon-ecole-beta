@@ -4,15 +4,22 @@ import { makeAuthenticatedRequest } from "@/actions/makeAuthenticatedRequest";
 
 const API_BASE = `${process.env.NEXT_PUBLIC_APP_URL}/api`;
 
-export async function listStudentGrades(
-  studentId?: string,
-  assessmentId?: string,
-  classroomId?: string
-) {
+export async function listStudentGrades(filters?: {
+  studentId?: string;
+  assessmentId?: string;
+  classroomId?: string;
+  subjectId?: string;
+  termId?: string;
+  teacherId?: string;
+}) {
   const params = new URLSearchParams();
-  if (studentId) params.append("studentId", studentId);
-  if (assessmentId) params.append("assessmentId", assessmentId);
-  if (classroomId) params.append("classroomId", classroomId);
+  if (filters?.studentId) params.append("studentId", filters.studentId);
+  if (filters?.assessmentId)
+    params.append("assessmentId", filters.assessmentId);
+  if (filters?.classroomId) params.append("classroomId", filters.classroomId);
+  if (filters?.subjectId) params.append("subjectId", filters.subjectId);
+  if (filters?.termId) params.append("termId", filters.termId);
+  if (filters?.teacherId) params.append("teacherId", filters.teacherId);
 
   const queryString = params.toString();
   const url = `${API_BASE}/student-grades${queryString ? `?${queryString}` : ""}`;
@@ -27,6 +34,17 @@ export async function createStudentGrade(input: {
   comments?: string;
   gradedBy: string;
   gradedAt: string;
+}) {
+  return await makeAuthenticatedRequest(
+    `${API_BASE}/student-grades`,
+    "POST",
+    input
+  );
+}
+
+export async function bulkUpsertStudentGrades(input: {
+  assessmentId: string;
+  grades: Array<{ studentId: string; note?: number; score?: number }>;
 }) {
   return await makeAuthenticatedRequest(
     `${API_BASE}/student-grades`,
@@ -59,20 +77,3 @@ export async function deleteStudentGrade(id: string) {
     "DELETE"
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

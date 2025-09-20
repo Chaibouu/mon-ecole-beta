@@ -13,7 +13,7 @@ export default async function StudentGradesPage() {
     throw new Error(data.error);
   }
 
-  const grades = Array.isArray(data?.studentGrades) ? data.studentGrades : [];
+  const grades = Array.isArray(data?.grades) ? data.grades : (Array.isArray(data?.studentGrades) ? data.studentGrades : []);
   
   // Calculer les statistiques
   const totalGrades = grades.length;

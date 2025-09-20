@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
           },
         },
         term: true,
+        assessmentType: true,
         grades: {
           include: {
             student: {
@@ -104,7 +105,8 @@ export async function GET(req: NextRequest) {
         title: assessment.title,
         description: assessment.description,
         type: assessment.type,
-        coefficient: assessment.coefficient,
+        maxScore: assessment.maxScore,
+        assessmentType: assessment.assessmentType,
         assignedAt: assessment.assignedAt,
         dueAt: assessment.dueAt,
         isBlocked: assessment.isBlocked,

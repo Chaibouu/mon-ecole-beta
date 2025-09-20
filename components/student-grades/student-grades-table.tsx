@@ -77,16 +77,16 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
             <TableHead>Évaluation</TableHead>
             <TableHead>Matière</TableHead>
             <TableHead>Classe</TableHead>
-            <TableHead>Score</TableHead>
+            <TableHead>Note</TableHead>
             <TableHead>Enseignant</TableHead>
             <TableHead>Date</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            {/* Actions removed */}
           </TableRow>
         </TableHeader>
         <TableBody>
           {grades.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 Aucune note trouvée
               </TableCell>
             </TableRow>
@@ -95,7 +95,7 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
               <TableRow key={grade.id}>
                 <TableCell>
                   <div className="font-medium">
-                    {grade.student?.user?.firstName} {grade.student?.user?.lastName}
+                    {grade.student?.user?.name || `${grade.student?.user?.firstName ?? ""} ${grade.student?.user?.lastName ?? ""}`.trim() || grade.student?.user?.email}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {grade.student?.user?.email}
@@ -106,20 +106,20 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
                     {grade.assessment?.title}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {grade.assessment?.type}
+                    {grade.assessment?.assessmentType?.name || grade.assessment?.type}
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
-                    {grade.assessment?.teacherAssignment?.subject?.name}
+                    {grade.assessment?.subject?.name}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">
-                    {grade.assessment?.teacherAssignment?.classroom?.name}
+                    {grade.assessment?.classroom?.name}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {grade.assessment?.teacherAssignment?.classroom?.gradeLevel?.name}
+                    {grade.assessment?.classroom?.gradeLevel?.name}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -127,55 +127,23 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">
-                    {grade.gradedByTeacher?.user?.firstName} {grade.gradedByTeacher?.user?.lastName}
+                    {grade.assessment?.createdBy?.user?.name || `${grade.assessment?.createdBy?.user?.firstName ?? ""} ${grade.assessment?.createdBy?.user?.lastName ?? ""}`.trim() || grade.assessment?.createdBy?.user?.email}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {grade.gradedByTeacher?.user?.email}
-                  </div>
+                  {grade.assessment?.createdBy?.user?.email && (
+                    <div className="text-sm text-muted-foreground">
+                      {grade.assessment.createdBy.user.email}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     <span className="text-sm">
-                      {formatDate(grade.gradedAt)}
+                      {grade.createdAt ? formatDate(grade.createdAt) : (grade.gradedAt ? formatDate(grade.gradedAt) : "-")}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Ouvrir le menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href={`/student-grades/${grade.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Voir
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/student-grades/${grade.id}/edit`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Modifier
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(grade.id)}
-                        disabled={deletingId === grade.id}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {deletingId === grade.id ? "Suppression..." : "Supprimer"}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+                {/* Actions removed */}
               </TableRow>
             ))
           )}
@@ -184,6 +152,9 @@ export function StudentGradesTable({ grades, onDelete }: StudentGradesTableProps
     </div>
   );
 }
+
+
+
 
 
 

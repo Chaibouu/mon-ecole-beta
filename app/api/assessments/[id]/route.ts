@@ -27,6 +27,13 @@ export async function GET(
     return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
   const item = await db.assessment.findFirst({
     where: { id, schoolId },
+    include: {
+      assessmentType: true,
+      subject: true,
+      classroom: { include: { gradeLevel: true } },
+      term: true,
+      createdBy: { include: { user: true } },
+    },
   });
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ assessment: item });
@@ -63,7 +70,15 @@ export async function PATCH(
     const updated = await db.assessment.update({
       where: { id },
       data: {
-        ...parsed.data,
+        subjectId: parsed.data.subjectId,
+        classroomId: parsed.data.classroomId,
+        termId: parsed.data.termId,
+        title: parsed.data.title,
+        description: parsed.data.description,
+        // conserver l'ancien enum pendant la phase 1
+        type: (parsed.data as any).type,
+        assessmentTypeId: (parsed.data as any).assessmentTypeId,
+        maxScore: (parsed.data as any).maxScore,
         assignedAt: parsed.data.assignedAt
           ? new Date(parsed.data.assignedAt)
           : undefined,
