@@ -72,7 +72,7 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
           description="Élèves dans la classe"
         />
         <StatsCard
-          title="Professeurs"
+          title="Enseignants"
           value={stats.totalTeachers?.toString() || "0"}
           icon={UserCheck}
           color="green"
@@ -136,12 +136,12 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
           </CardContent>
         </Card>
 
-        {/* Professeur principal */}
+        {/* Enseignant principal */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserCheck className="h-5 w-5" />
-              Professeur principal
+              Enseignant principal
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -161,19 +161,19 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
                     <p className="text-sm mt-1">{classroom.headTeacher.bio}</p>
                   )}
                 </div>
-                <Badge variant="secondary">Professeur principal</Badge>
+                <Badge variant="secondary">Enseignant principal</Badge>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <UserCheck className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Aucun professeur principal assigné</p>
+                <p>Aucun enseignant principal assigné</p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Élèves et Professeurs */}
+      {/* Élèves et Enseignants */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Liste des élèves */}
         <Card>
@@ -219,7 +219,7 @@ export default async function ClassroomDetailPage({ params }: ClassroomDetailPag
           </CardContent>
         </Card>
 
-        {/* Liste des professeurs */}
+        {/* Liste des enseignants */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

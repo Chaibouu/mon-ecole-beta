@@ -24,6 +24,49 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen,navigation }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
 
+  // État pour gérer quels items de menu sont ouverts
+  const [openItems, setOpenItems] = useState<{ [key: number]: boolean }>({});
+
+  // Fonction pour gérer l'ouverture/fermeture d'un item
+  const handleItemToggle = (index: number, isOpen: boolean) => {
+    console.log(`Toggle item ${index}, isOpen: ${isOpen}`);
+    if (isOpen) {
+      // Si on ouvre un item, fermer tous les autres
+      console.log(`Opening item ${index}, closing all others`);
+      setOpenItems({ [index]: true });
+    } else {
+      // Si on ferme un item, le retirer de la liste
+      console.log(`Closing item ${index}`);
+      setOpenItems(prev => {
+        const newState = { ...prev };
+        delete newState[index];
+        return newState;
+      });
+    }
+  };
+
+  // Initialiser l'état des items ouverts au chargement
+  useEffect(() => {
+    const initialOpenItems: { [key: number]: boolean } = {};
+    navigation.forEach((item, index) => {
+      if (item.children && (pathname === item.path || pathname.includes(item.path))) {
+        initialOpenItems[index] = true;
+      }
+    });
+    setOpenItems(initialOpenItems);
+  }, [pathname, navigation]);
+
+  // Debug: Afficher l'état des items ouverts
+  useEffect(() => {
+    console.log("Items ouverts:", openItems);
+  }, [openItems]);
+
+  // Test: Fonction pour tester la logique de fermeture automatique
+  const testToggle = (index: number) => {
+    console.log(`Test toggle item ${index}`);
+    handleItemToggle(index, !openItems[index]);
+  };
+
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
@@ -116,9 +159,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen,navigation }: SidebarProps) => {
               {
                 navigation.map((item:NavigationItem, index) => (
                   item.children ? (
-                    <SidebarLinkGroup key={index}
-                    activeCondition={pathname === item.path || pathname.includes(item.path)}
-                  >
+                    <SidebarLinkGroup 
+                      key={index}
+                      activeCondition={pathname === item.path || pathname.includes(item.path)}
+                      isOpen={openItems[index] || false}
+                      onToggle={(isOpen) => handleItemToggle(index, isOpen)}
+                    >
                     {(handleClick, open) => (
                       <React.Fragment>
                         <Link
@@ -129,7 +175,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen,navigation }: SidebarProps) => {
                           }`}
                           onClick={(e) => {
                             e.preventDefault();
-                            sidebarExpanded ? handleClick() : setSidebarExpanded(true);
+                            if (!sidebarExpanded) {
+                              setSidebarExpanded(true);
+                              return;
+                            }
+                            handleClick();
                           }}
                         >
                           <Icon className="text-3xl" icon={item.icon} width="15" />

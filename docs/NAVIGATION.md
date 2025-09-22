@@ -65,7 +65,7 @@ export const schoolNavigation: NavigationGroup[] = [
             allowedRoles: ["SUPER_ADMIN", "ADMIN"]
           },
           {
-            title: "Professeurs",
+            title: "Enseignants",
             path: "/dashboard/users/teachers",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"]
           }

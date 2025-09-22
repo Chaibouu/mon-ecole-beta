@@ -36,16 +36,16 @@ export default async function EditTeacherPage({ params }: EditTeacherPageProps) 
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Modifier le professeur</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Modifier l'enseignant</h1>
           <p className="text-muted-foreground">
-            Modifiez les informations du professeur "{teacher.user?.name || 'Professeur'}"
+            Modifiez les informations de l'enseignant "{teacher.user?.name || 'Enseignant'}"
           </p>
         </div>
       </div>
 
       <Card className="max-w-4xl">
         <CardHeader>
-          <CardTitle>Informations du professeur</CardTitle>
+          <CardTitle>Informations de l'enseignant</CardTitle>
         </CardHeader>
         <CardContent>
           <TeacherFormWrapper
@@ -55,7 +55,7 @@ export default async function EditTeacherPage({ params }: EditTeacherPageProps) 
               lastName: teacher.user?.name?.split(' ').slice(1).join(' ') || '',
               email: teacher.user?.email || '',
               phone: teacher.user?.phone || '',
-              // Champs du profil professeur
+              // Champs du profil enseignant
               bio: teacher.bio || '',
               employeeNumber: teacher.employeeNumber || '',
               gender: teacher.gender || '',

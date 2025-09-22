@@ -1,5 +1,6 @@
 import { getDashboardStats } from "@/actions/dashboard-stats";
-import { getProfile } from "@/actions/getProfile";
+import { getUserProfile } from "@/actions/getUserProfile";
+import { listClassrooms } from "@/actions/classrooms";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { PageLoading } from "@/components/ui/loading-spinner";
 import { redirect } from "next/navigation";
@@ -7,20 +8,23 @@ import { redirect } from "next/navigation";
 export default async function DashboardPage() {
   try {
     // Récupérer les données en parallèle
-    const [profileResult, statsResult] = await Promise.all([
-      getProfile(),
-      getDashboardStats()
+    const [profile, statsResult, classroomsResult] = await Promise.all([
+      getUserProfile(),
+      getDashboardStats(),
+      listClassrooms(),
     ]);
 
     // Vérifier les erreurs d'authentification
-    if ((profileResult as any).error) {
+    if ((profile as any)?.error) {
       redirect("/auth/login");
     }
 
-    const profileData = (profileResult as any).data;
-    const user = profileData?.user;
-    const selectedSchoolId = profileData?.selectedSchoolId;
-    const schools = profileData?.schools || [];
+    const user = (profile as any)?.user;
+    const selectedSchoolId = (profile as any)?.selectedSchoolId;
+    const schools = (profile as any)?.schools || [];
+
+    // Récupérer les classes
+    const classrooms = (classroomsResult as any)?.error ? [] : (Array.isArray((classroomsResult as any)?.classrooms) ? (classroomsResult as any).classrooms : []);
 
     // Trouver l'école sélectionnée
     const selectedSchool = schools.find((s: any) => s.schoolId === selectedSchoolId) || schools[0] || null;
@@ -30,6 +34,7 @@ export default async function DashboardPage() {
         user={user}
         selectedSchool={selectedSchool}
         stats={statsResult}
+        classrooms={classrooms}
       />
     );
 

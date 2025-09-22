@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GradeLevelCreateSchema, GradeLevelUpdateSchema } from "@/schemas/grade-level";
 import { createGradeLevel, updateGradeLevel } from "@/actions/grade-levels";
 import { useState } from "react";
@@ -36,9 +37,11 @@ export function GradeLevelForm({ mode, initialData, gradeLevelId, onSuccess }: G
     defaultValues: mode === "edit" ? {
       name: initialData?.name || "",
       description: initialData?.description || "",
+      category: initialData?.category || "COLLEGE",
     } : {
       name: "",
       description: "",
+      category: "COLLEGE",
     },
   });
 
@@ -78,6 +81,28 @@ export function GradeLevelForm({ mode, initialData, gradeLevelId, onSuccess }: G
               <FormControl>
                 <Input placeholder="Ex: 6ème année" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Catégorie *</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une catégorie" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="COLLEGE">Collège</SelectItem>
+                  <SelectItem value="LYCEE">Lycée</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

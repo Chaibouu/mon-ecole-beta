@@ -134,7 +134,7 @@ export async function GET(
 
     // Statut de présence
     let attendance = null;
-    let message = "Présence non encore prise par le professeur";
+    let message = "Présence non encore prise par l'enseignant";
 
     if (attendanceRecord) {
       attendance = {
@@ -152,7 +152,7 @@ export async function GET(
           attendanceRecord.recordedBy?.user?.name ||
           `${attendanceRecord.recordedBy?.user?.firstName || ""} ${attendanceRecord.recordedBy?.user?.lastName || ""}`.trim() ||
           attendanceRecord.recordedBy?.user?.email ||
-          "Professeur",
+          "Enseignant",
         comments: attendanceRecord.notes,
       };
       message =

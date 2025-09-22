@@ -116,7 +116,7 @@ export function TeacherSubjectForm({ teacher, onSubmit }: TeacherSubjectFormProp
               <FormLabel>Bio</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Description du professeur..."
+                  placeholder="Description de l'enseignant..."
                   className="min-h-[100px]"
                   {...field}
                 />

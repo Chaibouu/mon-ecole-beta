@@ -309,18 +309,18 @@ export function TimetableCalendar({
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Professeur *</label>
+                      <label className="text-sm font-medium text-foreground">Enseignant *</label>
                       <SearchableSelect
-                        options={filteredTeachers.map((t: any) => ({ value: t.id, label: t.name || "Professeur" }))}
-                        value={formValues.teacherId ? filteredTeachers.find((t: any) => t.id === formValues.teacherId) ? { value: formValues.teacherId, label: filteredTeachers.find((t: any) => t.id === formValues.teacherId)?.name || "Professeur" } : null : null}
+                        options={filteredTeachers.map((t: any) => ({ value: t.id, label: t.name || "Enseignant" }))}
+                        value={formValues.teacherId ? filteredTeachers.find((t: any) => t.id === formValues.teacherId) ? { value: formValues.teacherId, label: filteredTeachers.find((t: any) => t.id === formValues.teacherId)?.name || "Enseignant" } : null : null}
                         onChange={(option) => setFormValues((s: any) => ({ ...s, teacherId: option?.value || "" }))}
-                        placeholder="Sélectionnez un professeur"
+                        placeholder="Sélectionnez un enseignant"
                         isClearable={false}
-                        noOptionsMessage="Aucun professeur trouvé"
+                        noOptionsMessage="Aucun enseignant trouvé"
                       />
                       {formValues.subjectId && filteredTeachers.length === 0 && (
                         <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-                          Aucun professeur assigné pour cette matière
+                          Aucun enseignant assigné pour cette matière
                         </p>
                       )}
                     </div>

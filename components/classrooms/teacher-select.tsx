@@ -24,11 +24,11 @@ export function TeacherSelect({
   teachers, 
   value, 
   onChange, 
-  placeholder = "Rechercher un professeur...",
+  placeholder = "Rechercher un enseignant...",
   isDisabled = false 
 }: TeacherSelectProps) {
   const options = [
-    { value: "none", label: "Aucun professeur principal" },
+    { value: "none", label: "Aucun enseignant principal" },
     ...teachers.map((teacher: Teacher) => ({
       value: teacher.id,
       label: teacher.user.name || "Nom non renseigné",

@@ -130,7 +130,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         recentActivities.push({
           id: `teacher-${teacher.id}`,
           type: "teacher",
-          message: `Prof. ${teacher.user?.name || "Nouveau professeur"} a rejoint l'équipe`,
+          message: `Ens. ${teacher.user?.name || "Nouvel enseignant"} a rejoint l'équipe`,
           time: getRelativeTime(teacher.createdAt),
           icon: "GraduationCap",
           createdAt: teacher.createdAt,

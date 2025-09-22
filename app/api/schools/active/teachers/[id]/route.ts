@@ -86,7 +86,7 @@ export async function PATCH(
       });
     }
 
-    // Mettre à jour les champs du profil professeur
+    // Mettre à jour les champs du profil enseignant
     const profileUpdateData: any = {};
     if (data.bio !== undefined) profileUpdateData.bio = data.bio;
     if (data.employeeNumber !== undefined)

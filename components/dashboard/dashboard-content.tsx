@@ -4,6 +4,14 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Users, 
   GraduationCap, 
@@ -16,7 +24,9 @@ import {
   ArrowRight,
   Plus,
   BookOpenCheck,
-  Building
+  Building,
+  ChevronDown,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardStats, Activity } from "@/actions/dashboard-stats";
@@ -25,6 +35,16 @@ interface DashboardContentProps {
   user: any;
   selectedSchool: any;
   stats: DashboardStats;
+  classrooms: Classroom[];
+}
+
+interface Classroom {
+  id: string;
+  name: string;
+  description?: string;
+  gradeLevel?: {
+    name: string;
+  };
 }
 
 const quickActions = [
@@ -75,7 +95,8 @@ const getActivityIcon = (iconName: string) => {
   }
 };
 
-export function DashboardContent({ user, selectedSchool, stats }: DashboardContentProps) {
+export function DashboardContent({ user, selectedSchool, stats, classrooms }: DashboardContentProps) {
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Bonjour";
@@ -93,7 +114,7 @@ export function DashboardContent({ user, selectedSchool, stats }: DashboardConte
       href: "/students"
     },
     {
-      title: "Professeurs", 
+      title: "Enseignants", 
       value: stats.totalTeachers,
       icon: <GraduationCap className="w-6 h-6" />,
       color: "text-green-600",
@@ -170,9 +191,9 @@ export function DashboardContent({ user, selectedSchool, stats }: DashboardConte
             whileHover={{ scale: 1.02 }}
             className="group"
           >
-            <Link href={item.href}>
-              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer">
-                <CardContent className="p-6">
+            {item.title === "Classes" ? (
+              <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group">
+                <CardContent className="p-6 pb-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">
                       <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -186,9 +207,83 @@ export function DashboardContent({ user, selectedSchool, stats }: DashboardConte
                       {item.icon}
                     </div>
                   </div>
+                  
+                  {/* Sélecteur de classe compact */}
+                  {classrooms.length > 0 && (
+                    <div className="mt-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full justify-between text-left h-8 text-xs"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span className="flex items-center space-x-1">
+                              <Building className="w-3 h-3" />
+                              <span>Accès rapide</span>
+                            </span>
+                            <ChevronDown className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-64">
+                          <DropdownMenuLabel>Classes disponibles</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {classrooms.map((classroom) => (
+                            <DropdownMenuItem key={classroom.id} asChild>
+                              <Link 
+                                href={`/classrooms/${classroom.id}`}
+                                className="flex items-center space-x-3 p-2"
+                              >
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">{classroom.name}</div>
+                                  {classroom.gradeLevel && (
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                                      {classroom.gradeLevel.name}
+                                    </div>
+                                  )}
+                                </div>
+                                <ExternalLink className="w-4 h-4 text-slate-400" />
+                              </Link>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <Link 
+                              href="/classrooms"
+                              className="flex items-center space-x-2 p-2 text-blue-600 dark:text-blue-400"
+                            >
+                              <Building className="w-4 h-4" />
+                              <span>Voir toutes les classes</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            </Link>
+            ) : (
+              <Link href={item.href}>
+                <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                          {item.title}
+                        </p>
+                        <p className="text-3xl font-bold text-slate-800 dark:text-white">
+                          {item.value.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className={`p-3 rounded-xl ${item.bgColor} ${item.color} group-hover:scale-110 transition-transform duration-200`}>
+                        {item.icon}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
           </motion.div>
         ))}
       </motion.div>

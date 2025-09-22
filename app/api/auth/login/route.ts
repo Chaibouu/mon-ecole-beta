@@ -151,7 +151,7 @@ export async function POST(req: Request) {
 
     // Génération des tokens d'accès et de rafraîchissement
     const payload = { userId: user.id, email: user.email };
-    const accessToken = createEncryptedJWT(payload, "1h");
+    const accessToken = createEncryptedJWT(payload, "365d"); // 1 an
     const refreshToken = crypto.randomBytes(64).toString("hex");
 
     // Création de la session en base de données
@@ -159,10 +159,10 @@ export async function POST(req: Request) {
       userId: user.id,
       sessionToken: accessToken,
       refreshToken,
-      expires: new Date(Date.now() + 60 * 60 * 1000), // 1h pour le token d'accès
+      expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 an pour le token d'accès
       refreshTokenExpires: rememberMe
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 jours
-        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
+        ? new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000) // 2 ans (rememberMe)
+        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 an (normal)
       lastActivity: new Date(),
     });
 

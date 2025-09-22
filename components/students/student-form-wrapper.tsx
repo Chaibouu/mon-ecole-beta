@@ -7,14 +7,15 @@ interface StudentFormWrapperProps {
   mode: "create" | "edit";
   initialData?: any;
   studentId?: string;
+  returnTo?: string;
 }
 
-export function StudentFormWrapper({ mode, initialData, studentId }: StudentFormWrapperProps) {
+export function StudentFormWrapper({ mode, initialData, studentId, returnTo }: StudentFormWrapperProps) {
   const router = useRouter();
 
   const handleSuccess = () => {
     if (mode === "create") {
-      router.push("/students");
+      router.push(returnTo || "/students");
     } else {
       router.push(`/students/${studentId}`);
     }

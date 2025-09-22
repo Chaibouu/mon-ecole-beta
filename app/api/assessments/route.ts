@@ -125,8 +125,8 @@ export async function POST(req: Request) {
     if (teacherProfile?.id) {
       createdByTeacherId = teacherProfile.id;
     } else {
-      // Fallback: si l'utilisateur n'est pas professeur (ex: ADMIN),
-      // associer l'évaluation au professeur affecté à la classe/matière (et année scolaire si fournie)
+      // Fallback: si l'utilisateur n'est pas enseignant (ex: ADMIN),
+      // associer l'évaluation à l'enseignant affecté à la classe/matière (et année scolaire si fournie)
       const assignment = await db.teacherAssignment.findFirst({
         where: {
           classroomId: data.classroomId,
@@ -139,7 +139,7 @@ export async function POST(req: Request) {
     }
     if (!createdByTeacherId) {
       return NextResponse.json(
-        { error: "Aucun professeur assigné pour cette classe/matière" },
+        { error: "Aucun enseignant assigné pour cette classe/matière" },
         { status: 400 }
       );
     }

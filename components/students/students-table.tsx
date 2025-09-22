@@ -44,12 +44,15 @@ import {
   Calendar,
   RefreshCw,
   CreditCard,
-  Trash
+  Trash,
+  Key
 } from "lucide-react";
 import { deleteStudent } from "@/actions/school-members";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
+import { useSession } from "@/context/SessionContext";
 
 interface StudentsTableProps {
   students: any[];
@@ -60,6 +63,7 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const { user } = useSession();
 
   const handleDelete = async (studentId: string, studentName: string) => {
 
@@ -199,6 +203,7 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
       enableHiding: false,
       cell: ({ row }) => {
         const student = row.original;
+        const isAdmin = user?.role === "ADMIN";
 
         return (
           <DropdownMenu>
@@ -229,6 +234,18 @@ export function StudentsTable({ students, onRefresh }: StudentsTableProps) {
                   Paiements
                 </Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <ChangePasswordDialog
+                  userId={student.user?.id || student.id}
+                  userName={student.user?.name || student.user?.email || "cet élève"}
+                  userType="student"
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Key className="mr-2 h-4 w-4" />
+                    Modifier le mot de passe
+                  </DropdownMenuItem>
+                </ChangePasswordDialog>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={(e) => {

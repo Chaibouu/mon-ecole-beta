@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { TeacherCreateSchema } from "@/schemas/membership";
 import { ensureSchoolAccess } from "@/lib/school-access";
 
-// GET /api/schools/active/teachers - lister les professeurs de l'école active (ADMIN/TEACHER)
+// GET /api/schools/active/teachers - lister les enseignants de l'école active (ADMIN/TEACHER)
 export async function GET(req: NextRequest) {
   try {
     const schoolId = req.headers.get("x-school-id") || "";
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/schools/active/teachers - créer/relier un professeur (ADMIN)
+// POST /api/schools/active/teachers - créer/relier un enseignant (ADMIN)
 export async function POST(req: NextRequest) {
   try {
     const schoolId = req.headers.get("x-school-id") || "";
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       userId = user.id;
     }
 
-    // Extraire les données du profil professeur
+    // Extraire les données du profil enseignant
     const profileData: any = {};
     if ("bio" in parsed.data) profileData.bio = parsed.data.bio;
     if ("employeeNumber" in parsed.data)

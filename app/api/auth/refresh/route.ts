@@ -33,10 +33,10 @@ export async function POST(req: NextRequest) {
 
     // Générer un nouveau token d'accès chiffré avec JWE
     const payload = { userId: session.userId }; // Charger les informations utilisateur
-    const newAccessToken = createEncryptedJWT(payload, "8h");
+    const newAccessToken = createEncryptedJWT(payload, "365d"); // 1 an
 
     // Calculer l'expiration du token d'accès (en secondes)
-    const accessTokenExpiresAt = 60 * 60 * 8;
+    const accessTokenExpiresAt = 365 * 24 * 60 * 60; // 1 an en secondes
 
     // Mettre à jour la session avec le nouveau token d'accès et l'heure d'expiration
     await db.session.update({
@@ -73,4 +73,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
-

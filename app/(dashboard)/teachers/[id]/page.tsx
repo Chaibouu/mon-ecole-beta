@@ -33,10 +33,10 @@ export default async function TeacherDetailPage({ params }: TeacherDetailPagePro
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {teacher.user?.name || `${teacher.user?.firstName || ''} ${teacher.user?.lastName || ''}`.trim() || 'Professeur'}
+              {teacher.user?.name || `${teacher.user?.firstName || ''} ${teacher.user?.lastName || ''}`.trim() || 'Enseignant'}
             </h1>
             <p className="text-muted-foreground">
-              Détails du professeur
+              Détails de l'enseignant
             </p>
           </div>
         </div>
@@ -407,7 +407,7 @@ export default async function TeacherDetailPage({ params }: TeacherDetailPagePro
                 <GraduationCap className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {teacher.user?.name || 'Professeur'}
+                {teacher.user?.name || 'Enseignant'}
               </h3>
               <p className="text-sm text-gray-600 mt-1">
                 {teacher.specialization || 'Enseignant'}

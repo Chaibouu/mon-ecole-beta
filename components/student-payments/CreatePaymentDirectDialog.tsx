@@ -45,7 +45,7 @@ export function CreatePaymentDirectDialog({ studentId, onPaymentCreated }: Creat
   const [feeSchedules, setFeeSchedules] = useState<FeeSchedule[]>([]);
   const [formData, setFormData] = useState({
     feeScheduleId: "",
-    amountCents: 0,
+    amountCents: null as number | null,
     method: "CASH",
     reference: "",
     paidAt: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -104,7 +104,7 @@ export function CreatePaymentDirectDialog({ studentId, onPaymentCreated }: Creat
       setOpen(false);
       setFormData({
         feeScheduleId: "",
-        amountCents: 0,
+        amountCents: null,
         method: "CASH",
         reference: "",
         paidAt: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -163,7 +163,7 @@ export function CreatePaymentDirectDialog({ studentId, onPaymentCreated }: Creat
                 setFormData(prev => ({ 
                   ...prev, 
                   feeScheduleId: option?.value || "",
-                  amountCents: feeSchedule?.amountCents || 0
+                  amountCents: feeSchedule?.amountCents || null
                 }));
               }}
               placeholder="Sélectionner les frais de scolarité..."
@@ -177,12 +177,12 @@ export function CreatePaymentDirectDialog({ studentId, onPaymentCreated }: Creat
                 id="amountCents"
                 type="number"
                 min="1"
-                value={formData.amountCents / 100}
+                value={formData.amountCents ? formData.amountCents / 100 : ""}
                 onChange={(e) => setFormData(prev => ({ 
                   ...prev, 
-                  amountCents: Math.round(parseFloat(e.target.value || "0") * 100)
+                  amountCents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null
                 }))}
-                placeholder="0"
+                placeholder=""
               />
               {selectedFeeSchedule && (
                 <p className="text-sm text-gray-600">

@@ -4,14 +4,20 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, UserPlus } from "lucide-react";
 
-export default function CreateStudentPage() {
+interface CreateStudentPageProps {
+  searchParams: Promise<{ returnTo?: string }>;
+}
+
+export default async function CreateStudentPage({ searchParams }: CreateStudentPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const returnTo = resolvedSearchParams.returnTo;
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild className="hover:bg-blue-50">
-          <Link href="/students">
+          <Link href={returnTo || "/students"}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour aux élèves
+            Retour {returnTo ? "à l'inscription" : "aux élèves"}
           </Link>
         </Button>
         <div className="flex items-center space-x-3">
@@ -37,7 +43,7 @@ export default function CreateStudentPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8">
-          <StudentFormWrapper mode="create" />
+          <StudentFormWrapper mode="create" returnTo={returnTo} />
         </CardContent>
       </Card>
     </div>

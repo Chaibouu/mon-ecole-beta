@@ -47,13 +47,17 @@ export function ModernSidebar({ isOpen, onToggle }: ModernSidebarProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Toggle expanded state for items with children
+  // Toggle expanded state for items with children (accordéon: un seul ouvert)
   const toggleExpanded = (itemPath: string) => {
-    setExpandedItems(prev => 
-      prev.includes(itemPath) 
-        ? prev.filter(path => path !== itemPath)
-        : [...prev, itemPath]
-    );
+    setExpandedItems(prev => {
+      const isCurrentlyOpen = prev.includes(itemPath);
+      if (isCurrentlyOpen) {
+        // Fermer l'item courant
+        return [];
+      }
+      // Ouvrir seulement cet item et fermer tous les autres
+      return [itemPath];
+    });
   };
 
   const sidebarVariants = {

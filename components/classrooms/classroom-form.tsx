@@ -119,7 +119,12 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
                   <SelectContent>
                     {gradeLevels.map((gradeLevel) => (
                       <SelectItem key={gradeLevel.id} value={gradeLevel.id}>
-                        {gradeLevel.name}
+                        <div className="flex items-center justify-between w-full">
+                          <span>{gradeLevel.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {gradeLevel.category === 'COLLEGE' ? 'Collège' : 'Lycée'}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -149,13 +154,13 @@ export function ClassroomForm({ mode, initialData, classroomId, gradeLevels, onS
             name="headTeacherId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Professeur principal</FormLabel>
+                <FormLabel>Enseignant principal</FormLabel>
                 <FormControl>
                   <TeacherSelect
                     teachers={teachers}
                     value={field.value}
                     onChange={(option) => field.onChange(option?.value || "none")}
-                    placeholder="Rechercher un professeur principal..."
+                    placeholder="Rechercher un enseignant principal..."
                   />
                 </FormControl>
                 <FormMessage />

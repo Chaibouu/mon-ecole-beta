@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { getUserIdFromToken } from "@/lib/tokens";
 import { requireSchoolRole } from "@/lib/acl";
 
-// GET /api/teachers - liste des professeurs avec leurs matières
+// GET /api/teachers - liste des enseignants avec leurs matières
 export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
   const token = auth?.split(" ")[1] || "";

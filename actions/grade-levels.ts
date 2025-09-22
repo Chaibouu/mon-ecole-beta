@@ -11,6 +11,7 @@ export async function listGradeLevels() {
 export async function createGradeLevel(input: {
   name: string;
   description?: string;
+  category?: "COLLEGE" | "LYCEE";
 }) {
   return await makeAuthenticatedRequest(
     `${API_BASE}/grade-levels`,

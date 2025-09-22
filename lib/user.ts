@@ -41,7 +41,8 @@ export const getUserInfo = async (accessToken: string) => {
     return {
       error:
         "Impossible de récupérer les informations de l'utilisateur après rafraîchissement",
-    };
+      status: userResponse.status,
+    } as const;
   }
   return await userResponse.json();
 };

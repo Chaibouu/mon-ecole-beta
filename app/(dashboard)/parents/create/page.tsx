@@ -5,16 +5,22 @@ import Link from "next/link";
 import { ArrowLeft, UserPlus, Heart } from "lucide-react";
 import { listStudents } from "@/actions/school-members";
 
-export default async function CreateParentPage() {
+interface CreateParentPageProps {
+  searchParams: Promise<{ returnTo?: string }>;
+}
+
+export default async function CreateParentPage({ searchParams }: CreateParentPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const returnTo = resolvedSearchParams.returnTo;
   const studentsData: any = await listStudents();
   const students = Array.isArray(studentsData?.students) ? studentsData.students : [];
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild className="hover:bg-emerald-50">
-          <Link href="/parents">
+          <Link href={returnTo || "/parents"}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour aux parents
+            Retour {returnTo ? "à l'inscription" : "aux parents"}
           </Link>
         </Button>
         <div className="flex items-center space-x-3">
@@ -40,7 +46,7 @@ export default async function CreateParentPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8">
-          <ParentFormWrapper mode="create" students={students} />
+          <ParentFormWrapper mode="create" students={students} returnTo={returnTo} />
         </CardContent>
       </Card>
     </div>

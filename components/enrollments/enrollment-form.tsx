@@ -22,6 +22,8 @@ import { StudentSelect } from "./student-select";
 import { ClassSelect } from "./class-select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Switch } from "@/components/ui/switch";
+import { Plus, UserPlus } from "lucide-react";
+import Link from "next/link";
 
 type EnrollmentFormProps = {
   mode: "create" | "edit";
@@ -116,7 +118,15 @@ export function EnrollmentForm({
             name="studentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Élève *</FormLabel>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Élève *</FormLabel>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/students/create?returnTo=/enrollments/create">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nouvel élève
+                    </Link>
+                  </Button>
+                </div>
                 <FormControl>
                   <StudentSelect
                     students={students}

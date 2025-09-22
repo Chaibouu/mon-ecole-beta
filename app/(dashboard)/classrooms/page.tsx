@@ -17,15 +17,15 @@ export default async function ClassroomsPage() {
   
   // Calculer les statistiques
   const totalClassrooms = classrooms.length;
-  const primaryClassrooms = classrooms.filter((classroom: any) => 
-    classroom.gradeLevel?.name?.toLowerCase().includes('primaire')
+  const collegeClassrooms = classrooms.filter((classroom: any) => 
+    classroom.gradeLevel?.category === 'COLLEGE'
   ).length;
-  const secondaryClassrooms = classrooms.filter((classroom: any) => 
-    classroom.gradeLevel?.name?.toLowerCase().includes('secondaire')
+  const lyceeClassrooms = classrooms.filter((classroom: any) => 
+    classroom.gradeLevel?.category === 'LYCEE'
   ).length;
-  const averageCapacity = classrooms.length > 0 
-    ? Math.round(classrooms.reduce((sum: number, classroom: any) => sum + (classroom.capacity || 30), 0) / classrooms.length)
-    : 0;
+  const classesWithHeadTeacher = classrooms.filter((classroom: any) => 
+    classroom.headTeacherId && classroom.headTeacherId !== null
+  ).length;
 
   return (
     <div className="space-y-8">
@@ -53,23 +53,23 @@ export default async function ClassroomsPage() {
           color="blue"
         />
         <StatsCard
-          title="Classes primaires"
-          value={primaryClassrooms}
-          description="Cycle primaire"
+          title="Classes collège"
+          value={collegeClassrooms}
+          description="Collège"
           icon={BookOpen}
           color="green"
         />
         <StatsCard
-          title="Classes secondaires"
-          value={secondaryClassrooms}
-          description="Cycle secondaire"
+          title="Classes lycée"
+          value={lyceeClassrooms}
+          description="Lycée"
           icon={GraduationCap}
           color="purple"
         />
         <StatsCard
-          title="Capacité moyenne"
-          value={averageCapacity}
-          description="Élèves par classe"
+          title="Classes avec enseignant principal"
+          value={classesWithHeadTeacher}
+          description="Classes assignées"
           icon={Users}
           color="indigo"
         />

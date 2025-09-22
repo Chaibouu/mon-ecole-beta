@@ -46,7 +46,7 @@ const features = [
   {
     icon: Users,
     title: "Corps Enseignant",
-    description: "Gestion des professeurs, matières, emplois du temps et évaluations",
+    description: "Gestion des enseignants, matières, emplois du temps et évaluations",
     color: "bg-green-500"
   },
   {

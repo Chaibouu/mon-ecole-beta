@@ -359,7 +359,7 @@ export function AttendanceAnalyticsClient({
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="daily">Par jour</TabsTrigger>
             <TabsTrigger value="subjects">Par matière</TabsTrigger>
-            <TabsTrigger value="teachers">Par professeur</TabsTrigger>
+            <TabsTrigger value="teachers">Par enseignant</TabsTrigger>
           </TabsList>
 
           {/* Vue d'ensemble - Graphiques */}
@@ -480,7 +480,7 @@ export function AttendanceAnalyticsClient({
                         <div>
                           <h4 className="font-semibold text-lg">{day.dayName}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {day.subjectsCount} matière(s) • {day.teachersCount} professeur(s)
+                            {day.subjectsCount} matière(s) • {day.teachersCount} enseignant(s)
                           </p>
                         </div>
                         <Badge variant={day.rate >= 90 ? "default" : day.rate >= 75 ? "secondary" : "destructive"}>
@@ -509,7 +509,7 @@ export function AttendanceAnalyticsClient({
                       
                       <div className="text-sm text-muted-foreground">
                         <p><strong>Matières:</strong> {day.subjects}</p>
-                        <p><strong>Professeurs:</strong> {day.teachers}</p>
+                        <p><strong>Enseignants:</strong> {day.teachers}</p>
                       </div>
                     </div>
                   ))}
@@ -567,13 +567,13 @@ export function AttendanceAnalyticsClient({
             </Card>
           </TabsContent>
 
-          {/* Vue par professeur */}
+          {/* Vue par enseignant */}
           <TabsContent value="teachers" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <GraduationCap className="h-5 w-5" />
-                  Analyse par professeur
+                  Analyse par enseignant
                 </CardTitle>
               </CardHeader>
               <CardContent>

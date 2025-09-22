@@ -44,11 +44,14 @@ import {
   Phone,
   MapPin,
   RefreshCw,
-  Heart
+  Heart,
+  Key
 } from "lucide-react";
 import { deleteParent } from "@/actions/parents";
 import { toast } from "sonner";
 import Link from "next/link";
+import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
+import { useSession } from "@/context/SessionContext";
 
 interface ParentsTableProps {
   parents: any[];
@@ -60,6 +63,7 @@ export function ParentsTable({ parents, students, onRefresh }: ParentsTableProps
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const { user } = useSession();
 
   const handleDelete = async (parentId: string, parentName: string) => {
     if (confirm(`Êtes-vous sûr de vouloir supprimer le parent "${parentName}" ?`)) {
@@ -241,6 +245,7 @@ export function ParentsTable({ parents, students, onRefresh }: ParentsTableProps
       enableHiding: false,
       cell: ({ row }) => {
         const parent = row.original;
+        const isAdmin = user?.role === "ADMIN";
 
         return (
           <DropdownMenu>
@@ -265,6 +270,18 @@ export function ParentsTable({ parents, students, onRefresh }: ParentsTableProps
                   Modifier
                 </Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <ChangePasswordDialog
+                  userId={parent.user?.id || parent.id}
+                  userName={parent.user?.name || parent.user?.email || "ce parent"}
+                  userType="parent"
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Key className="mr-2 h-4 w-4" />
+                    Modifier le mot de passe
+                  </DropdownMenuItem>
+                </ChangePasswordDialog>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDelete(parent.id, parent.user?.name || "ce parent")}

@@ -96,7 +96,8 @@ export const getUserProfile = cache(async () => {
         currentAccessToken !== accessToken
           ? {
               accessToken: currentAccessToken,
-              expiresAt: Date.now() + 60 * 60 * 1000, // 1h
+              // Aligner sur 1 an pour cohérence avec les routes auth
+              expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000,
             }
           : undefined,
     };
@@ -147,7 +148,7 @@ export const getUserBasic = cache(async () => {
         currentAccessToken !== accessToken
           ? {
               accessToken: currentAccessToken,
-              expiresAt: Date.now() + 60 * 60 * 1000,
+              expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000, // 1 an
             }
           : undefined,
     };

@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { TeacherCreateSchema } from "@/schemas/membership";
 import { ensureSchoolAccess } from "@/lib/school-access";
 
-// POST /api/schools/[id]/teachers - créer/relier un professeur
+// POST /api/schools/[id]/teachers - créer/relier un enseignant
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

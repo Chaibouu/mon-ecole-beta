@@ -160,9 +160,9 @@ export function StudentGradeForm({
                   type="number" 
                   min="0" 
                   step="0.5"
-                  placeholder="0"
+                  placeholder=""
                   {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                 />
               </FormControl>
               <FormMessage />

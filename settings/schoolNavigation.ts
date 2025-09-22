@@ -135,7 +135,7 @@ export const schoolNavigation: NavigationGroup[] = [
       //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
       //     },
       //     {
-      //       title: "Professeurs",
+      //       title: "Enseignants",
       //       path: "/users/teachers",
       //       allowedRoles: ["SUPER_ADMIN", "ADMIN"],
       //     },
@@ -336,7 +336,7 @@ export const schoolNavigation: NavigationGroup[] = [
         icon: UserPlus,
         path: "/teacher-assignments",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
-        description: "Attribution des professeurs aux classes",
+        description: "Attribution des enseignants aux classes",
         children: [
           {
             title: "Liste des affectations",
@@ -370,19 +370,19 @@ export const schoolNavigation: NavigationGroup[] = [
         ],
       },
       {
-        title: "Professeurs",
+        title: "Enseignants",
         icon: Users2,
         path: "/teachers",
         allowedRoles: ["SUPER_ADMIN", "ADMIN"],
         description: "Gestion du corps enseignant",
         children: [
           {
-            title: "Liste des professeurs",
+            title: "Liste des enseignants",
             path: "/teachers",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },
           {
-            title: "Ajouter un professeur",
+            title: "Ajouter un enseignant",
             path: "/teachers/create",
             allowedRoles: ["SUPER_ADMIN", "ADMIN"],
           },

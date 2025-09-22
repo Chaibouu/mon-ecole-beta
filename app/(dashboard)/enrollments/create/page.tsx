@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnrollmentFormWrapper } from "@/components/enrollments/enrollment-form-wrapper";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, UserPlus } from "lucide-react";
 import { listStudents } from "@/actions/school-members";
 import { listClassrooms } from "@/actions/classrooms";
 import { listAcademicYears } from "@/actions/academic-years";
@@ -27,11 +27,27 @@ export default async function CreateEnrollmentPage() {
             Retour
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">Créer une inscription</h1>
           <p className="text-muted-foreground">
             Inscrivez un élève dans une classe pour une année académique
           </p>
+        </div>
+        
+        {/* Boutons de création rapide */}
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/students/create?returnTo=/enrollments/create">
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvel élève
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/parents/create?returnTo=/enrollments/create">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nouveau parent
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -51,6 +67,7 @@ export default async function CreateEnrollmentPage() {
     </div>
   );
 }
+
 
 
 

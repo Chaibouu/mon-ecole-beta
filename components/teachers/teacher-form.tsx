@@ -103,7 +103,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       email: initialData?.email || "",
       phone: initialData?.phone || "",
       password: "",
-      // Champs du profil professeur
+      // Champs du profil enseignant
       bio: initialData?.bio || "",
       employeeNumber: initialData?.employeeNumber || "",
       gender: initialData?.gender || "",
@@ -127,7 +127,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       email: "",
       phone: "",
       password: "",
-      // Champs du profil professeur
+      // Champs du profil enseignant
       bio: "",
       employeeNumber: "",
       gender: "",
@@ -164,7 +164,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
       if (result?.error) {
         toast.error(result.error);
       } else {
-        toast.success(mode === "create" ? "Professeur créé avec succès" : "Professeur mis à jour avec succès");
+        toast.success(mode === "create" ? "Enseignant créé avec succès" : "Enseignant mis à jour avec succès");
         form.reset();
         onSuccess?.();
       }
@@ -576,7 +576,7 @@ export function TeacherForm({ mode, initialData, teacherId, onSuccess }: Teacher
                   <FormLabel>Biographie</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Biographie du professeur..."
+                      placeholder="Biographie de l'enseignant..."
                       className="resize-none"
                       {...field}
                     />

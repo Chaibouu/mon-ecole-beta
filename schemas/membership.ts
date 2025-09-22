@@ -45,7 +45,7 @@ export const CreateNewUserSchema = z.object({
 export const TeacherCreateSchema = z.union([
   LinkExistingUserSchema,
   CreateNewUserSchema.extend({
-    // Champs du profil professeur
+    // Champs du profil enseignant
     bio: z.string().optional(),
     employeeNumber: z.string().optional(),
     gender: z.string().optional(),
@@ -82,7 +82,7 @@ export const TeacherUpdateSchema = z
           "Format invalide. Utilisez un numéro de téléphone international (ex: +227XXXXXXXX)",
       })
       .optional(),
-    // Champs du profil professeur
+    // Champs du profil enseignant
     bio: z.string().optional(),
     employeeNumber: z.string().optional(),
     gender: z.string().optional(),

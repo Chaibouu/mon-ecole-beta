@@ -26,7 +26,7 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     feeScheduleId: "",
-    amountCents: 0,
+    amountCents: null as number | null,
     notes: "",
   });
 
@@ -58,7 +58,7 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
       setOpen(false);
       setFormData({
         feeScheduleId: "",
-        amountCents: 0,
+        amountCents: null,
         notes: "",
       });
       onPaymentCreated();
@@ -191,7 +191,7 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
                 setFormData(prev => ({ 
                   ...prev, 
                   feeScheduleId: option?.value || "",
-                  amountCents: feeSchedule?.amountCents || 0
+                  amountCents: feeSchedule?.amountCents || null
                 }));
               }}
               placeholder="Sélectionner les frais de scolarité..."
@@ -216,12 +216,12 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
               id="amountCents"
               type="number"
               min="1"
-              value={formData.amountCents / 100}
+              value={formData.amountCents ? formData.amountCents / 100 : ""}
               onChange={(e) => setFormData(prev => ({ 
                 ...prev, 
-                amountCents: Math.round(parseFloat(e.target.value || "0") * 100)
+                amountCents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null
               }))}
-              placeholder="0"
+              placeholder=""
               className="text-lg font-medium"
             />
             {selectedFeeSchedule && (
@@ -229,12 +229,12 @@ export function CreatePaymentDialog({ studentId, unpaidFeeSchedules, onPaymentCr
                 <p className="text-sm text-blue-800">
                   <span className="font-medium">Montant total des frais:</span> {formatCurrency(selectedFeeSchedule.amountCents)}
                 </p>
-                {formData.amountCents > 0 && formData.amountCents < selectedFeeSchedule.amountCents && (
+                {formData.amountCents && formData.amountCents > 0 && formData.amountCents < selectedFeeSchedule.amountCents && (
                   <p className="text-sm text-amber-700 mt-1">
                     <span className="font-medium">Reste à payer:</span> {formatCurrency(selectedFeeSchedule.amountCents - formData.amountCents)}
                   </p>
                 )}
-                {formData.amountCents >= selectedFeeSchedule.amountCents && (
+                {formData.amountCents && formData.amountCents >= selectedFeeSchedule.amountCents && (
                   <p className="text-sm text-green-700 mt-1 font-medium">
                     ✓ Frais entièrement payés
                   </p>

@@ -230,9 +230,9 @@ export function AssessmentForm({
                     type="number" 
                     min="1" 
                     step="1"
-                    placeholder="20"
+                    placeholder=""
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 20)}
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                   />
                 </FormControl>
                 <FormMessage />

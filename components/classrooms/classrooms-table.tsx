@@ -23,6 +23,7 @@ export type Classroom = {
   gradeLevelId: string;
   gradeLevel?: {
     name: string;
+    category: string;
   };
   description?: string;
   schoolId: string;
@@ -72,7 +73,15 @@ export function ClassroomsTable({ classrooms, onRefresh }: ClassroomsTableProps)
       header: "Niveau scolaire",
       cell: ({ row }) => {
         const gradeLevel = row.original.gradeLevel;
-        return gradeLevel?.name || "N/A";
+        if (!gradeLevel) return "N/A";
+        
+        const categoryLabel = gradeLevel.category === 'COLLEGE' ? 'Collège' : 'Lycée';
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium">{gradeLevel.name}</span>
+            <span className="text-xs text-muted-foreground">{categoryLabel}</span>
+          </div>
+        );
       },
     },
     // {

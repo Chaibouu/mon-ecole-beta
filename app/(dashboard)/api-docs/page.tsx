@@ -296,7 +296,7 @@ Réponse:
                   <ul className="list-disc pl-4 text-xs space-y-1">
                     <li>Détection automatique du cours en cours selon l'heure actuelle</li>
                     <li>Comparaison avec l'emploi du temps de l'enfant</li>
-                    <li>Vérification si le professeur a pris la présence</li>
+                    <li>Vérification si l'enseignant a pris la présence</li>
                     <li>Retour du statut ou "non disponible"</li>
                   </ul>
                 </div>
@@ -493,9 +493,9 @@ Réponse si cours en cours et présence prise :
               <p><b>Fonctionnalités :</b></p>
               <ul className="list-disc pl-4 text-xs">
                 <li>Détection automatique du cours en cours selon l'heure actuelle</li>
-                <li>Vérification si le professeur a pris la présence</li>
+                <li>Vérification si l'enseignant a pris la présence</li>
                 <li>Retour du statut de présence ou "non disponible"</li>
-                <li>Informations complètes sur le cours (matière, professeur, horaires)</li>
+                <li>Informations complètes sur le cours (matière, enseignant, horaires)</li>
               </ul>
               <p><b>Cas d'usage :</b> Application mobile pour consultation instantanée</p>
               <p><b>Réponse :</b></p>
@@ -531,7 +531,7 @@ Réponse si cours en cours et présence prise :
               <p><b>États possibles :</b></p>
               <ul className="list-disc pl-4 text-xs">
                 <li><b>Aucun cours :</b> currentSession: null, message: "Aucun cours en cours actuellement"</li>
-                <li><b>Présence non prise :</b> attendance: null, message: "Présence non encore prise par le professeur"</li>
+                <li><b>Présence non prise :</b> attendance: null, message: "Présence non encore prise par l'enseignant"</li>
                 <li><b>Présence prise :</b> attendance: {"{...}"}, message: "Présent en cours" / "Absent du cours" / etc.</li>
               </ul>
             </div>

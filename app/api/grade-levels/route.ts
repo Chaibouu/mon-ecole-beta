@@ -43,13 +43,17 @@ export async function POST(req: Request) {
       const error = parsed.error.issues.map(i => i.message).join(", ");
       return NextResponse.json({ error }, { status: 400 });
     }
-    const { name, description } = parsed.data;
+    const { name, description, category } = parsed.data;
     const item = await db.gradeLevel.create({
-      data: { schoolId, name, description: description ?? null },
+      data: {
+        schoolId,
+        name,
+        description: description ?? null,
+        category: category ?? "COLLEGE",
+      },
     });
     return NextResponse.json({ gradeLevel: item }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
-

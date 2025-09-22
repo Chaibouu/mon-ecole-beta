@@ -414,7 +414,7 @@ export async function createTeacher(input: any) {
 
       payload = {
         user: { name, email, phone, password },
-        // Ajouter tous les champs du profil professeur
+        // Ajouter tous les champs du profil enseignant
         bio: input?.bio,
         employeeNumber: input?.employeeNumber,
         gender: input?.gender,

@@ -18,16 +18,16 @@ export default async function CreateTeacherPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Créer un professeur</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Créer un enseignant</h1>
           <p className="text-muted-foreground">
-            Ajoutez un nouveau professeur à votre établissement
+            Ajoutez un nouvel enseignant à votre établissement
           </p>
         </div>
       </div>
 
       <Card className="max-w-4xl">
         <CardHeader>
-          <CardTitle>Informations du professeur</CardTitle>
+          <CardTitle>Informations de l'enseignant</CardTitle>
         </CardHeader>
         <CardContent>
           <TeacherFormWrapper mode="create" initialData={{ __subjects: subjects }} />

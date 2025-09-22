@@ -12,31 +12,30 @@ export default async function TeachersPage() {
     listTeachers(),
     listSubjects(),
   ]);
-  if (data?.error) {
-    throw new Error(data.error);
-  }
-  const teachers = Array.isArray(data?.teachers) ? data.teachers : [];
-  const subjects = Array.isArray(subjectsRes?.subjects) ? subjectsRes.subjects : [];
+  
+  // Handle authentication errors gracefully
+  const teachers = data?.error ? [] : (Array.isArray(data?.teachers) ? data.teachers : []);
+  const subjects = subjectsRes?.error ? [] : (Array.isArray(subjectsRes?.subjects) ? subjectsRes.subjects : []);
 
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Professeurs"
+        title="Enseignants"
         description="Gérez le corps enseignant et leurs matières"
         icon={Users2}
         actions={
           <Button asChild>
             <Link href="/teachers/create">
               <Plus className="mr-2 h-4 w-4" />
-              Ajouter un professeur
+              Ajouter un enseignant
             </Link>
           </Button>
         }
       />
 
       <EnhancedCard
-        title="Liste des professeurs"
-        description="Consultez et modifiez les informations des professeurs"
+        title="Liste des enseignants"
+        description="Consultez et modifiez les informations des enseignants"
         icon={UserCheck}
         gradient={true}
       >

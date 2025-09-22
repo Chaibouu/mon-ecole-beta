@@ -71,7 +71,7 @@ export default function   SchoolFeesClient({
   // Form state
   const [formData, setFormData] = useState({
     itemName: "",
-    amountCents: 0,
+    amountCents: null as number | null,
     gradeLevelId: "",
     classroomId: "",
     dueDate: "",
@@ -123,7 +123,7 @@ export default function   SchoolFeesClient({
   const resetForm = () => {
     setFormData({
       itemName: "",
-      amountCents: 0,
+      amountCents: null,
       gradeLevelId: "",
       classroomId: "",
       dueDate: "",
@@ -134,7 +134,7 @@ export default function   SchoolFeesClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.itemName || formData.amountCents <= 0) {
+    if (!formData.itemName || !formData.amountCents || formData.amountCents <= 0) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -388,10 +388,10 @@ export default function   SchoolFeesClient({
                         <Input
                           id="amountCents"
                           type="number"
-                          value={formData.amountCents / 100}
+                          value={formData.amountCents ? formData.amountCents / 100 : ""}
                           onChange={(e) => setFormData(prev => ({ 
                             ...prev, 
-                            amountCents: Math.round(parseFloat(e.target.value || "0") * 100)
+                            amountCents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null
                           }))}
                           placeholder="50000"
                           min="0"

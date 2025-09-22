@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { getUserIdFromToken } from "@/lib/tokens";
 import { requireSchoolRole } from "@/lib/acl";
 
-// GET /api/teachers/[id] - détail d'un professeur
+// GET /api/teachers/[id] - détail d'un enseignant
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

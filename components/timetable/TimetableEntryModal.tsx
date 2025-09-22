@@ -57,10 +57,10 @@ export function TimetableEntryModal({
             </Select>
           </div>
           <div>
-            <div className="text-sm mb-1">Professeur</div>
+            <div className="text-sm mb-1">Enseignant</div>
             <Select value={teacherId} onValueChange={setTeacherId}>
               <SelectTrigger>
-                <SelectValue placeholder="Choisir un professeur" />
+                <SelectValue placeholder="Choisir un enseignant" />
               </SelectTrigger>
               <SelectContent>
                 {teachers.map(t => (
@@ -101,6 +101,7 @@ export function TimetableEntryModal({
     </div>
   );
 }
+
 
 
 
